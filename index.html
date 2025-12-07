@@ -106,10 +106,10 @@
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(20px);
       border: 2px solid rgba(218, 165, 32, 0.3);
-      border-radius: 30px;
-      padding: 50px 40px;
+      border-radius: 20px;
+      padding: 30px 30px;
       width: 100%;
-      max-width: 500px;
+      max-width: 380px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(218, 165, 32, 0.1);
       position: relative;
       overflow: hidden;
@@ -131,10 +131,6 @@
       animation: gradientShift 3s ease infinite;
     }
 
-    .login-card:hover::before {
-      opacity: 0.3;
-    }
-
     @keyframes gradientShift {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -142,26 +138,21 @@
 
     .logo-container {
       text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
     }
 
     .logo {
-      width: 200px;
+      width: 140px;
       height: auto;
-      margin-bottom: 25px;
+      margin-bottom: 15px;
       filter: drop-shadow(0 5px 15px rgba(218, 165, 32, 0.3));
-      transition: transform 0.3s ease;
-    }
-
-    .logo:hover {
-      transform: scale(1.05);
     }
 
     .login-title {
-      font-size: 32px;
+      font-size: 24px;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       background: linear-gradient(135deg, #FFD700 0%, #DAA520 50%, #B8860B 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -169,22 +160,22 @@
     }
 
     .login-subtitle {
-      font-size: 16px;
+      font-size: 14px;
       text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
       color: #cccccc;
       font-weight: 400;
     }
 
     .form-group {
-      margin-bottom: 25px;
+      margin-bottom: 18px;
       position: relative;
     }
 
     .form-label {
       display: block;
-      margin-bottom: 10px;
-      font-size: 15px;
+      margin-bottom: 8px;
+      font-size: 13px;
       font-weight: 600;
       color: #DAA520;
       text-transform: uppercase;
@@ -197,12 +188,12 @@
 
     .form-input {
       width: 100%;
-      padding: 16px 20px;
+      padding: 12px 16px;
       background: rgba(255, 255, 255, 0.05);
       border: 2px solid rgba(218, 165, 32, 0.3);
-      border-radius: 12px;
+      border-radius: 10px;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 14px;
       transition: all 0.3s ease;
     }
 
@@ -219,17 +210,17 @@
 
     .login-button {
       width: 100%;
-      padding: 18px;
+      padding: 14px;
       background: linear-gradient(135deg, #DAA520 0%, #FFD700 50%, #DAA520 100%);
       background-size: 200% 200%;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       color: #000000;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.4s ease;
-      margin-top: 15px;
+      margin-top: 10px;
       text-transform: uppercase;
       letter-spacing: 1px;
       box-shadow: 0 5px 20px rgba(218, 165, 32, 0.4);
@@ -308,11 +299,16 @@
       justify-content: space-between;
       align-items: center;
       position: fixed;
-      top: 0;
+      top: -80px;
       left: 0;
       right: 0;
       z-index: 1000;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      transition: top 0.3s ease;
+    }
+
+    .dashboard-header.visible {
+      top: 0;
     }
 
     .dashboard-logo {
@@ -341,7 +337,7 @@
 
     .button-panel {
       position: fixed;
-      right: 20px;
+      right: -200px;
       top: 100px;
       display: flex;
       flex-direction: column;
@@ -350,10 +346,8 @@
       transition: all 0.3s ease;
     }
 
-    .button-panel.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(100px);
+    .button-panel.visible {
+      right: 20px;
     }
 
     .nav-button {
@@ -403,10 +397,20 @@
       color: #FFD700;
     }
 
+    .hover-trigger {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 150px;
+      height: 150px;
+      z-index: 999;
+      pointer-events: auto;
+    }
+
     .content-area {
       width: 100%;
       height: 100%;
-      padding-top: 70px;
+      padding-top: 0;
     }
 
     .content-frame {
@@ -416,60 +420,24 @@
       background: #000000;
     }
 
-    .toggle-button {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(218, 165, 32, 0.4);
-      border-radius: 10px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      transition: all 0.3s ease;
-    }
 
-    .toggle-button:hover {
-      background: rgba(218, 165, 32, 0.2);
-      border-color: rgba(255, 215, 0, 0.6);
-      box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
-    }
-
-    .toggle-button.visible {
-      display: flex;
-    }
-
-    .hamburger {
-      width: 24px;
-      height: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .hamburger span {
-      width: 100%;
-      height: 3px;
-      background: #DAA520;
-      border-radius: 2px;
-    }
 
     @media (max-width: 768px) {
       .login-card {
-        padding: 40px 30px;
+        padding: 25px 20px;
+        max-width: 340px;
       }
 
       .logo {
-        width: 160px;
+        width: 120px;
       }
 
       .login-title {
-        font-size: 26px;
+        font-size: 20px;
+      }
+
+      .login-subtitle {
+        font-size: 12px;
       }
 
       .dashboard-header {
@@ -478,13 +446,12 @@
         padding: 15px;
       }
 
-      .button-panel {
+      .button-panel.visible {
         right: 10px;
-        top: 140px;
       }
 
-      .toggle-button {
-        top: 120px;
+      .button-panel {
+        top: 140px;
       }
     }
   </style>
@@ -500,7 +467,7 @@
     <div class="login-card">
      <div class="logo-container"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="logo" onerror="this.style.display='none'; this.alt='Logo failed to load';">
      </div>
-     <h1 class="login-title" id="loginTitle">مرحباً بك</h1>
+     <h1 class="login-title" id="loginTitle">م��حباً بك</h1>
      <p class="login-subtitle" id="loginSubtitle">سجل دخولك للمتابعة</p>
      <div class="error-message" id="errorMessage">
       اسم المستخدم أو كلمة المرور غير صحيحة
@@ -518,12 +485,11 @@
     </div>
    </div>
    <div class="dashboard" id="dashboard">
-    <header class="dashboard-header"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
+    <div class="hover-trigger" id="hoverTrigger"></div>
+    <header class="dashboard-header" id="dashboardHeader"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
     </header>
     <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresBtn" data-url="https://portaragetiers.netlify.app">التواير</button> <button class="nav-button" id="batteryBtn" data-url="https://portaragebattery.netlify.app/">البطاريات</button> <button class="nav-button" id="oilsBtn" data-url="https://portarageoils.netlify.app/">الزيت والفلتر</button>
-    </div><button class="toggle-button" id="toggleButton">
-     <div class="hamburger"><span></span> <span></span> <span></span>
-     </div></button>
+    </div>
     <div class="content-area"><iframe class="content-frame" id="contentFrame"></iframe>
     </div>
    </div>
@@ -584,13 +550,35 @@
     const errorMessage = document.getElementById('errorMessage');
     const logoutButton = document.getElementById('logoutButton');
     const buttonPanel = document.getElementById('buttonPanel');
-    const toggleButton = document.getElementById('toggleButton');
     const contentFrame = document.getElementById('contentFrame');
     const tiresBtn = document.getElementById('tiresBtn');
     const batteryBtn = document.getElementById('batteryBtn');
     const oilsBtn = document.getElementById('oilsBtn');
+    const hoverTrigger = document.getElementById('hoverTrigger');
+    const dashboardHeader = document.getElementById('dashboardHeader');
 
     let currentActiveButton = null;
+
+    // Show header and buttons on hover at top-right corner
+    hoverTrigger.addEventListener('mouseenter', function() {
+      dashboardHeader.classList.add('visible');
+      buttonPanel.classList.add('visible');
+    });
+
+    // Hide header and buttons when mouse leaves
+    dashboardHeader.addEventListener('mouseleave', function(e) {
+      if (!buttonPanel.matches(':hover')) {
+        dashboardHeader.classList.remove('visible');
+        buttonPanel.classList.remove('visible');
+      }
+    });
+
+    buttonPanel.addEventListener('mouseleave', function() {
+      if (!dashboardHeader.matches(':hover')) {
+        dashboardHeader.classList.remove('visible');
+        buttonPanel.classList.remove('visible');
+      }
+    });
 
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -617,8 +605,8 @@
         currentActiveButton.classList.remove('active');
         currentActiveButton = null;
       }
-      buttonPanel.classList.remove('hidden');
-      toggleButton.classList.remove('visible');
+      dashboardHeader.classList.remove('visible');
+      buttonPanel.classList.remove('visible');
     });
 
     function loadContent(url, button) {
@@ -630,8 +618,11 @@
       button.classList.add('active');
       currentActiveButton = button;
 
-      buttonPanel.classList.add('hidden');
-      toggleButton.classList.add('visible');
+      // Hide header and buttons after selection
+      setTimeout(() => {
+        dashboardHeader.classList.remove('visible');
+        buttonPanel.classList.remove('visible');
+      }, 300);
     }
 
     tiresBtn.addEventListener('click', function() {
@@ -644,10 +635,6 @@
 
     oilsBtn.addEventListener('click', function() {
       loadContent(this.dataset.url, this);
-    });
-
-    toggleButton.addEventListener('click', function() {
-      buttonPanel.classList.toggle('hidden');
     });
 
     async function onConfigChange(newConfig) {
@@ -674,25 +661,25 @@
       document.getElementById('batteryBtn').textContent = newConfig.button_battery || defaultConfig.button_battery;
       document.getElementById('oilsBtn').textContent = newConfig.button_oils || defaultConfig.button_oils;
 
-      document.querySelector('.login-title').style.fontSize = `${baseFontSize * 2}px`;
-      document.querySelector('.login-subtitle').style.fontSize = `${baseFontSize}px`;
+      document.querySelector('.login-title').style.fontSize = `${baseFontSize * 1.5}px`;
+      document.querySelector('.login-subtitle').style.fontSize = `${baseFontSize * 0.875}px`;
       document.querySelector('.login-subtitle').style.color = textColor;
 
       const formLabels = document.querySelectorAll('.form-label');
       formLabels.forEach(label => {
-        label.style.fontSize = `${baseFontSize * 0.9375}px`;
+        label.style.fontSize = `${baseFontSize * 0.8125}px`;
         label.style.color = accentColor;
       });
 
       const formInputs = document.querySelectorAll('.form-input');
       formInputs.forEach(input => {
-        input.style.fontSize = `${baseFontSize}px`;
+        input.style.fontSize = `${baseFontSize * 0.875}px`;
         input.style.color = textColor;
         input.style.borderColor = `rgba(${hexToRgb(accentColor)}, 0.3)`;
       });
 
       const loginBtn = document.querySelector('.login-button');
-      loginBtn.style.fontSize = `${baseFontSize * 1.125}px`;
+      loginBtn.style.fontSize = `${baseFontSize}px`;
 
       const navButtons = document.querySelectorAll('.nav-button');
       navButtons.forEach(button => {
@@ -703,14 +690,6 @@
 
       const logoutBtn = document.querySelector('.logout-button');
       logoutBtn.style.fontSize = `${baseFontSize * 0.9375}px`;
-
-      const toggleBtn = document.querySelector('.toggle-button');
-      toggleBtn.style.borderColor = `rgba(${hexToRgb(accentColor)}, 0.4)`;
-
-      const hamburgerSpans = document.querySelectorAll('.hamburger span');
-      hamburgerSpans.forEach(span => {
-        span.style.background = accentColor;
-      });
     }
 
     function hexToRgb(hex) {
@@ -805,5 +784,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa6b76c10bf7cc9',t:'MTc2NTEzODc1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa6fc3b07227cc9',t:'MTc2NTE0MTU2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
