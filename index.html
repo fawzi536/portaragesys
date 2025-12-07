@@ -312,18 +312,18 @@
     }
 
     .dashboard-logo {
-      width: 120px;
+      width: 90px;
       height: auto;
       filter: drop-shadow(0 3px 10px rgba(218, 165, 32, 0.3));
     }
 
     .logout-button {
-      padding: 10px 24px;
+      padding: 8px 18px;
       background: rgba(220, 53, 69, 0.2);
       border: 2px solid rgba(220, 53, 69, 0.5);
       border-radius: 8px;
       color: #ff6b6b;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -342,8 +342,9 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
-      z-index: 100;
+      z-index: 1001;
       transition: all 0.3s ease;
+      pointer-events: auto;
     }
 
     .button-panel.visible {
@@ -351,20 +352,22 @@
     }
 
     .nav-button {
-      padding: 18px 28px;
+      padding: 12px 20px;
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
       border: 2px solid rgba(218, 165, 32, 0.4);
-      border-radius: 12px;
+      border-radius: 10px;
       color: #DAA520;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
-      min-width: 180px;
+      min-width: 140px;
       position: relative;
       overflow: hidden;
+      pointer-events: auto;
+      z-index: 1002;
     }
 
     .nav-button::before {
@@ -401,9 +404,9 @@
       position: fixed;
       top: 0;
       right: 0;
-      width: 150px;
-      height: 150px;
-      z-index: 999;
+      width: 200px;
+      height: 200px;
+      z-index: 50;
       pointer-events: auto;
     }
 
@@ -580,6 +583,12 @@
       }
     });
 
+    // Check if user is already logged in
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      loginContainer.style.display = 'none';
+      dashboard.classList.add('active');
+    }
+
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
@@ -587,6 +596,7 @@
 
       if (users[username] && users[username] === password) {
         errorMessage.classList.remove('show');
+        sessionStorage.setItem('isLoggedIn', 'true');
         loginContainer.style.display = 'none';
         dashboard.classList.add('active');
       } else {
@@ -595,6 +605,7 @@
     });
 
     logoutButton.addEventListener('click', function() {
+      sessionStorage.removeItem('isLoggedIn');
       dashboard.classList.remove('active');
       loginContainer.style.display = 'flex';
       document.getElementById('username').value = '';
@@ -617,12 +628,6 @@
       }
       button.classList.add('active');
       currentActiveButton = button;
-
-      // Hide header and buttons after selection
-      setTimeout(() => {
-        dashboardHeader.classList.remove('visible');
-        buttonPanel.classList.remove('visible');
-      }, 300);
     }
 
     tiresBtn.addEventListener('click', function() {
@@ -784,5 +789,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa6fc3b07227cc9',t:'MTc2NTE0MTU2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa70506804d7cc9',t:'MTc2NTE0MTkzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
