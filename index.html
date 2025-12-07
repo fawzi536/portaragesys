@@ -474,7 +474,7 @@
     <div class="login-card">
      <div class="logo-container"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="logo" onerror="this.style.display='none'; this.alt='Logo failed to load';">
      </div>
-     <h1 class="login-title" id="loginTitle">مرحباً بك</h1>
+     <h1 class="login-title" id="loginTitle">م��حباً بك</h1>
      <p class="login-subtitle" id="loginSubtitle">سجل دخولك للمتابعة</p>
      <div class="error-message" id="errorMessage">
       اسم المستخدم أو كلمة المرور غير صحيحة
@@ -572,19 +572,34 @@
       buttonPanel.classList.add('visible');
     });
 
-    // Hide header and buttons when mouse leaves
-    dashboardHeader.addEventListener('mouseleave', function(e) {
-      if (!buttonPanel.matches(':hover')) {
-        dashboardHeader.classList.remove('visible');
-        buttonPanel.classList.remove('visible');
-      }
+    // Hide header and buttons when mouse leaves the trigger area
+    hoverTrigger.addEventListener('mouseleave', function() {
+      setTimeout(function() {
+        if (!dashboardHeader.matches(':hover') && !buttonPanel.matches(':hover')) {
+          dashboardHeader.classList.remove('visible');
+          buttonPanel.classList.remove('visible');
+        }
+      }, 100);
     });
 
+    // Hide when mouse leaves header
+    dashboardHeader.addEventListener('mouseleave', function() {
+      setTimeout(function() {
+        if (!buttonPanel.matches(':hover') && !hoverTrigger.matches(':hover')) {
+          dashboardHeader.classList.remove('visible');
+          buttonPanel.classList.remove('visible');
+        }
+      }, 100);
+    });
+
+    // Hide when mouse leaves button panel
     buttonPanel.addEventListener('mouseleave', function() {
-      if (!dashboardHeader.matches(':hover')) {
-        dashboardHeader.classList.remove('visible');
-        buttonPanel.classList.remove('visible');
-      }
+      setTimeout(function() {
+        if (!dashboardHeader.matches(':hover') && !hoverTrigger.matches(':hover')) {
+          dashboardHeader.classList.remove('visible');
+          buttonPanel.classList.remove('visible');
+        }
+      }, 100);
     });
 
     // Check if user is already logged in
@@ -794,5 +809,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa708f6e7f87cc9',t:'MTc2NTE0MjA5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9aa73c8850397cc9',t:'MTc2NTE0NDIwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
