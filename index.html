@@ -747,7 +747,7 @@
   </main>
   <script>
     const defaultConfig = {
-      login_title: "مرحباً بك",
+      login_title: "م����حباً بك",
       login_subtitle: "سجل دخولك للمتابعة",
       username_label: "اسم المستخدم",
       password_label: "كلمة المرور",
@@ -1207,6 +1207,14 @@
       }, 100);
     });
 
+    // Check if user has saved credentials and auto-fill
+    const savedUsername = localStorage.getItem('savedUsername');
+    const savedPassword = localStorage.getItem('savedPassword');
+    if (savedUsername && savedPassword) {
+      document.getElementById('username').value = savedUsername;
+      document.getElementById('password').value = savedPassword;
+    }
+
     // Check if user is already logged in
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
       loginContainer.classList.add('hide');
@@ -1229,6 +1237,10 @@
       if (users[username] && users[username] === password) {
         errorMessage.classList.remove('show');
         sessionStorage.setItem('isLoggedIn', 'true');
+        
+        // Save username and password to localStorage for auto-fill
+        localStorage.setItem('savedUsername', username);
+        localStorage.setItem('savedPassword', password);
         
         // Show welcome message before dashboard
         const welcomeMessage = document.createElement('div');
@@ -1353,7 +1365,7 @@
       loadPage(tiresSheetFrame, pageUrls.tiresSheet);
     });
 
-    // البطاريات
+    // البطا��يات
     batteryBtn.addEventListener('click', function() {
       loadPage(batteryFrame, pageUrls.battery);
     });
@@ -1486,5 +1498,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b086bab220151ca',t:'MTc2NjE2MzI1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d418e25108308',t:'MTc2NjIxMzk1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
