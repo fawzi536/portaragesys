@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اسعار بورتراج</title>
+  <title>نظام تسجيل الدخول - Portarage</title>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
@@ -294,6 +294,66 @@
       display: block;
     }
 
+    .menu-toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 55px;
+      height: 55px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid rgba(218, 165, 32, 0.6);
+      border-radius: 12px;
+      cursor: pointer;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .menu-toggle-btn:hover {
+      background: rgba(218, 165, 32, 0.2);
+      border-color: rgba(255, 215, 0, 0.8);
+      box-shadow: 0 8px 30px rgba(218, 165, 32, 0.4);
+      transform: scale(1.05);
+    }
+
+    .menu-toggle-btn.active {
+      background: rgba(218, 165, 32, 0.3);
+      border-color: rgba(255, 215, 0, 1);
+      box-shadow: 0 0 40px rgba(218, 165, 32, 0.6);
+    }
+
+    .menu-toggle-btn span {
+      display: block;
+      width: 30px;
+      height: 3px;
+      background: linear-gradient(135deg, #FFD700 0%, #DAA520 100%);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-toggle-btn:hover span {
+      background: linear-gradient(135deg, #FFD700 0%, #FFD700 100%);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .menu-toggle-btn.active span:nth-child(1) {
+      transform: rotate(45deg) translate(8px, 8px);
+    }
+
+    .menu-toggle-btn.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle-btn.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(8px, -8px);
+    }
+
     .dashboard-header {
       background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 15, 0, 0.95) 100%);
       backdrop-filter: blur(10px);
@@ -427,16 +487,6 @@
       color: #FFD700;
     }
 
-    .hover-trigger {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 200px;
-      height: 200px;
-      z-index: 50;
-      pointer-events: auto;
-    }
-
     .welcome-screen {
       width: 100%;
       height: 100%;
@@ -471,65 +521,6 @@
       display: block;
     }
 
-    .welcome-title {
-      font-size: 56px;
-      font-weight: bold;
-      background: linear-gradient(135deg, #FFD700 0%, #DAA520 50%, #B8860B 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 900px;
-      z-index: 100;
-      line-height: 1.4;
-    }
-
-    .floating-shapes {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      cursor: grab;
-    }
-
-    .floating-shapes:active {
-      cursor: grabbing;
-    }
-
-    .physics-object {
-      position: absolute;
-      cursor: grab;
-      transition: filter 0.2s ease;
-      user-select: none;
-    }
-
-    .physics-object:hover {
-      filter: brightness(1.2) drop-shadow(0 0 20px currentColor);
-    }
-
-    .physics-object:active {
-      cursor: grabbing;
-    }
-
-    .tire-svg {
-      width: 80px;
-      height: 80px;
-    }
-
-    .battery-svg {
-      width: 70px;
-      height: 90px;
-    }
-
-    .oil-svg {
-      width: 60px;
-      height: 100px;
-    }
-
     @media (max-width: 768px) {
       .login-card {
         padding: 25px 20px;
@@ -562,19 +553,6 @@
         top: 140px;
         right: -270px;
       }
-
-      .welcome-title {
-        font-size: 32px;
-      }
-
-      .floating-shapes {
-        height: 100%;
-      }
-      
-      .welcome-screen {
-        gap: 20px;
-        padding: 20px;
-      }
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -606,18 +584,14 @@
      </form>
     </div>
    </div><!-- لوحة التحكم -->
-   <div class="dashboard" id="dashboard">
-    <div class="hover-trigger" id="hoverTrigger"></div>
+   <div class="dashboard" id="dashboard"><!-- Menu Toggle Button --> <button class="menu-toggle-btn" id="menuToggle" aria-label="Toggle Menu"> <span></span> <span></span> <span></span> </button>
     <header class="dashboard-header" id="dashboardHeader"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
     </header>
     <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresBtn">التواير</button>
      <div class="sub-buttons" id="tiresSubButtons"><button class="nav-button sub-button" id="tiresIncreaseBtn">➕ زيادات التواير</button> <button class="nav-button sub-button" id="tiresSheetBtn">📋 تواير الشيت</button>
      </div><button class="nav-button" id="batteryBtn">البطاريات</button> <button class="nav-button" id="oilsBtn">الزيت والفلتر</button>
     </div>
-    <div class="welcome-screen" id="welcomeScreen">
-     <h1 class="welcome-title" id="welcomeTitle"></h1>
-     <div class="floating-shapes" id="floatingShapes"></div>
-    </div>
+    <div class="welcome-screen" id="welcomeScreen"></div>
     <div class="content-frame" id="contentFrame"><iframe id="tiresIncreaseFrame"></iframe> <iframe id="tiresSheetFrame"></iframe> <iframe id="batteryFrame"></iframe> <iframe id="oilsFrame"></iframe>
     </div>
    </div>
@@ -685,7 +659,7 @@
     const tiresSheetBtn = document.getElementById('tiresSheetBtn');
     const batteryBtn = document.getElementById('batteryBtn');
     const oilsBtn = document.getElementById('oilsBtn');
-    const hoverTrigger = document.getElementById('hoverTrigger');
+    const menuToggle = document.getElementById('menuToggle');
     const dashboardHeader = document.getElementById('dashboardHeader');
     const welcomeScreen = document.getElementById('welcomeScreen');
     const tiresIncreaseFrame = document.getElementById('tiresIncreaseFrame');
@@ -694,310 +668,8 @@
     const oilsFrame = document.getElementById('oilsFrame');
 
     let currentFrame = null;
-    let titleAnimationComplete = false;
     let tiresSubMenuOpen = false;
-
-    // Title animation function
-    function animateTitle() {
-      const titleElement = document.getElementById('welcomeTitle');
-      if (!titleElement) return;
-      
-      titleElement.innerHTML = '';
-      titleElement.style.display = 'none';
-      titleAnimationComplete = true;
-    }
-
-    // Physics engine variables
-    const objects = [];
-    const gravity = 0;
-    const friction = 0.995;
-    const bounciness = 0.9;
-    let isDragging = false;
-    let draggedObject = null;
-    let mouseX = 0;
-    let mouseY = 0;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-
-    // SVG templates
-    const tireSVG = `<svg class="tire-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="tireGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
-          <stop offset="70%" style="stop-color:#000000;stop-opacity:1" />
-        </radialGradient>
-        <radialGradient id="rimGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
-        </radialGradient>
-      </defs>
-      <circle cx="50" cy="50" r="45" fill="url(#tireGrad)" stroke="#333" stroke-width="2"/>
-      <circle cx="50" cy="50" r="30" fill="url(#rimGrad)" stroke="#B8860B" stroke-width="2"/>
-      <circle cx="50" cy="50" r="15" fill="#1a1a1a" stroke="#DAA520" stroke-width="1"/>
-      <path d="M 50 20 L 50 35 M 80 50 L 65 50 M 50 80 L 50 65 M 20 50 L 35 50" stroke="#B8860B" stroke-width="3" stroke-linecap="round"/>
-    </svg>`;
-
-    const batterySVG = `<svg class="battery-svg" viewBox="0 0 70 90" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="batteryGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#DAA520;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <rect x="15" y="5" width="10" height="5" fill="#FFD700" rx="2"/>
-      <rect x="45" y="5" width="10" height="5" fill="#FFD700" rx="2"/>
-      <rect x="5" y="10" width="60" height="70" fill="url(#batteryGrad)" stroke="#B8860B" stroke-width="2" rx="5"/>
-      <rect x="15" y="25" width="40" height="8" fill="#000000" opacity="0.3" rx="2"/>
-      <rect x="15" y="40" width="40" height="8" fill="#000000" opacity="0.3" rx="2"/>
-      <rect x="15" y="55" width="40" height="8" fill="#000000" opacity="0.3" rx="2"/>
-      <text x="35" y="48" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">+</text>
-    </svg>`;
-
-    const oilSVG = `<svg class="oil-svg" viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="oilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:#DAA520;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#B8860B;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#8B6914;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <rect x="15" y="5" width="30" height="10" fill="#1a1a1a" stroke="#DAA520" stroke-width="1" rx="2"/>
-      <path d="M 20 15 L 15 25 L 15 85 Q 15 95 25 95 L 35 95 Q 45 95 45 85 L 45 25 L 40 15 Z" 
-            fill="url(#oilGrad)" stroke="#B8860B" stroke-width="2"/>
-      <ellipse cx="30" cy="50" rx="8" ry="15" fill="#FFD700" opacity="0.3"/>
-      <rect x="20" y="40" width="20" height="3" fill="#000000" opacity="0.4" rx="1"/>
-      <rect x="20" y="55" width="20" height="3" fill="#000000" opacity="0.4" rx="1"/>
-      <path d="M 25 70 Q 30 75 35 70" stroke="#000000" stroke-width="2" fill="none" opacity="0.3"/>
-    </svg>`;
-
-    const dropSVG = `<svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="dropGrad" cx="40%" cy="30%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#DAA520;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
-        </radialGradient>
-      </defs>
-      <path d="M 20 5 Q 15 15, 10 25 Q 5 35, 10 42 Q 15 48, 20 48 Q 25 48, 30 42 Q 35 35, 30 25 Q 25 15, 20 5 Z" 
-            fill="url(#dropGrad)" stroke="#B8860B" stroke-width="1"/>
-      <ellipse cx="16" cy="20" rx="4" ry="6" fill="#FFD700" opacity="0.4"/>
-    </svg>`;
-
-    class PhysicsObject {
-      constructor(x, y, type, svg) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.type = type;
-        this.rotation = Math.random() * 360;
-        this.rotationSpeed = (Math.random() - 0.5) * 2;
-        this.mass = type === 'battery' ? 1.2 : (type === 'tire' ? 1 : (type === 'drop' ? 0.5 : 0.8));
-        
-        this.element = document.createElement('div');
-        this.element.className = 'physics-object';
-        this.element.innerHTML = svg;
-        this.element.style.left = x + 'px';
-        this.element.style.top = y + 'px';
-        this.element.style.transform = `rotate(${this.rotation}deg)`;
-        
-        const sizes = {
-          tire: { width: 80, height: 80 },
-          battery: { width: 70, height: 90 },
-          oil: { width: 60, height: 100 },
-          drop: { width: 40, height: 50 }
-        };
-        
-        this.width = sizes[type].width;
-        this.height = sizes[type].height;
-        
-        const self = this;
-        this.element.addEventListener('mousedown', function(e) {
-          e.preventDefault();
-          isDragging = true;
-          draggedObject = self;
-          self.vx = 0;
-          self.vy = 0;
-          lastMouseX = e.clientX;
-          lastMouseY = e.clientY;
-        });
-      }
-      
-      update(containerWidth, containerHeight) {
-        if (draggedObject !== this) {
-          this.vy += gravity;
-          this.vx *= friction;
-          this.vy *= friction;
-          
-          this.x += this.vx;
-          this.y += this.vy;
-          this.rotation += this.rotationSpeed;
-          
-          if (this.x <= 0) {
-            this.x = 0;
-            this.vx = Math.abs(this.vx) * bounciness;
-            this.rotationSpeed = -this.rotationSpeed * 0.8;
-          }
-          if (this.x + this.width >= containerWidth) {
-            this.x = containerWidth - this.width;
-            this.vx = -Math.abs(this.vx) * bounciness;
-            this.rotationSpeed = -this.rotationSpeed * 0.8;
-          }
-          if (this.y <= 0) {
-            this.y = 0;
-            this.vy = Math.abs(this.vy) * bounciness;
-            this.rotationSpeed = -this.rotationSpeed * 0.8;
-          }
-          if (this.y + this.height >= containerHeight) {
-            this.y = containerHeight - this.height;
-            this.vy = -Math.abs(this.vy) * bounciness;
-            this.rotationSpeed *= 0.8;
-            if (Math.abs(this.vy) < 0.5) this.vy = 0;
-          }
-        }
-        
-        this.element.style.left = this.x + 'px';
-        this.element.style.top = this.y + 'px';
-        this.element.style.transform = `rotate(${this.rotation}deg)`;
-      }
-      
-      checkCollision(other) {
-        const dx = (this.x + this.width / 2) - (other.x + other.width / 2);
-        const dy = (this.y + this.height / 2) - (other.y + other.height / 2);
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const minDistance = (this.width + other.width) / 3;
-        
-        if (distance < minDistance) {
-          const angle = Math.atan2(dy, dx);
-          const totalMass = this.mass + other.mass;
-          const overlap = minDistance - distance;
-          
-          this.x += Math.cos(angle) * overlap * (other.mass / totalMass);
-          this.y += Math.sin(angle) * overlap * (other.mass / totalMass);
-          other.x -= Math.cos(angle) * overlap * (this.mass / totalMass);
-          other.y -= Math.sin(angle) * overlap * (this.mass / totalMass);
-          
-          const relativeVx = this.vx - other.vx;
-          const relativeVy = this.vy - other.vy;
-          const speed = Math.sqrt(relativeVx * relativeVx + relativeVy * relativeVy);
-          
-          const newVx1 = ((this.mass - other.mass) * this.vx + 2 * other.mass * other.vx) / totalMass;
-          const newVy1 = ((this.mass - other.mass) * this.vy + 2 * other.mass * other.vy) / totalMass;
-          const newVx2 = ((other.mass - this.mass) * other.vx + 2 * this.mass * this.vx) / totalMass;
-          const newVy2 = ((other.mass - this.mass) * other.vy + 2 * this.mass * this.vy) / totalMass;
-          
-          this.vx = newVx1 * bounciness;
-          this.vy = newVy1 * bounciness;
-          other.vx = newVx2 * bounciness;
-          other.vy = newVy2 * bounciness;
-          
-          this.rotationSpeed = (Math.random() - 0.5) * speed;
-          other.rotationSpeed = (Math.random() - 0.5) * speed;
-        }
-      }
-    }
-
-    function initPhysicsObjects() {
-      const container = document.getElementById('floatingShapes');
-      if (!container) return;
-      
-      container.innerHTML = '';
-      objects.length = 0;
-      
-      const containerRect = container.getBoundingClientRect();
-      
-      const types = [
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG },
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG },
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG },
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG },
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG },
-        { type: 'tire', svg: tireSVG },
-        { type: 'drop', svg: dropSVG },
-        { type: 'battery', svg: batterySVG },
-        { type: 'oil', svg: oilSVG }
-      ];
-      
-      const cols = 6;
-      const rows = 4;
-      const marginX = containerRect.width * 0.1;
-      const marginY = containerRect.height * 0.1;
-      const cellWidth = (containerRect.width - marginX * 2) / cols;
-      const cellHeight = (containerRect.height - marginY * 2) / rows;
-      
-      types.forEach((item, index) => {
-        const row = Math.floor(index / cols);
-        const col = index % cols;
-        const x = marginX + col * cellWidth + cellWidth / 2 - 40 + (Math.random() - 0.5) * 30;
-        const y = marginY + row * cellHeight + cellHeight / 2 - 40 + (Math.random() - 0.5) * 30;
-        const obj = new PhysicsObject(x, y, item.type, item.svg);
-        objects.push(obj);
-        container.appendChild(obj.element);
-      });
-    }
-
-    function animate() {
-      const container = document.getElementById('floatingShapes');
-      if (!container || !dashboard.classList.contains('active')) {
-        requestAnimationFrame(animate);
-        return;
-      }
-      
-      const containerRect = container.getBoundingClientRect();
-      
-      objects.forEach(obj => {
-        obj.update(containerRect.width, containerRect.height);
-      });
-      
-      for (let i = 0; i < objects.length; i++) {
-        for (let j = i + 1; j < objects.length; j++) {
-          objects[i].checkCollision(objects[j]);
-        }
-      }
-      
-      requestAnimationFrame(animate);
-    }
-
-    document.addEventListener('mousemove', function(e) {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      
-      if (isDragging && draggedObject) {
-        const container = document.getElementById('floatingShapes');
-        const rect = container.getBoundingClientRect();
-        draggedObject.x = e.clientX - rect.left - draggedObject.width / 2;
-        draggedObject.y = e.clientY - rect.top - draggedObject.height / 2;
-        
-        draggedObject.vx = (e.clientX - lastMouseX) * 0.5;
-        draggedObject.vy = (e.clientY - lastMouseY) * 0.5;
-        
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-      }
-    });
-
-    document.addEventListener('mouseup', function() {
-      if (isDragging && draggedObject) {
-        draggedObject.rotationSpeed = (Math.random() - 0.5) * 10;
-      }
-      isDragging = false;
-      draggedObject = null;
-    });
+    let menuOpen = false;
 
     const pageUrls = {
       tiresIncrease: 'https://portaragetiers.netlify.app/',
@@ -1022,12 +694,15 @@
       
       currentFrame = iframe;
       
+      // إخفاء القائمة بعد 5 ثواني
       if (hideMenuTimeout) {
         clearTimeout(hideMenuTimeout);
       }
       hideMenuTimeout = setTimeout(function() {
+        menuToggle.classList.remove('active');
         dashboardHeader.classList.remove('visible');
         buttonPanel.classList.remove('visible');
+        menuOpen = false;
       }, 5000);
     }
 
@@ -1039,36 +714,21 @@
       currentFrame = null;
     }
 
-    hoverTrigger.addEventListener('mouseenter', function() {
-      dashboardHeader.classList.add('visible');
-      buttonPanel.classList.add('visible');
-    });
-
-    hoverTrigger.addEventListener('mouseleave', function() {
-      setTimeout(function() {
-        if (!dashboardHeader.matches(':hover') && !buttonPanel.matches(':hover')) {
-          dashboardHeader.classList.remove('visible');
-          buttonPanel.classList.remove('visible');
-        }
-      }, 100);
-    });
-
-    dashboardHeader.addEventListener('mouseleave', function() {
-      setTimeout(function() {
-        if (!buttonPanel.matches(':hover') && !hoverTrigger.matches(':hover')) {
-          dashboardHeader.classList.remove('visible');
-          buttonPanel.classList.remove('visible');
-        }
-      }, 100);
-    });
-
-    buttonPanel.addEventListener('mouseleave', function() {
-      setTimeout(function() {
-        if (!dashboardHeader.matches(':hover') && !hoverTrigger.matches(':hover')) {
-          dashboardHeader.classList.remove('visible');
-          buttonPanel.classList.remove('visible');
-        }
-      }, 100);
+    // Menu toggle functionality
+    menuToggle.addEventListener('click', function() {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        menuToggle.classList.add('active');
+        dashboardHeader.classList.add('visible');
+        buttonPanel.classList.add('visible');
+      } else {
+        menuToggle.classList.remove('active');
+        dashboardHeader.classList.remove('visible');
+        buttonPanel.classList.remove('visible');
+        tiresSubButtons.classList.remove('show');
+        tiresSubMenuOpen = false;
+        tiresBtn.classList.remove('active');
+      }
     });
 
     const savedUsername = localStorage.getItem('savedUsername');
@@ -1081,13 +741,7 @@
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
       loginContainer.classList.add('hide');
       dashboard.classList.add('active');
-      setTimeout(() => {
-        initPhysicsObjects();
-        animateTitle();
-      }, 100);
     }
-    
-    animate();
 
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
@@ -1164,10 +818,6 @@
             welcomeMessage.remove();
             loginContainer.classList.add('hide');
             dashboard.classList.add('active');
-            setTimeout(() => {
-              initPhysicsObjects();
-              animateTitle();
-            }, 100);
           }, 500);
         }, 6000);
       } else {
@@ -1186,6 +836,8 @@
       tiresSubButtons.classList.remove('show');
       tiresSubMenuOpen = false;
       tiresBtn.classList.remove('active');
+      menuToggle.classList.remove('active');
+      menuOpen = false;
       
       dashboardHeader.classList.remove('visible');
       buttonPanel.classList.remove('visible');
@@ -1359,5 +1011,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d6724d3888308',t:'MTc2NjIxNTQ5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b107c9b241c5cea',t:'MTc2NjI0NzgzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
