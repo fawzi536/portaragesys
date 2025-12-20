@@ -404,33 +404,6 @@
       color: #FFD700;
     }
 
-    .sub-buttons {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      margin-right: 20px;
-      padding-right: 10px;
-      border-right: 2px solid rgba(218, 165, 32, 0.2);
-      opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: all 0.4s ease;
-    }
-
-    .sub-buttons.show {
-      display: flex;
-      opacity: 1;
-      max-height: 200px;
-    }
-
-    .sub-button {
-      font-size: 13px;
-      padding: 10px 16px;
-      min-width: 140px;
-      background: rgba(218, 165, 32, 0.08);
-      border-color: rgba(218, 165, 32, 0.3);
-    }
-
     .hover-trigger {
       position: fixed;
       top: 0;
@@ -490,87 +463,6 @@
       max-width: 900px;
       z-index: 100;
       line-height: 1.4;
-    }
-
-    .welcome-subtitle {
-      font-size: 20px;
-      color: #cccccc;
-      animation: fadeInUp 1.2s ease;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .instruction-text {
-      font-size: 16px;
-      color: #DAA520;
-      animation: fadeInUp 1.4s ease;
-      max-width: 600px;
-    }
-
-    .letter {
-      display: inline-block;
-      opacity: 1;
-    }
-
-    .letter.type {
-      animation: typeIn 0.05s ease forwards;
-    }
-
-    @keyframes typeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .letter.fade-out {
-      animation: fadeOut 0.3s ease forwards;
-    }
-
-    @keyframes fadeOut {
-      from {
-        opacity: 1;
-      }
-      to {
-        opacity: 0;
-      }
-    }
-
-    .letter.fall {
-      position: relative;
-      animation: fallDown 1s ease-in-out forwards;
-      opacity: 0;
-      background: linear-gradient(135deg, #FFD700 0%, #DAA520 50%, #B8860B 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    @keyframes fallDown {
-      0% {
-        opacity: 1;
-        transform: translateY(-300px) rotate(0deg);
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) rotate(720deg);
-      }
     }
 
     .floating-shapes {
@@ -652,14 +544,6 @@
         font-size: 32px;
       }
 
-      .welcome-subtitle {
-        font-size: 16px;
-      }
-
-      .instruction-text {
-        font-size: 14px;
-      }
-
       .floating-shapes {
         height: 100%;
       }
@@ -667,36 +551,6 @@
       .welcome-screen {
         gap: 20px;
         padding: 20px;
-      }
-
-      .shape-1 {
-        width: 70px;
-        height: 70px;
-      }
-
-      .shape-2 {
-        width: 60px;
-        height: 60px;
-      }
-
-      .shape-3 {
-        width: 80px;
-        height: 80px;
-      }
-
-      .shape-4 {
-        width: 65px;
-        height: 65px;
-      }
-
-      .shape-5 {
-        width: 50px;
-        height: 50px;
-      }
-
-      .shape-6 {
-        width: 75px;
-        height: 75px;
       }
     }
   </style>
@@ -707,7 +561,7 @@
  <body class="h-full">
   <div class="animated-background"></div>
   <div class="particles" id="particles"></div>
-  <main><!-- صفحة تسجيل الدخ��ل -->
+  <main><!-- صفحة تسجيل الدخول -->
    <div class="main-container" id="loginContainer">
     <div class="login-card">
      <div class="logo-container"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="logo" onerror="this.style.display='none'; this.alt='Logo failed to load';">
@@ -723,7 +577,7 @@
        </div>
       </div>
       <div class="form-group"><label for="password" class="form-label" id="passwordLabel">كلمة المرور</label>
-       <div class="input-wrapper"><input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="أدخل كلمة �����لمرور">
+       <div class="input-wrapper"><input type="password" id="password" class="form-input" required autocomplete="current-password" placeholder="أدخل كلمة المرور">
        </div>
       </div><button type="submit" class="login-button" id="loginButton">دخول</button>
      </form>
@@ -733,9 +587,7 @@
     <div class="hover-trigger" id="hoverTrigger"></div>
     <header class="dashboard-header" id="dashboardHeader"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
     </header>
-    <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresBtn">التواير</button>
-     <div class="sub-buttons" id="tiresSubButtons"><button class="nav-button sub-button" id="tiresIncreaseBtn">زيادات التواير</button> <button class="nav-button sub-button" id="tiresSheetBtn">تواير الشيت</button>
-     </div><button class="nav-button" id="batteryBtn">البطاريات</button> <button class="nav-button" id="oilsBtn">الزيت وال��لتر</button>
+    <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresIncreaseBtn">زيادات التواير</button> <button class="nav-button" id="tiresSheetBtn">تواير الشيت</button> <button class="nav-button" id="batteryBtn">البطاريات</button> <button class="nav-button" id="oilsBtn">الزيت والفلتر</button>
     </div>
     <div class="welcome-screen" id="welcomeScreen">
      <h1 class="welcome-title" id="welcomeTitle"></h1>
@@ -747,14 +599,13 @@
   </main>
   <script>
     const defaultConfig = {
-      login_title: "م����حباً بك",
+      login_title: "مرحباً بك",
       login_subtitle: "سجل دخولك للمتابعة",
       username_label: "اسم المستخدم",
       password_label: "كلمة المرور",
       login_button: "دخول",
-      button_tires: "التواير",
       button_tires_increase: "زيادات التواير",
-      button_tires_sheet: "تواير ال��يت",
+      button_tires_sheet: "تواير الشيت",
       button_battery: "البطاريات",
       button_oils: "الزيت والفلتر",
       logout_button: "تسجيل الخروج",
@@ -802,8 +653,6 @@
     const errorMessage = document.getElementById('errorMessage');
     const logoutButton = document.getElementById('logoutButton');
     const buttonPanel = document.getElementById('buttonPanel');
-    const tiresBtn = document.getElementById('tiresBtn');
-    const tiresSubButtons = document.getElementById('tiresSubButtons');
     const tiresIncreaseBtn = document.getElementById('tiresIncreaseBtn');
     const tiresSheetBtn = document.getElementById('tiresSheetBtn');
     const batteryBtn = document.getElementById('batteryBtn');
@@ -816,16 +665,14 @@
     const batteryFrame = document.getElementById('batteryFrame');
     const oilsFrame = document.getElementById('oilsFrame');
 
-    let tiresSubMenuOpen = false;
     let currentFrame = null;
     let titleAnimationComplete = false;
 
-    // Title animation function - no text, just emojis moving
+    // Title animation function
     function animateTitle() {
       const titleElement = document.getElementById('welcomeTitle');
       if (!titleElement) return;
       
-      // Clear and hide title element
       titleElement.innerHTML = '';
       titleElement.style.display = 'none';
       titleAnimationComplete = true;
@@ -894,6 +741,19 @@
       <path d="M 25 70 Q 30 75 35 70" stroke="#000000" stroke-width="2" fill="none" opacity="0.3"/>
     </svg>`;
 
+    const dropSVG = `<svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="dropGrad" cx="40%" cy="30%">
+          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#DAA520;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+        </radialGradient>
+      </defs>
+      <path d="M 20 5 Q 15 15, 10 25 Q 5 35, 10 42 Q 15 48, 20 48 Q 25 48, 30 42 Q 35 35, 30 25 Q 25 15, 20 5 Z" 
+            fill="url(#dropGrad)" stroke="#B8860B" stroke-width="1"/>
+      <ellipse cx="16" cy="20" rx="4" ry="6" fill="#FFD700" opacity="0.4"/>
+    </svg>`;
+
     class PhysicsObject {
       constructor(x, y, type, svg) {
         this.x = x;
@@ -944,7 +804,6 @@
           this.y += this.vy;
           this.rotation += this.rotationSpeed;
           
-          // Bounce off walls
           if (this.x <= 0) {
             this.x = 0;
             this.vx = Math.abs(this.vx) * bounciness;
@@ -1009,20 +868,6 @@
       }
     }
 
-    // Golden drop SVG
-    const dropSVG = `<svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="dropGrad" cx="40%" cy="30%">
-          <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-          <stop offset="50%" style="stop-color:#DAA520;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
-        </radialGradient>
-      </defs>
-      <path d="M 20 5 Q 15 15, 10 25 Q 5 35, 10 42 Q 15 48, 20 48 Q 25 48, 30 42 Q 35 35, 30 25 Q 25 15, 20 5 Z" 
-            fill="url(#dropGrad)" stroke="#B8860B" stroke-width="1"/>
-      <ellipse cx="16" cy="20" rx="4" ry="6" fill="#FFD700" opacity="0.4"/>
-    </svg>`;
-
     function initPhysicsObjects() {
       const container = document.getElementById('floatingShapes');
       if (!container) return;
@@ -1032,7 +877,6 @@
       
       const containerRect = container.getBoundingClientRect();
       
-      // 24 elements: 6 tires, 6 batteries, 6 oils, 6 golden drops
       const types = [
         { type: 'tire', svg: tireSVG },
         { type: 'drop', svg: dropSVG },
@@ -1060,7 +904,6 @@
         { type: 'oil', svg: oilSVG }
       ];
       
-      // Distribute objects in a beautiful grid pattern across the screen
       const cols = 6;
       const rows = 4;
       const marginX = containerRect.width * 0.1;
@@ -1127,7 +970,6 @@
       draggedObject = null;
     });
 
-    // URLs for each page
     const pageUrls = {
       tiresIncrease: 'https://portaragetiers.netlify.app/',
       tiresSheet: 'https://portaragestiers.netlify.app/',
@@ -1138,24 +980,19 @@
     let hideMenuTimeout = null;
 
     function loadPage(iframe, url) {
-      // Hide welcome screen
       welcomeScreen.style.display = 'none';
       
-      // Hide all iframes
       const allFrames = [tiresIncreaseFrame, tiresSheetFrame, batteryFrame, oilsFrame];
       allFrames.forEach(frame => frame.classList.remove('active'));
       
-      // Show selected iframe
       iframe.classList.add('active');
       
-      // Load iframe only if not loaded before (keeps the state)
       if (!iframe.src || iframe.src === '') {
         iframe.src = url;
       }
       
       currentFrame = iframe;
       
-      // Hide menu after 5 seconds
       if (hideMenuTimeout) {
         clearTimeout(hideMenuTimeout);
       }
@@ -1166,7 +1003,6 @@
     }
 
     function showWelcome() {
-      // Hide all iframes but DON'T reset their src
       const allFrames = [tiresIncreaseFrame, tiresSheetFrame, batteryFrame, oilsFrame];
       allFrames.forEach(frame => frame.classList.remove('active'));
       
@@ -1174,7 +1010,6 @@
       currentFrame = null;
     }
 
-    // Show header and buttons on hover
     hoverTrigger.addEventListener('mouseenter', function() {
       dashboardHeader.classList.add('visible');
       buttonPanel.classList.add('visible');
@@ -1207,7 +1042,6 @@
       }, 100);
     });
 
-    // Check if user has saved credentials and auto-fill
     const savedUsername = localStorage.getItem('savedUsername');
     const savedPassword = localStorage.getItem('savedPassword');
     if (savedUsername && savedPassword) {
@@ -1215,7 +1049,6 @@
       document.getElementById('password').value = savedPassword;
     }
 
-    // Check if user is already logged in
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
       loginContainer.classList.add('hide');
       dashboard.classList.add('active');
@@ -1225,10 +1058,8 @@
       }, 100);
     }
     
-    // Start animation loop
     animate();
 
-    // معالجة تسجيل الدخول
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
@@ -1238,11 +1069,9 @@
         errorMessage.classList.remove('show');
         sessionStorage.setItem('isLoggedIn', 'true');
         
-        // Save username and password to localStorage for auto-fill
         localStorage.setItem('savedUsername', username);
         localStorage.setItem('savedPassword', password);
         
-        // Show welcome message before dashboard
         const welcomeMessage = document.createElement('div');
         welcomeMessage.style.cssText = `
           position: fixed;
@@ -1276,7 +1105,6 @@
         welcomeMessage.appendChild(welcomeContent);
         document.body.appendChild(welcomeMessage);
         
-        // Add animations
         const style = document.createElement('style');
         style.textContent = `
           @keyframes fadeIn {
@@ -1290,7 +1118,6 @@
         `;
         document.head.appendChild(style);
         
-        // Remove welcome message and show dashboard after 6 seconds
         setTimeout(() => {
           welcomeMessage.style.animation = 'fadeOut 0.5s ease';
           welcomeMessage.style.opacity = '0';
@@ -1319,7 +1146,6 @@
       }
     });
 
-    // معالجة تسجيل الخروج
     logoutButton.addEventListener('click', function() {
       sessionStorage.removeItem('isLoggedIn');
       dashboard.classList.remove('active');
@@ -1328,52 +1154,30 @@
       document.getElementById('password').value = '';
       errorMessage.classList.remove('show');
       
-      tiresSubButtons.classList.remove('show');
-      tiresSubMenuOpen = false;
-      
       dashboardHeader.classList.remove('visible');
       buttonPanel.classList.remove('visible');
       
       showWelcome();
       
-      // Reset all iframes on logout
       tiresIncreaseFrame.src = '';
       tiresSheetFrame.src = '';
       batteryFrame.src = '';
       oilsFrame.src = '';
     });
 
-    // Toggle sub-buttons for tires
-    tiresBtn.addEventListener('click', function() {
-      tiresSubMenuOpen = !tiresSubMenuOpen;
-      if (tiresSubMenuOpen) {
-        tiresSubButtons.classList.add('show');
-        tiresBtn.classList.add('active');
-      } else {
-        tiresSubButtons.classList.remove('show');
-        tiresBtn.classList.remove('active');
-      }
-    });
-
-    // زيادات التواير
     tiresIncreaseBtn.addEventListener('click', function() {
       loadPage(tiresIncreaseFrame, pageUrls.tiresIncrease);
     });
 
-    // تواير الشيت
     tiresSheetBtn.addEventListener('click', function() {
       loadPage(tiresSheetFrame, pageUrls.tiresSheet);
     });
 
-    // البطا��يات
     batteryBtn.addEventListener('click', function() {
       loadPage(batteryFrame, pageUrls.battery);
     });
 
-    // الزيت والفلتر
-    oilsBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    oilsBtn.addEventListener('click', function() {
       loadPage(oilsFrame, pageUrls.oils);
     });
 
@@ -1395,7 +1199,6 @@
       document.getElementById('passwordLabel').textContent = newConfig.password_label || defaultConfig.password_label;
       document.getElementById('loginButton').textContent = newConfig.login_button || defaultConfig.login_button;
       document.getElementById('logoutButton').textContent = newConfig.logout_button || defaultConfig.logout_button;
-      document.getElementById('tiresBtn').textContent = newConfig.button_tires || defaultConfig.button_tires;
       document.getElementById('tiresIncreaseBtn').textContent = newConfig.button_tires_increase || defaultConfig.button_tires_increase;
       document.getElementById('tiresSheetBtn').textContent = newConfig.button_tires_sheet || defaultConfig.button_tires_sheet;
       document.getElementById('batteryBtn').textContent = newConfig.button_battery || defaultConfig.button_battery;
@@ -1479,7 +1282,6 @@
         ["username_label", config.username_label || defaultConfig.username_label],
         ["password_label", config.password_label || defaultConfig.password_label],
         ["login_button", config.login_button || defaultConfig.login_button],
-        ["button_tires", config.button_tires || defaultConfig.button_tires],
         ["button_tires_increase", config.button_tires_increase || defaultConfig.button_tires_increase],
         ["button_tires_sheet", config.button_tires_sheet || defaultConfig.button_tires_sheet],
         ["button_battery", config.button_battery || defaultConfig.button_battery],
@@ -1500,5 +1302,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d48bbd75d8308',t:'MTc2NjIxNDI1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d4ef523cf8308',t:'MTc2NjIxNDUwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
