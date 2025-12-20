@@ -374,6 +374,29 @@
       z-index: 1002;
     }
 
+    .sub-buttons {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 20px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .sub-buttons.show {
+      display: flex;
+      max-height: 200px;
+    }
+
+    .sub-button {
+      padding: 10px 16px;
+      font-size: 14px;
+      min-width: 140px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid rgba(218, 165, 32, 0.3);
+    }
+
     .nav-button::before {
       content: '';
       position: absolute;
@@ -585,9 +608,11 @@
    </div><!-- لوحة التحكم -->
    <div class="dashboard" id="dashboard">
     <div class="hover-trigger" id="hoverTrigger"></div>
-    <header class="dashboard-header" id="dashboardHeader"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">تسجيل الخروج</button>
+    <header class="dashboard-header" id="dashboardHeader"><img src="https://i.top4top.io/p_35860o72q1.png" alt="Portarage Logo" class="dashboard-logo" onerror="this.style.display='none'; this.alt='Logo failed to load';"> <button class="logout-button" id="logoutButton">��سجيل الخروج</button>
     </header>
-    <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresIncreaseBtn">زيادات التواير</button> <button class="nav-button" id="tiresSheetBtn">تواير الشيت</button> <button class="nav-button" id="batteryBtn">البطاريات</button> <button class="nav-button" id="oilsBtn">الزيت والفلتر</button>
+    <div class="button-panel" id="buttonPanel"><button class="nav-button" id="tiresBtn">التواير</button>
+     <div class="sub-buttons" id="tiresSubButtons"><button class="nav-button sub-button" id="tiresIncreaseBtn">➕ زيادات التواير</button> <button class="nav-button sub-button" id="tiresSheetBtn">📋 تواير الشيت</button>
+     </div><button class="nav-button" id="batteryBtn">البطاريات</button> <button class="nav-button" id="oilsBtn">الزيت والفلتر</button>
     </div>
     <div class="welcome-screen" id="welcomeScreen">
      <h1 class="welcome-title" id="welcomeTitle"></h1>
@@ -604,6 +629,7 @@
       username_label: "اسم المستخدم",
       password_label: "كلمة المرور",
       login_button: "دخول",
+      button_tires: "التواير",
       button_tires_increase: "زيادات التواير",
       button_tires_sheet: "تواير الشيت",
       button_battery: "البطاريات",
@@ -653,6 +679,8 @@
     const errorMessage = document.getElementById('errorMessage');
     const logoutButton = document.getElementById('logoutButton');
     const buttonPanel = document.getElementById('buttonPanel');
+    const tiresBtn = document.getElementById('tiresBtn');
+    const tiresSubButtons = document.getElementById('tiresSubButtons');
     const tiresIncreaseBtn = document.getElementById('tiresIncreaseBtn');
     const tiresSheetBtn = document.getElementById('tiresSheetBtn');
     const batteryBtn = document.getElementById('batteryBtn');
@@ -667,6 +695,7 @@
 
     let currentFrame = null;
     let titleAnimationComplete = false;
+    let tiresSubMenuOpen = false;
 
     // Title animation function
     function animateTitle() {
@@ -972,7 +1001,7 @@
 
     const pageUrls = {
       tiresIncrease: 'https://portaragetiers.netlify.app/',
-      tiresSheet: 'https://portaragestiers.netlify.app/',
+      tiresSheet: 'https://portiers.netlify.app/',
       battery: 'https://portaragebatteries.netlify.app/',
       oils: 'https://portarageoils.netlify.app/'
     };
@@ -1154,6 +1183,10 @@
       document.getElementById('password').value = '';
       errorMessage.classList.remove('show');
       
+      tiresSubButtons.classList.remove('show');
+      tiresSubMenuOpen = false;
+      tiresBtn.classList.remove('active');
+      
       dashboardHeader.classList.remove('visible');
       buttonPanel.classList.remove('visible');
       
@@ -1165,19 +1198,41 @@
       oilsFrame.src = '';
     });
 
-    tiresIncreaseBtn.addEventListener('click', function() {
+    // Toggle sub-buttons for tires
+    tiresBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      tiresSubMenuOpen = !tiresSubMenuOpen;
+      if (tiresSubMenuOpen) {
+        tiresSubButtons.classList.add('show');
+        tiresBtn.classList.add('active');
+      } else {
+        tiresSubButtons.classList.remove('show');
+        tiresBtn.classList.remove('active');
+      }
+    });
+
+    tiresIncreaseBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       loadPage(tiresIncreaseFrame, pageUrls.tiresIncrease);
     });
 
-    tiresSheetBtn.addEventListener('click', function() {
+    tiresSheetBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       loadPage(tiresSheetFrame, pageUrls.tiresSheet);
     });
 
-    batteryBtn.addEventListener('click', function() {
+    batteryBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       loadPage(batteryFrame, pageUrls.battery);
     });
 
-    oilsBtn.addEventListener('click', function() {
+    oilsBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       loadPage(oilsFrame, pageUrls.oils);
     });
 
@@ -1199,6 +1254,7 @@
       document.getElementById('passwordLabel').textContent = newConfig.password_label || defaultConfig.password_label;
       document.getElementById('loginButton').textContent = newConfig.login_button || defaultConfig.login_button;
       document.getElementById('logoutButton').textContent = newConfig.logout_button || defaultConfig.logout_button;
+      document.getElementById('tiresBtn').textContent = newConfig.button_tires || defaultConfig.button_tires;
       document.getElementById('tiresIncreaseBtn').textContent = newConfig.button_tires_increase || defaultConfig.button_tires_increase;
       document.getElementById('tiresSheetBtn').textContent = newConfig.button_tires_sheet || defaultConfig.button_tires_sheet;
       document.getElementById('batteryBtn').textContent = newConfig.button_battery || defaultConfig.button_battery;
@@ -1282,6 +1338,7 @@
         ["username_label", config.username_label || defaultConfig.username_label],
         ["password_label", config.password_label || defaultConfig.password_label],
         ["login_button", config.login_button || defaultConfig.login_button],
+        ["button_tires", config.button_tires || defaultConfig.button_tires],
         ["button_tires_increase", config.button_tires_increase || defaultConfig.button_tires_increase],
         ["button_tires_sheet", config.button_tires_sheet || defaultConfig.button_tires_sheet],
         ["button_battery", config.button_battery || defaultConfig.button_battery],
@@ -1302,5 +1359,5 @@
       onConfigChange(config);
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d4ef523cf8308',t:'MTc2NjIxNDUwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b0d6724d3888308',t:'MTc2NjIxNTQ5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
