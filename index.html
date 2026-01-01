@@ -1356,7 +1356,18 @@
       
       toSelect.oninput = () => {
         formData.to = toSelect.value;
-        
+        const currentToInput = toSelect.value.toLowerCase();
+      if (formData.from) {
+        const routes = getTowRoutes(formData.company, formData.towType);
+        const filteredToLocations = [...new Set(
+          routes
+            .filter(r => r.from === formData.from && r.to.toLowerCase().includes(currentToInput))
+            .map(r => r.to)
+        )].filter(Boolean);
+
+        const toDatalist = document.getElementById('toLocations');
+        toDatalist.innerHTML = filteredToLocations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+      }
         if (!formData.to) {
           document.getElementById('towResultSection').classList.add('hidden');
           
