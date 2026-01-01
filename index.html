@@ -2369,14 +2369,40 @@
             <label>تاريخ الموعد</label>
             <input type="date" id="appointmentDate" class="form-control" style="max-width: 250px;">
           </div>
-          <button id="bookAppointmentBtn" class="btn-primary">📅 حجز الموعد</button>
+          <div style="display:flex;gap:8px;">
+            <button id="bookAppointmentBtn" class="btn-primary">📅 حجز الموعد</button>
+            <button id="editAppointmentBtn" class="btn-primary" style="background:#666;color:#fff;">✏️ تعديل موعد</button>
+          </div>
           <div id="availableSlots" style="margin-top: 12px;"></div>
         </div>
       `;
       
-      // Book Appointment button handler
+      // Book Appointment button handler — open Google Form directly
       document.getElementById('bookAppointmentBtn').onclick = () => {
-        window.open('https://docs.google.com/spreadsheets/d/1FkWKRxRFC8UG1Ez2VzYHadHju2HARBLbdTIsr57hKXc/edit', '_blank', 'noopener,noreferrer');
+        // Build pre-filled form URL
+        let url = FORM_ACTION;
+        const emptyPayload = {
+          date: document.getElementById('appointmentDate').value || '',
+          time: '',
+          qrOrder: '',
+          customerName: '',
+          phone: '',
+          location: '',
+          washType: (formData.selectedWashes || []).join(', '),
+          payment: ''
+        };
+        Object.keys(entryMapping).forEach(key => {
+          const fieldName = entryMapping[key];
+          const value = encodeURIComponent(emptyPayload[key] || '');
+          url += `&${fieldName}=${value}`;
+        });
+        // Open the form in a new window
+        window.open(url, 'googleFormWindow', 'width=800,height=600');
+      };
+
+      // Edit Appointment button handler — open Google Sheet
+      document.getElementById('editAppointmentBtn').onclick = () => {
+        window.open('https://docs.google.com/spreadsheets/d/1FkWKRxRFC8UG1Ez2VzYHadHju2HARBLbdTIsr57hKXc/edit?usp=sharing', '_blank', 'noopener,noreferrer');
       };
       
       document.querySelectorAll('[data-wash]').forEach(btn => {
@@ -2525,7 +2551,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
     async function loadCarWashAppointments(selectedDate) {
       try {
         const sheetId = '1FkWKRxRFC8UG1Ez2VzYHadHju2HARBLbdTIsr57hKXc';
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=WASH%20Sheet`;
         
         const response = await fetch(csvUrl, {
           mode: 'cors',
@@ -2537,11 +2563,58 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         const rows = parseCSV(csvText);
         
         carWashData = [];
-        
+
+        // Detect header indices so renamed columns (Arabic/English) still map correctly.
+        const headerRow = rows[0] || [];
+        const headers = headerRow.map(h => (h || '').toString().toLowerCase());
+
+        // Prefer exact column headers (Arabic) if provided by user A..I, otherwise fallback to keyword search
+        const headerMap = {};
+        headers.forEach((h, i) => headerMap[h.trim()] = i);
+
+        function findHeader(...candidates) {
+          for (const c of candidates) {
+            const key = c.toString().toLowerCase().trim();
+            // exact match
+            for (const hh in headerMap) {
+              if (hh.toLowerCase().trim() === key) return headerMap[hh];
+            }
+            // substring match
+            for (const hh in headerMap) {
+              if (hh.toLowerCase().includes(key)) return headerMap[hh];
+            }
+          }
+          return -1;
+        }
+
+        const idx = {
+          timestamp: findHeader('timestamp', 'time stamp', 'timestamp', 'توقيت'),
+          date: findHeader('تاريخ تسجيل الطلب', 'تاريخ الطلب', 'date', 'تاريخ', 'التاريخ'),
+          time: findHeader('الوقت', 'time'),
+          qrOrder: findHeader('رقم الطلب', 'qr order', 'qr'),
+          location: findHeader('موقع العميل', 'location', 'موقع'),
+          customerName: findHeader('اسم العميل', 'customer name', 'customer'),
+          customerNumber: findHeader('رقم العميل', 'customer number', 'phone', 'رقم'),
+          washType: findHeader('نوع الغسيل', 'wash type', 'نوع'),
+          payment: findHeader('حاله الدفع', 'حالة الدفع', 'payment', 'نعم', 'لا')
+        };
+
+        // Fallback to legacy indices if detection failed
+        const col = {
+          date: idx.date >= 0 ? idx.date : 1,
+          time: idx.time >= 0 ? idx.time : 2,
+          qrOrder: idx.qrOrder >= 0 ? idx.qrOrder : 3,
+          location: idx.location >= 0 ? idx.location : 4,
+          customerName: idx.customerName >= 0 ? idx.customerName : 5,
+          customerNumber: idx.customerNumber >= 0 ? idx.customerNumber : 6,
+          washType: idx.washType >= 0 ? idx.washType : 7,
+          payment: idx.payment >= 0 ? idx.payment : 8
+        };
+
         for (let i = 1; i < rows.length; i++) {
           const row = rows[i];
-          if (row[0] && row[1]) {
-            let parsedDate = row[0].trim();
+          if (row[col.date] && row[col.time]) {
+            let parsedDate = (row[col.date] || '').toString().trim();
             const dateObj = new Date(parsedDate);
             if (!isNaN(dateObj.getTime())) {
               const year = dateObj.getFullYear();
@@ -2549,43 +2622,56 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
               const day = String(dateObj.getDate()).padStart(2, '0');
               parsedDate = `${year}-${month}-${day}`;
             }
-            
-            let timeStr = row[1].trim();
-            let hours = 0;
-            let minutes = 0;
-            
-            const hasAMPM = /am|pm/i.test(timeStr);
-            
-            if (hasAMPM) {
-              const isPM = /pm/i.test(timeStr);
-              timeStr = timeStr.replace(/am|pm/gi, '').trim();
-              
-              const timeParts = timeStr.split(':');
-              hours = parseInt(timeParts[0]) || 0;
-              minutes = parseInt(timeParts[1]) || 0;
-              
-              if (isPM && hours !== 12) {
-                hours += 12;
-              } else if (!isPM && hours === 12) {
-                hours = 0;
+
+            // helper: parse time like "10:00:00 PM", "10:00 PM", "22:00", or with seconds
+            function parseTimeString(s) {
+              s = (s || '').toString().trim();
+              if (!s) return '';
+              // capture hh:mm (ignore seconds)
+              const m = s.match(/(\d{1,2}):(\d{2})/);
+              if (m) {
+                let hh = parseInt(m[1], 10);
+                const mm = parseInt(m[2], 10);
+                // detect AM/PM (including Arabic م/ص or words)
+                const isPM = /\bpm\b|م(?![a-z])|مساء/i.test(s);
+                const isAM = /\bam\b|ص(?![a-z])|صباح/i.test(s);
+                if (isPM && hh !== 12) hh += 12;
+                if (isAM && hh === 12) hh = 0;
+                return `${hh}:${String(mm).padStart(2, '0')}`;
               }
-            } else {
-              const timeParts = timeStr.split(':');
-              hours = parseInt(timeParts[0]) || 0;
-              minutes = parseInt(timeParts[1]) || 0;
+              // fallback: try to parse as Date
+              const d = new Date('1970-01-01T' + s);
+              if (!isNaN(d.getTime())) return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+              return s;
             }
-            
-            const formattedTime = `${hours}:${String(minutes).padStart(2, '0')}`;
-            
+
+            // helper: normalize phone (preserve as string, trim)
+            function normalizePhone(p) {
+              return (p || '').toString().trim();
+            }
+
+            // helper: normalize payment to Arabic نعم/لا
+            function normalizePayment(p) {
+              const v = (p || '').toString().toLowerCase();
+              if (!v) return '';
+              if (v.includes('نعم') || v.includes('yes') || v === 'y' || v.includes('paid') || v === 'true') return 'نعم';
+              if (v.includes('لا') || v.includes('no') || v === 'n' || v === 'false') return 'لا';
+              return p;
+            }
+
+            const formattedTime = parseTimeString(row[col.time]);
+            const phoneVal = normalizePhone(row[col.customerNumber]);
+            const paymentVal = normalizePayment(row[col.payment]);
+
             carWashData.push({
               date: parsedDate,
               time: formattedTime,
-              qrOrder: row[2] || '',
-              customerName: row[3] || '',
-              phone: row[4] || '',
-              location: row[5] || '',
-              washType: row[6] || '',
-              payment: row[7] || ''
+              qrOrder: (row[col.qrOrder] || '').toString().trim(),
+              customerName: (row[col.customerName] || '').toString().trim(),
+              phone: phoneVal,
+              location: (row[col.location] || '').toString().trim(),
+              washType: (row[col.washType] || '').toString().trim(),
+              payment: paymentVal
             });
           }
         }
@@ -2923,7 +3009,13 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
             }
           }
           
-          const paymentStatus = apt.payment === 'yes' ? '✅ تم' : apt.payment === 'no' ? '❌ لم يتم' : 'غير محدد';
+          const paymentVal = (apt.payment || '').toString().toLowerCase();
+          let paymentStatus = 'غير محدد';
+          if (paymentVal.includes('نعم') || paymentVal.includes('yes') || paymentVal === 'y' || paymentVal === 'true') {
+            paymentStatus = '✅ تم';
+          } else if (paymentVal.includes('لا') || paymentVal.includes('no') || paymentVal === 'n' || paymentVal === 'false') {
+            paymentStatus = '❌ لم يتم';
+          }
           
           html += `
             <tr>
@@ -3362,6 +3454,72 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       `;
       
       document.getElementById('serviceResultSection').classList.remove('hidden');
+    }
+
+    // Option 1: Google Sheets Webhook (Apps Script) — leave empty to disable
+    const GOOGLE_SHEETS_WEBHOOK = '';
+
+    // Google Form submission using pre-filled link
+    const FORM_ID = 'e/1FAIpQLScQh0wzxb2oVHXTtPx-NZdbBX63IhaNuMLNag-rPeMdwQVKNw'; // Form ID from the sharing URL
+    const FORM_ACTION = `https://docs.google.com/forms/d/${FORM_ID}/viewform?usp=pp_url`; // Base URL with pp_url parameter
+
+    // Map payload keys to Google Form entry ids (for pre-filled link parameters)
+    const entryMapping = {
+      date: 'entry.1589254434', // Date field
+      time: 'entry.1405698644', // Time field
+      qrOrder: 'entry.1649370181', // QR ORDER field
+      customerName: 'entry.1226088444', // Customer Name field
+      phone: 'entry.1698262844', // Customer Number field
+      location: 'entry.920891999', // Customer Location field
+      washType: 'entry.897996772', // Wash Type field
+      payment: 'entry.929707556' // Payment yes/no field
+    };
+
+    /**
+     * Post booking payload to Google Sheets webhook.
+     * Expects the webhook to accept JSON and return HTTP 200 on success.
+     */
+    async function postToGoogleSheet(payload) {
+      if (FORM_ACTION) {
+        // If FORM_ACTION set, submit to Google Form instead of Apps Script
+        return submitToGoogleForm(payload);
+      }
+
+      if (!GOOGLE_SHEETS_WEBHOOK) {
+        console.warn('No remote configured (GOOGLE_SHEETS_WEBHOOK or FORM_ACTION). Skipping remote push.');
+        return { ok: false, reason: 'no-remote' };
+      }
+
+      try {
+        const res = await fetch(GOOGLE_SHEETS_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        return res;
+      } catch (err) {
+        console.error('postToGoogleSheet error', err);
+        throw err;
+      }
+    }
+
+    // Submit to Google Form by opening a pre-filled link in a new window
+    function submitToGoogleForm(payload) {
+      return new Promise((resolve) => {
+        if (!FORM_ACTION) return resolve({ ok: false, reason: 'no-form' });
+
+        // Build the pre-filled link
+        let url = FORM_ACTION;
+        Object.keys(entryMapping).forEach(key => {
+          const fieldName = entryMapping[key];
+          const value = encodeURIComponent(payload[key] || '');
+          url += `&${fieldName}=${value}`;
+        });
+
+        // Open the form in a new window
+        window.open(url, 'googleFormWindow', 'width=800,height=600');
+        resolve({ ok: true });
+      });
     }
 
     // Load data on page load
