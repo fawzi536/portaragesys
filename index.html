@@ -1732,7 +1732,8 @@
       const rows = sheetsData['تركيب بطارية'];
       const areas = [];
       
-      for (let i = 2; i < rows.length; i++) {
+      // Skip first 3 rows (headers)
+      for (let i = 3; i < rows.length; i++) {
         const row = rows[i];
         if (row[0]) areas.push(row[0]);
         if (row[4]) areas.push(row[4]);
@@ -1758,7 +1759,8 @@
       let price = null;
       let cancellation = null;
       
-      for (let i = 2; i < rows.length; i++) {
+      // Skip first 3 rows (headers)
+      for (let i = 3; i < rows.length; i++) {
         const row = rows[i];
         
         if (row[0] === formData.area) {
@@ -2825,8 +2827,23 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           payment: findHeader('حاله الدفع', 'حالة الدفع', 'payment', 'نعم', 'لا')
         };
 
+        // If the detected date header is actually the "order timestamp" (تاريخ تسجيل الطلب) or timestamp, prefer an appointment-date header if present,
+        // otherwise fall back to column B (index 1).
+        if (idx.date >= 0) {
+          const detectedHeader = (headerRow[idx.date] || '').toString().toLowerCase();
+          if (detectedHeader.includes('تاريخ تسجيل') || detectedHeader.includes('timestamp') || detectedHeader.includes('توقيت')) {
+            const alt = findHeader('تاريخ الموعد', 'appointment date', 'appointment', 'موعد');
+            if (alt >= 0) {
+              idx.date = alt;
+            } else {
+              idx.date = -1; // force fallback to default below (column B)
+            }
+          }
+        }
+
         // Fallback to legacy indices if detection failed
         const col = {
+          // Use column B as the default date column (index 1)
           date: idx.date >= 0 ? idx.date : 1,
           time: idx.time >= 0 ? idx.time : 2,
           qrOrder: idx.qrOrder >= 0 ? idx.qrOrder : 3,
@@ -2948,7 +2965,13 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       `;
       
       const workStartMinutes = 630; // 10:30 AM
-      const workEndMinutes = 1320;  // 10:00 PM
+      // Last allowed START time (آخر وصول) per wash type
+      const washLastArrival = {
+        premium: 20 * 60 + 30, // 20:30
+        special: 19 * 60 + 30, // 19:30
+        ultra: 18 * 60 + 30    // 18:30
+      };
+      const workEndMinutes = 1320;  // 10:00 PM (fallback, not used for per-wash limits)
       
       const today = new Date();
       const isToday = dateObj.getDate() === today.getDate() && 
@@ -2993,7 +3016,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       
       const travelTime = 30;
       
-      // Find all available time slots for each wash type
+        // Find all available time slots for each wash type
       const availableTimeSlots = {};
       
       selectedWashes.forEach(washType => {
@@ -3001,6 +3024,9 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         const totalDuration = duration + travelTime;
         availableTimeSlots[washType] = [];
         
+        // Calculate end limit for this wash type (latest allowed START time)
+        const endLimit = washLastArrival[washType] || workEndMinutes;
+
         // Check before first appointment
         if (appointments.length > 0) {
           const firstAppointmentStart = appointments[0].start;
@@ -3032,25 +3058,25 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           }
         }
         
-        // Check after last appointment
+        // Check after last appointment (ensure start is <= endLimit)
         if (appointments.length > 0) {
           const lastAppointmentEnd = appointments[appointments.length - 1].end;
           const earliestStartAfterLast = Math.max(lastAppointmentEnd, earliestAvailableTime);
-          
-          if (earliestStartAfterLast + totalDuration <= workEndMinutes) {
+
+          if (earliestStartAfterLast <= endLimit) {
             availableTimeSlots[washType].push({
               start: earliestStartAfterLast,
-              latestStart: workEndMinutes - totalDuration,
-              end: workEndMinutes
+              latestStart: endLimit,
+              end: endLimit
             });
           }
         } else {
           // No appointments at all
-          if (earliestAvailableTime + totalDuration <= workEndMinutes) {
+          if (earliestAvailableTime <= endLimit) {
             availableTimeSlots[washType].push({
               start: earliestAvailableTime,
-              latestStart: workEndMinutes - totalDuration,
-              end: workEndMinutes
+              latestStart: endLimit,
+              end: endLimit
             });
           }
         }
@@ -3099,34 +3125,33 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           }
         };
         
-        // Helper to format time range - shows end time INCLUDING wash duration
-        const formatTimeRange = (slots, washDuration) => {
+        // Helper to format time range - shows end time as the configured last arrival for that wash
+        const formatTimeRange = (slots, washDuration, washType) => {
           if (!slots || slots.length === 0) return '';
-          
+
+          const endLimit = washLastArrival[washType] || workEndMinutes;
           let ranges = [];
           slots.forEach(slot => {
             const startTime = formatTimeSimple(slot.start);
-            // Calculate actual end time: latestStart + wash duration (NOT including travel time)
-            const latestEndTime = slot.latestStart + washDuration;
-            const endTime = formatTimeSimple(latestEndTime);
+            const endTime = formatTimeSimple(endLimit);
             ranges.push(`من ${startTime} إلى ${endTime}`);
           });
-          
+
           return ranges.join(' • وأيضاً ');
         };
         
         if (availableTimeSlots.premium && availableTimeSlots.premium.length > 0) {
-          const timeRange = formatTimeRange(availableTimeSlots.premium, 60);
+          const timeRange = formatTimeRange(availableTimeSlots.premium, 60, 'premium');
           html += `<div style="font-size: 11px; color: #10b981; margin: 3px 0;">⭐ غسيل ممتاز: ${timeRange}</div>`;
         }
-        
+
         if (availableTimeSlots.special && availableTimeSlots.special.length > 0) {
-          const timeRange = formatTimeRange(availableTimeSlots.special, 120);
+          const timeRange = formatTimeRange(availableTimeSlots.special, 120, 'special');
           html += `<div style="font-size: 11px; color: #10b981; margin: 3px 0;">💎 غسيل خصوصي: ${timeRange}</div>`;
         }
-        
+
         if (availableTimeSlots.ultra && availableTimeSlots.ultra.length > 0) {
-          const timeRange = formatTimeRange(availableTimeSlots.ultra, 180);
+          const timeRange = formatTimeRange(availableTimeSlots.ultra, 180, 'ultra');
           html += `<div style="font-size: 11px; color: #10b981; margin: 3px 0;">👑 غسيل ألترا: ${timeRange}</div>`;
         }
         
