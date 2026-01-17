@@ -897,8 +897,6 @@
     <div class="service-submenu" id="staffSubmenu">
      <div class="service-item submenu-item" data-service="staff_centers"><span class="label">مراكز الطلبات</span>
      </div>
-     <div class="service-item submenu-item" data-service="staff_followup"><span class="label">متابعة الطلبات</span>
-     </div>
     </div>
     <div class="service-item" data-service="tow"><span class="icon">🚚</span> <span class="label">ونشات</span>
     </div>
@@ -1190,7 +1188,6 @@
           'ringRepair': 'تصليح الرنقات',
           'mechanical': 'خدمات ميكانيكية',
           'staff_centers': 'مراكز الطلبات',
-          'staff_followup': 'متابعة الطلبات',
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات'
@@ -1237,9 +1234,6 @@
             break;
           case 'staff_centers':
             renderStaffInterface();
-            break;
-          case 'staff_followup':
-            renderDriverFollowupInterface();
             break;
           case 'carwash':
             renderCarWashInterface();
@@ -2954,6 +2948,7 @@
                   <th>التاريخ</th>
                   <th>الوقت</th>
                   <th>رقم الطلب</th>
+                  <th>اسم العميل</th>
                   <th>المنطقة</th>
                   <th>نوع الخدمة</th>
                   <th>الفني</th>
@@ -3375,7 +3370,7 @@
     // Load and render mechanical appointments from external Google Sheet (مواعيد الميكانيكيه)
     async function loadMechanicalAppointmentsData() {
       try {
-        const sheetId = '1FkWKRxRFC8UG1Ez2VzYHadHju2HARBLbdTIsr57hKXc';
+        const sheetId = '1CPGWPsJ3lFdYkV2DMWmJef5yw7QBimoTruBw-ef1Dq4';
         const sheetName = 'مواعيد الميكانيكيه';
         const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
         const res = await fetch(csvUrl);
@@ -3385,6 +3380,13 @@
         // store temporarily
         window._mechAppointmentsRaw = rows;
         window._mechAppointmentsHeader = rows[0] || [];
+        // DEBUG: Print header row to verify exact column names
+        console.log('=== MECHANICAL APPOINTMENTS HEADER ===');
+        console.log('Header Row:', window._mechAppointmentsHeader);
+        window._mechAppointmentsHeader.forEach((col, idx) => {
+          console.log(`Column ${idx} (${String.fromCharCode(65 + idx)}): "${col}"`);
+        });
+        console.log('=====================================');
         return rows;
       } catch (err) {
         console.error('Could not load mechanical appointments', err);
@@ -3394,9 +3396,19 @@
 
     function parseCellDate(cell) {
       if (!cell) return null;
+      
+      // إذا كانت بصيغة YYYY-MM-DD بالفعل
+      if (typeof cell === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(cell)) {
+        return cell;
+      }
+      
+      // محاولة تحويلها إلى تاريخ
       const d = new Date(cell);
-      if (isNaN(d.getTime())) return null;
-      return d.toISOString().split('T')[0];
+      if (!isNaN(d.getTime())) {
+        return d.toISOString().split('T')[0];
+      }
+      
+      return null;
     }
 
     async function renderMechanicalAppointments() {
@@ -3420,35 +3432,49 @@
       }
 
       // rows: include header row; data starts from row index 1 (second row)
-      const dataRows = rows.slice(1);
+      let dataRows = rows.slice(1);
 
-      // build technicians list (column F -> index 5)
-      const techs = new Set();
-      dataRows.forEach(r => { if (r[5]) techs.add(r[5]); });
-      techFilter.innerHTML = '<option value="">الكل</option>' + Array.from(techs).map(t => `<option value="${t}">${t}</option>`).join('');
+      const populateTechnicians = () => {
+        const techs = new Set();
+        dataRows.forEach(r => { if (r[6]) techs.add(r[6]); });
+        const current = techFilter.value;
+        techFilter.innerHTML = '<option value="">الكل</option>' + Array.from(techs).map(t => `<option value="${t}">${t}</option>`).join('');
+        if (current && techs.has(current)) techFilter.value = current;
+      };
+      populateTechnicians();
 
       function filterAndRender() {
         const selectedDate = dateInput.value;
         const selectedTech = techFilter.value;
         const filtered = dataRows.filter(r => {
+          // Check if row has data (not empty)
+          if (!r[0] && !r[1] && !r[2]) return false;
+          
           const dateCell = parseCellDate(r[0]); // column A -> index 0 (التاريخ)
-          if (!dateCell) return false;
-          if (dateCell !== selectedDate) return false;
-          if (selectedTech && (r[5] || '') !== selectedTech) return false;
+          // If date parsing fails but row has data, still include it
+          if (!dateCell && r[0]) {
+            // If manually entered, try to compare as string
+            if ((r[0] || '').trim() !== selectedDate) return false;
+          } else if (dateCell && dateCell !== selectedDate) {
+            return false;
+          }
+          
+          if (selectedTech && (r[6] || '') !== selectedTech) return false;
           return true;
         });
 
         if (filtered.length === 0) {
-          tableBody.innerHTML = '<tr><td colspan="6">لا توجد مواعيد لهذا التاريخ</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="7">لا توجد مواعيد لهذا التاريخ</td></tr>';
         } else {
           tableBody.innerHTML = filtered.map(r => `
             <tr>
-              <td>${parseCellDate(r[0]) || '-'}</td>
+              <td>${r[0] || '-'}</td>
               <td>${r[1] || '-'}</td>
               <td>${r[2] || '-'}</td>
               <td>${r[3] || '-'}</td>
               <td>${r[4] || '-'}</td>
               <td>${r[5] || '-'}</td>
+              <td>${r[6] || '-'}</td>
             </tr>
           `).join('');
         }
@@ -3463,11 +3489,24 @@
       };
 
       document.getElementById('mechEditBtn').onclick = () => {
-        window.open('https://docs.google.com/spreadsheets/d/1FkWKRxRFC8UG1Ez2VzYHadHju2HARBLbdTIsr57hKXc/edit?usp=sharing', '_blank');
+        window.open('https://docs.google.com/spreadsheets/d/1CPGWPsJ3lFdYkV2DMWmJef5yw7QBimoTruBw-ef1Dq4/edit?usp=sharing', '_blank');
+      };
+
+      const scheduleAutoRefresh = () => {
+        if (window._mechAutoRefreshTimer) clearInterval(window._mechAutoRefreshTimer);
+        window._mechAutoRefreshTimer = setInterval(async () => {
+          const updatedRows = await loadMechanicalAppointmentsData();
+          if (!updatedRows) return;
+          rows = updatedRows;
+          dataRows = rows.slice(1);
+          populateTechnicians();
+          filterAndRender();
+        }, 60000);
       };
 
       section.classList.remove('hidden');
       filterAndRender();
+      scheduleAutoRefresh();
     }
 
     function calculateAlternatorPrice() {
@@ -3780,10 +3819,10 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
 
         const idx = {
           timestamp: findHeader('timestamp', 'time stamp', 'timestamp', 'توقيت'),
-          date: findHeader('تاريخ تسجيل الطلب', 'تاريخ الطلب', 'date', 'تاريخ', 'التاريخ'),
-          time: findHeader('الوقت', 'time'),
+          date: findHeader('تاريخ الموعد', 'تاريخ تسجيل الطلب', 'تاريخ الطلب', 'date', 'تاريخ', 'التاريخ'),
+          time: findHeader('وقت الموعد', 'الوقت', 'time'),
           qrOrder: findHeader('رقم الطلب', 'qr order', 'qr'),
-          location: findHeader('موقع العميل', 'location', 'موقع'),
+          location: findHeader('المنطقة', 'المنطقه', 'موقع العميل', 'location', 'موقع'),
           customerName: findHeader('اسم العميل', 'customer name', 'customer'),
           customerNumber: findHeader('رقم العميل', 'customer number', 'phone', 'رقم'),
           washType: findHeader('نوع الغسيل', 'wash type', 'نوع'),
@@ -3806,15 +3845,15 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
 
         // Fallback to legacy indices if detection failed
         const col = {
-          // Use column B as the default date column (index 1)
-          date: idx.date >= 0 ? idx.date : 1,
-          time: idx.time >= 0 ? idx.time : 2,
-          qrOrder: idx.qrOrder >= 0 ? idx.qrOrder : 3,
+          // Use correct columns: A=date, B=time, C=order, D=customer, E=location, F=washType, G=payment
+          date: idx.date >= 0 ? idx.date : 0,
+          time: idx.time >= 0 ? idx.time : 1,
+          qrOrder: idx.qrOrder >= 0 ? idx.qrOrder : 2,
+          customerName: idx.customerName >= 0 ? idx.customerName : 3,
           location: idx.location >= 0 ? idx.location : 4,
-          customerName: idx.customerName >= 0 ? idx.customerName : 5,
-          customerNumber: idx.customerNumber >= 0 ? idx.customerNumber : 6,
-          washType: idx.washType >= 0 ? idx.washType : 7,
-          payment: idx.payment >= 0 ? idx.payment : 8
+          washType: idx.washType >= 0 ? idx.washType : 5,
+          payment: idx.payment >= 0 ? idx.payment : 6,
+          customerNumber: idx.customerNumber >= 0 ? idx.customerNumber : 7
         };
 
         for (let i = 1; i < rows.length; i++) {
@@ -4259,7 +4298,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
     }
 
     // Shared helpers for local booking (carwash/mechanical)
-    const SHEETDB_URL = 'https://sheetdb.io/api/v1/wvoh60e0yhry4';
+    const SHEETDB_URL = 'https://sheetdb.io/api/v1/wvoh60e0yhry4'; // Car Wash API
+    const MECHANICAL_SHEETDB_URL = 'https://sheetdb.io/api/v1/jcvn1kw9zy7o7'; // Mechanical API
 
     function pickHeader(headerRow, candidates, fallback) {
       const headers = (headerRow || []).map(h => (h || '').toString().toLowerCase().trim());
@@ -4306,21 +4346,27 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
 
     function normalizeDateStr(str) {
       if (!str) return '';
-      const d = new Date(str);
+      const cleaned = (str || '').toString().trim().replace(/^'+/, '');
+      const d = new Date(cleaned);
       if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
-      return (str || '').toString().split('T')[0];
+      return cleaned.split('T')[0];
     }
 
     function normalizeTimeStr(str) {
-      const m = (str || '').toString().match(/(\d{1,2}):(\d{2})/);
+      const m = (str || '').toString().trim().replace(/^'+/, '').match(/(\d{1,2}):(\d{2})/);
       if (!m) return '';
       const hh = String(parseInt(m[1], 10)).padStart(2, '0');
       const mm = String(parseInt(m[2], 10)).padStart(2, '0');
       return `${hh}:${mm}`;
     }
 
-    async function postToSheetDb(row) {
-      const res = await fetch(SHEETDB_URL, {
+    function asSheetText(value) {
+      if (value === null || value === undefined) return '';
+      return `'${value}`;
+    }
+
+    async function postToSheetDb(row, apiUrl = SHEETDB_URL) {
+      const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: [row] })
@@ -4351,26 +4397,26 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       overlay.innerHTML = `
         <div class="modal">
           <button type="button" class="modal-close" aria-label="إغلاق">×</button>
-          <h3>إضافة موعد غسيل جديد</h3>
+          <h3 style="color: #FFD700; text-align: center; font-size: 20px; margin-bottom: 16px;">🚿 تسجيل موعد غسيل جديد</h3>
           <div class="form-grid" style="grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px;">
             <div class="form-field">
-              <label>التاريخ والوقت</label>
-              <input type="datetime-local" id="cwDatetime" class="form-control datetime-control" />
+              <label>📅 التاريخ والوقت</label>
+              <input type="datetime-local" id="cwDatetime" class="form-control datetime-control" style="cursor: pointer;" />
             </div>
             <div class="form-field">
-              <label>رقم الطلب</label>
+              <label>📦 رقم الطلب</label>
               <input type="text" id="cwOrder" class="form-control" placeholder="مثال: 1234">
             </div>
             <div class="form-field">
-              <label>اسم العميل</label>
+              <label>👤 اسم العميل</label>
               <input type="text" id="cwCustomer" class="form-control" placeholder="اسم العميل">
             </div>
             <div class="form-field">
-              <label>موقع العميل</label>
-              <input type="text" id="cwLocation" class="form-control" placeholder="الموقع">
+              <label>📍 المنطقة</label>
+              <input type="text" id="cwLocation" class="form-control" placeholder="المنطقة">
             </div>
             <div class="form-field">
-              <label>نوع الغسيل</label>
+              <label>🚗 نوع الغسيل</label>
               <select id="cwWashType" class="form-control">
                 <option value="premium">غسيل ممتاز</option>
                 <option value="special">غسيل خصوصي</option>
@@ -4378,7 +4424,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
               </select>
             </div>
             <div class="form-field">
-              <label>حالة الدفع</label>
+              <label>💳 حالة الدفع</label>
               <select id="cwPayment" class="form-control">
                 <option value="">اختر الحالة</option>
                 <option value="نعم">تم الدفع</option>
@@ -4387,8 +4433,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
             </div>
           </div>
           <div class="modal-actions">
-            <button id="cwSubmit" class="btn-primary">حفظ الموعد</button>
-            <button id="cwCancel" class="btn-secondary" type="button">إلغاء</button>
+            <button id="cwSubmit" class="btn-primary" style="min-width: 140px;">✅ حفظ الموعد</button>
+            <button id="cwCancel" class="btn-secondary" type="button" style="min-width: 100px;">❌ إلغاء</button>
           </div>
           <div id="cwMessage" class="modal-message hidden"></div>
         </div>
@@ -4409,10 +4455,10 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
     function buildCarWashSheetRow(payload) {
       const headerRow = window._carWashHeaderRow || [];
       const dateHeader = pickHeader(headerRow, ['تاريخ الموعد', 'التاريخ', 'date'], 'تاريخ الموعد');
-      const timeHeader = pickHeader(headerRow, ['الوقت', 'time'], 'الوقت');
+      const timeHeader = pickHeader(headerRow, ['وقت الموعد', 'الوقت', 'time'], 'وقت الموعد');
       const orderHeader = pickHeader(headerRow, ['رقم الطلب', 'qr order', 'order'], 'رقم الطلب');
       const nameHeader = pickHeader(headerRow, ['اسم العميل', 'customer name'], 'اسم العميل');
-      const locationHeader = pickHeader(headerRow, ['موقع العميل', 'location', 'العنوان'], 'موقع العميل');
+      const locationHeader = pickHeader(headerRow, ['المنطقة', 'المنطقه', 'location', 'موقع العميل', 'العنوان'], 'المنطقة');
       const washTypeHeader = pickHeader(headerRow, ['نوع الغسيل', 'wash type'], 'نوع الغسيل');
       const paymentHeader = pickHeader(headerRow, ['حاله الدفع', 'حالة الدفع', 'payment'], 'حالة الدفع');
 
@@ -4452,6 +4498,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
     async function handleCarWashSubmit() {
       const overlay = ensureCarWashModal();
       const message = overlay.querySelector('#cwMessage');
+      const submitBtn = overlay.querySelector('#cwSubmit');
+      const cancelBtn = overlay.querySelector('#cwCancel');
       setModalMessage(message, '', '');
 
       const datetimeVal = overlay.querySelector('#cwDatetime').value;
@@ -4488,17 +4536,40 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       });
 
       try {
+        // Disable actions and show saving state
+        submitBtn.disabled = true;
+        cancelBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.style.opacity = '0.6';
+        submitBtn.textContent = 'جاري الحفظ...';
+
         const res = await postToSheetDb(row);
         if (!res.ok) throw new Error('SheetDB request failed');
-        setModalMessage(message, 'success', 'تم حفظ الموعد بنجاح.');
+
+        // Loading then success states to mirror mechanical flow
+        setModalMessage(message, 'loading', '⏳ جاري التسجيل...');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setModalMessage(message, 'success', '✓ تم حفظ الموعد بنجاح!');
+
         if (document.getElementById('appointmentDateTime')) {
           document.getElementById('appointmentDateTime').value = `${dateOnly}T${timeOnly}`;
         }
         await loadCarWashAppointments(dateOnly);
-        setTimeout(() => overlay.classList.add('hidden'), 800);
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          // restore button text for next open
+          submitBtn.style.opacity = '1';
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+          cancelBtn.disabled = false;
+        }, 1500);
       } catch (err) {
         console.error(err);
         setModalMessage(message, 'error', 'تعذر حفظ الموعد. تأكد من الاتصال وحاول مرة أخرى.');
+        submitBtn.disabled = false;
+        cancelBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = '✅ حفظ الموعد';
       }
     }
 
@@ -4543,7 +4614,12 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
                 <option value="ماي راديتر">ماي راديتر</option>
                 <option value="زيت بريك">زيت بريك</option>
                 <option value="زيت سكان">زيت سكان</option>
+                <option value="أخرى">أخرى</option>
               </select>
+            </div>
+            <div class="form-field hidden" id="mechServiceOtherField">
+              <label>حدد الخدمة الأخرى</label>
+              <input type="text" id="mechServiceOtherInput" class="form-control" placeholder="اكتب الخدمة المطلوبة" />
             </div>
             <div class="form-field">
               <label>الفنيين</label>
@@ -4570,32 +4646,63 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       overlay.querySelector('#mechCancel').onclick = closeOverlay;
       overlay.querySelector('#mechSubmit').onclick = handleMechanicalSubmit;
 
+      const serviceSelect = overlay.querySelector('#mechService');
+      const otherField = overlay.querySelector('#mechServiceOtherField');
+      const otherInput = overlay.querySelector('#mechServiceOtherInput');
+      const toggleOtherField = () => {
+        if (serviceSelect.value === 'أخرى') {
+          otherField.classList.remove('hidden');
+          otherInput.focus();
+        } else {
+          otherField.classList.add('hidden');
+          otherInput.value = '';
+        }
+      };
+      serviceSelect.onchange = toggleOtherField;
+      overlay._toggleMechOther = toggleOtherField;
+
       prepareDateTimeInput(overlay.querySelector('#mechDatetime'));
       return overlay;
     }
 
     function buildMechanicalSheetRow(payload) {
-      const headerRow = window._mechAppointmentsHeader || [];
-      const dateHeader = pickHeader(headerRow, ['التاريخ', 'date'], 'التاريخ');
-      const timeHeader = pickHeader(headerRow, ['الوقت', 'time'], 'الوقت');
-      const orderHeader = pickHeader(headerRow, ['رقم الطلب', 'order'], 'رقم الطلب');
-      const areaHeader = pickHeader(headerRow, ['المنطقة', 'المنطقه', 'area'], 'المنطقة');
-      const serviceHeader = pickHeader(headerRow, ['نوع الخدمة', 'service'], 'نوع الخدمة');
-      const techHeader = pickHeader(headerRow, ['الفني', 'الفنيين', 'technician'], 'الفني');
-      const customerHeader = pickHeader(headerRow, ['اسم العميل', 'customer'], 'اسم العميل');
-
+      // Build object with exact column names from header row
+      // Use the actual header names from the loaded sheet
+      const header = window._mechAppointmentsHeader || [];
+      
+      // If header is available, use it to build the row dynamically
+      if (header.length >= 7) {
+        const row = {};
+        row[header[0]] = payload.date;        // Column A: تاريخ الموعد
+        row[header[1]] = payload.time;        // Column B: وقت الموعد
+        row[header[2]] = payload.qrOrder;     // Column C: رقم الطلب
+        row[header[3]] = payload.customerName; // Column D: اسم العميل
+        row[header[4]] = payload.area;        // Column E: المنطقة
+        row[header[5]] = payload.service;     // Column F: نوع الخدمة
+        row[header[6]] = payload.technician;  // Column G: الفنيين
+        return row;
+      }
+      
+      // Fallback: use expected column names
+      // Order: A=تاريخ الموعد, B=وقت الموعد, C=رقم الطلب, D=اسم العميل, E=المنطقة, F=نوع الخدمة, G=الفنيين
       return {
-        [dateHeader]: payload.date,
-        [timeHeader]: payload.time,
-        [orderHeader]: payload.qrOrder,
-        [customerHeader]: payload.customerName,
-        [areaHeader]: payload.area,
-        [serviceHeader]: payload.service,
-        [techHeader]: payload.technician
+        'تاريخ الموعد': payload.date,
+        'وقت الموعد': payload.time,
+        'رقم الطلب': payload.qrOrder,
+        'اسم العميل': payload.customerName,
+        'المنطقة': payload.area,
+        'نوع الخدمة': payload.service,
+        'الفنيين': payload.technician
       };
     }
 
-    function openMechanicalModal() {
+    async function openMechanicalModal() {
+      // Ensure data is loaded to get header information
+      if (!window._mechAppointmentsHeader || window._mechAppointmentsHeader.length === 0) {
+        console.log('Loading mechanical appointments data to get header...');
+        await loadMechanicalAppointmentsData();
+      }
+      
       const overlay = ensureMechanicalModal();
       const datetimeInput = overlay.querySelector('#mechDatetime');
       datetimeInput.value = getRoundedNowIso();
@@ -4617,10 +4724,14 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       const serviceSelect = overlay.querySelector('#mechService');
       serviceSelect.value = defaultService;
 
+      const otherInput = overlay.querySelector('#mechServiceOtherInput');
+
       overlay.querySelector('#mechOrder').value = '';
       overlay.querySelector('#mechCustomer').value = '';
       overlay.querySelector('#mechArea').value = '';
       overlay.querySelector('#mechTechnician').value = 'يوسف و رحمه الله';
+      if (overlay._toggleMechOther) overlay._toggleMechOther();
+      if (otherInput) otherInput.value = '';
 
       setModalMessage(overlay.querySelector('#mechMessage'), '', '');
       overlay.classList.remove('hidden');
@@ -4629,17 +4740,28 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
     async function handleMechanicalSubmit() {
       const overlay = ensureMechanicalModal();
       const message = overlay.querySelector('#mechMessage');
+      const submitBtn = overlay.querySelector('#mechSubmit');
+      const cancelBtn = overlay.querySelector('#mechCancel');
       setModalMessage(message, '', '');
 
       const datetimeVal = overlay.querySelector('#mechDatetime').value;
       const orderVal = (overlay.querySelector('#mechOrder').value || '').trim();
       const customerVal = (overlay.querySelector('#mechCustomer').value || '').trim();
       const areaVal = (overlay.querySelector('#mechArea').value || '').trim();
-      const serviceVal = overlay.querySelector('#mechService').value;
+      const serviceSelect = overlay.querySelector('#mechService');
+      const serviceVal = serviceSelect.value;
+      const otherServiceVal = (overlay.querySelector('#mechServiceOtherInput')?.value || '').trim();
       const techVal = overlay.querySelector('#mechTechnician').value;
+
+      const finalService = serviceVal === 'أخرى' ? otherServiceVal : serviceVal;
 
       if (!datetimeVal || !orderVal || !customerVal || !areaVal || !serviceVal || !techVal) {
         setModalMessage(message, 'error', 'يرجى تعبئة جميع الحقول المطلوبة.');
+        return;
+      }
+
+      if (serviceVal === 'أخرى' && !otherServiceVal) {
+        setModalMessage(message, 'error', 'يرجى كتابة نوع الخدمة الأخرى.');
         return;
       }
 
@@ -4660,20 +4782,60 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         qrOrder: orderVal,
         customerName: customerVal,
         area: areaVal,
-        service: serviceVal,
+        service: finalService,
         technician: techVal
       });
+      
+      console.log('=== MECHANICAL APPOINTMENT SUBMISSION ===');
+      console.log('Raw Input Values:');
+      console.log('  - Date:', dateOnly);
+      console.log('  - Time:', timeOnly);
+      console.log('  - Order:', orderVal);
+      console.log('  - Customer:', customerVal);
+      console.log('  - Area:', areaVal);
+      console.log('  - Service:', finalService);
+      console.log('  - Technician:', techVal);
+      console.log('Row Object to Send:', row);
+      console.log('Row Object Keys:', Object.keys(row));
+      Object.keys(row).forEach(key => {
+        console.log(`  "${key}": "${row[key]}"`);
+      });
+      console.log('Expected Header:', window._mechAppointmentsHeader);
+      console.log('========================================');
 
+      // Disable buttons and show loading state
+      submitBtn.disabled = true;
+      cancelBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+      submitBtn.textContent = 'جاري الحفظ...';
+      
       try {
-        const res = await postToSheetDb(row);
+        const res = await postToSheetDb(row, MECHANICAL_SHEETDB_URL);
+        console.log('SheetDB Response:', res.status, res.statusText);
         if (!res.ok) throw new Error('SheetDB request failed');
-        setModalMessage(message, 'success', 'تم حفظ الموعد بنجاح.');
+        
+        // Show loading message with spinner
+        setModalMessage(message, 'loading', '⏳ جاري التسجيل...');
+        
+        // Wait a moment to show the loading state
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Show success message with checkmark
+        setModalMessage(message, 'success', '✓ تم تسجيل الموعد بنجاح!');
+        
         await loadMechanicalAppointmentsData();
         await renderMechanicalAppointments();
-        setTimeout(() => overlay.classList.add('hidden'), 800);
+        
+        // Close modal after success
+        setTimeout(() => overlay.classList.add('hidden'), 1500);
       } catch (err) {
         console.error(err);
         setModalMessage(message, 'error', 'تعذر حفظ الموعد. تأكد من الاتصال وحاول مرة أخرى.');
+        // Re-enable buttons on error
+        submitBtn.disabled = false;
+        cancelBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.textContent = 'حفظ الموعد';
       }
     }
 
