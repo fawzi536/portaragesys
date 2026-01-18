@@ -3400,6 +3400,14 @@
       }
     }
 
+    // Helper function to get local date in YYYY-MM-DD format (without UTC offset)
+    function getLocalDateString(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     function parseCellDate(cell) {
       if (!cell) return null;
       
@@ -3411,7 +3419,8 @@
       // محاولة تحويلها إلى تاريخ
       const d = new Date(cell);
       if (!isNaN(d.getTime())) {
-        return d.toISOString().split('T')[0];
+        // Use local date instead of UTC (toISOString)
+        return getLocalDateString(d);
       }
       
       return null;
@@ -3423,10 +3432,10 @@
       const techFilter = document.getElementById('mechTechnicianFilter');
       const tableBody = document.querySelector('#mechAppointmentsTable tbody');
 
-      // default date = today
+      // default date = today (using local date, not UTC)
       if (!dateInput.value) {
         const today = new Date();
-        dateInput.value = today.toISOString().split('T')[0];
+        dateInput.value = getLocalDateString(today);
       }
 
       // load data
@@ -3633,7 +3642,7 @@
         const appointmentDateTime = document.getElementById('appointmentDateTime');
         if (!appointmentDateTime) return;
         prepareDateTimeInput(appointmentDateTime);
-        const dateOnly = (appointmentDateTime.value || '').split('T')[0] || new Date().toISOString().split('T')[0];
+        const dateOnly = (appointmentDateTime.value || '').split('T')[0] || getLocalDateString(new Date());
         loadCarWashAppointments(dateOnly);
         appointmentDateTime.onchange = () => {
           const selectedDate = (appointmentDateTime.value || '').split('T')[0];
@@ -3717,7 +3726,7 @@
       if (appointmentDateTime) {
         prepareDateTimeInput(appointmentDateTime);
         const selectedDate = (appointmentDateTime.value || '').split('T')[0];
-        const fallbackDate = new Date().toISOString().split('T')[0];
+        const fallbackDate = getLocalDateString(new Date());
         loadCarWashAppointments(selectedDate || fallbackDate);
         appointmentDateTime.onchange = () => {
           const dateOnly = (appointmentDateTime.value || '').split('T')[0];
@@ -4232,7 +4241,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           
           const selectedDate = (document.getElementById('appointmentDateTime')?.value || '').split('T')[0] || apt.date;
           const today = new Date();
-          const todayStr = today.toISOString().split('T')[0];
+          const todayStr = getLocalDateString(today);
           const isToday = selectedDate === todayStr;
           
           if (isToday) {
@@ -4326,9 +4335,14 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       now.setMinutes(roundedMinutes);
       now.setSeconds(0);
       now.setMilliseconds(0);
-      const offsetMs = now.getTimezoneOffset() * 60000;
-      const local = new Date(now.getTime() - offsetMs);
-      return local.toISOString().slice(0, 16);
+      
+      // Format as YYYY-MM-DDTHH:MM using local time
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes_str = String(now.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes_str}`;
     }
 
     function blockManualInput(input) {
@@ -4354,7 +4368,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       if (!str) return '';
       const cleaned = (str || '').toString().trim().replace(/^'+/, '');
       const d = new Date(cleaned);
-      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+      if (!isNaN(d.getTime())) return getLocalDateString(d);
       return cleaned.split('T')[0];
     }
 
@@ -5795,51 +5809,53 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         </div>
         
         <div id="detailsModal" class="modal-overlay hidden">
-          <div class="modal">
+          <div class="modal" style="max-height: 80vh; overflow-y: auto;">
             <button type="button" class="modal-close" aria-label="إغلاق">×</button>
             <h3 style="color: #F2BC1B; text-align: center; margin-bottom: 16px;">تفاصيل الاشتراك السنوي</h3>
-            <div style="color: #ddd; font-size: 13px; line-height: 1.8;">
-              <div style="background: #0f2a1a; border: 1px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-                <h4 style="color: #10b981; margin: 0 0 8px 0; font-size: 14px;">الاشتراك السنوي - شركة بورتراج</h4>
-                <div style="margin-bottom: 10px;">
-                  <strong style="color: #10b981;">1. الاشتراك الفردي</strong> - لسيارة واحدة بقيمة <strong>15 د.ك</strong> لمدة سنة كاملة
-                </div>
-                <div>
-                  <strong style="color: #10b981;">2. الاشتراك العائلي</strong> - ل 3 سيارات بقيمة <strong>40 د.ك</strong> لمدة سنة كاملة
-                </div>
+            <div id="detailsContent" style="color: #ddd; font-size: 13px; line-height: 1.6;">
+              <div style="margin-bottom: 16px; padding: 12px; border-bottom: 2px solid #F2BC1B;">
+                <strong style="color: #F2BC1B; font-size: 14px;">الاشتراك السنوي - شركة بورتراج</strong>
               </div>
               
-              <div style="background: #1a2a3a; border: 1px solid #3b82f6; border-radius: 8px; padding: 12px;">
-                <h4 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 14px;">الخدمات المشمولة (5 خدمات على مدار السنة)</h4>
-                <ol style="margin: 0; padding-right: 20px;">
-                  <li style="margin-bottom: 10px;">
-                    <strong style="color: #93c5fd;">نقل السيارة (ونش/سطحة)</strong>
-                    <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">من الطريق العام فقط. لا يشمل النقل عند البيت أو داخل الفريج أو عند القراج أو عند الشاليه (هذه الحالات عليها تكلفة إضافية)</div>
-                  </li>
-                  <li style="margin-bottom: 10px;">
-                    <strong style="color: #93c5fd;">البنشر (الاطار)</strong>
-                    <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">يشمل تبديل السبير، الرقعة الأمريكية الخارجية، أو تعبئة الإطار بالهواء</div>
-                  </li>
-                  <li style="margin-bottom: 10px;">
-                    <strong style="color: #93c5fd;">شحن البطارية</strong>
-                    <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">خدمة شحن البطارية عند الحاجة</div>
-                  </li>
-                  <li style="margin-bottom: 10px;">
-                    <strong style="color: #93c5fd;">البنزين</strong>
-                    <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">نزودك بنزين بقيمة 1.5 د.ك من اختيارك. ما تدفع رسوم التوصيل - فقط رسوم البنزين (1.5 د.ك)</div>
-                  </li>
-                  <li style="margin-bottom: 0;">
-                    <strong style="color: #93c5fd;">فتح قفل الباب</strong>
-                    <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">إذا لا سمح الله انقفلت السيارة والمفتاح داخلها، نفتحها لك بدون أي رسوم</div>
-                  </li>
-                </ol>
+              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
+                <strong style="color: #F2BC1B;">1. الاشتراك الفردي</strong> - لسيارة واحدة بقيمة <strong>15 د.ك</strong> لمدة سنة كاملة
+              </div>
+              <div style="margin-bottom: 16px; padding: 0 0 12px 0; border-bottom: 2px solid #F2BC1B;">
+                <strong style="color: #F2BC1B;">2. الاشتراك العائلي</strong> - ل 3 سيارات بقيمة <strong>40 د.ك</strong> لمدة سنة كاملة
               </div>
               
-              <div style="background: #2a1a0f; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-top: 12px;">
+              <div style="margin-bottom: 16px; padding: 12px; border-bottom: 2px solid #F2BC1B;">
+                <strong style="color: #F2BC1B; font-size: 14px;">الخدمات المشمولة (5 خدمات على مدار السنة)</strong>
+              </div>
+              
+              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
+                <strong style="color: #F2BC1B;">نقل السيارة (ونش/سطحة)</strong>
+                <div style="color: #bbb; margin-top: 4px;">من الطريق العام فقط. لا يشمل النقل عند البيت أو داخل الفريج أو عند القراج أو عند الشاليه (هذه الحالات عليها تكلفة إضافية)</div>
+              </div>
+              
+              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
+                <strong style="color: #F2BC1B;">البنشر (الاطار)</strong>
+                <div style="color: #bbb; margin-top: 4px;">يشمل تبديل السبير، الرقعة الأمريكية الخارجية، أو تعبئة الإطار بالهواء</div>
+              </div>
+              
+              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
+                <strong style="color: #F2BC1B;">شحن البطارية</strong>
+                <div style="color: #bbb; margin-top: 4px;">خدمة شحن البطارية عند الحاجة</div>
+              </div>
+              
+              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
+                <strong style="color: #F2BC1B;">البنزين</strong>
+                <div style="color: #bbb; margin-top: 4px;">نزودك بنزين بقيمة 1.5 د.ك من اختيارك. ما تدفع رسوم التوصيل - فقط رسوم البنزين (1.5 د.ك)</div>
+              </div>
+              
+              <div style="margin-bottom: 16px; padding: 0 0 12px 0; border-bottom: 2px solid #F2BC1B;">
+                <strong style="color: #F2BC1B;">فتح قفل الباب</strong>
+                <div style="color: #bbb; margin-top: 4px;">إذا لا سمح الله انقفلت السيارة والمفتاح داخلها، نفتحها لك بدون أي رسوم</div>
+              </div>
+              
+              <div style="margin-bottom: 12px; padding: 12px; background: #2a1a0f; border: 1px solid #f59e0b; border-radius: 6px;">
                 <strong style="color: #fbbf24;">⏰ ملاحظة مهمة:</strong>
-                <div style="font-size: 12px; color: #fde68a; margin-top: 6px;">
-                  الاشتراك يتفعل بعد الدفع ب 3 أيام عمل. كل 24 ساعة لك خدمة واحدة فقط.
-                </div>
+                <div style="font-size: 12px; color: #fde68a; margin-top: 6px;">الاشتراك يتفعل بعد الدفع ب 3 أيام عمل. كل 24 ساعة لك خدمة واحدة فقط.</div>
               </div>
             </div>
             <button id="detailsCloseBtn" class="btn-primary" style="width: 100%; margin-top: 16px;">إغلاق</button>
