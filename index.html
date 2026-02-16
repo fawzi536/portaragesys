@@ -554,6 +554,220 @@
       background: #d9a616;
       transform: translateY(-2px);
     }
+
+    .btn-inline {
+      width: auto;
+      margin-top: 0;
+      padding: 10px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #F2BC1B;
+      border: 1px solid #F2BC1B;
+    }
+
+    .btn-outline:hover {
+      background: #F2BC1B;
+      color: #000;
+    }
+
+    .info-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid #F2BC1B;
+      background: #0f0f0f;
+      color: #F2BC1B;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .info-icon:hover {
+      background: #F2BC1B;
+      color: #000;
+    }
+
+    .installments-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .installments-hero {
+      background: #0f0f0f;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .installments-hero-media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .installments-hero-media img {
+      width: min(180px, 100%);
+      height: auto;
+      object-fit: contain;
+    }
+
+    .installments-title {
+      color: #F2BC1B;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .installments-subtitle {
+      color: #999;
+      font-size: 13px;
+    }
+
+    .installments-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .installments-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .installments-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .installments-pay {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #999;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .installments-how {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #999;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .installments-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .installments-image-wrapper {
+      width: min(420px, 100%);
+      aspect-ratio: 1 / 1;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .installments-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .installments-how-body {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 16px;
+      align-items: start;
+      margin-top: 12px;
+    }
+
+    .installments-how-modal {
+      width: min(720px, 96%);
+    }
+
+    .installments-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .installments-step {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #ccc;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .installments-step.active {
+      background: #F2BC1B;
+      color: #000;
+      border-color: #F2BC1B;
+      font-weight: 700;
+    }
+
+    .installments-carousel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .carousel-image-wrapper {
+      width: min(480px, 100%);
+      aspect-ratio: 1 / 1;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .carousel-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .carousel-step-indicator {
+      color: #999;
+      font-size: 13px;
+    }
     
     /* Back Button */
     .btn-back {
@@ -1425,6 +1639,41 @@
       </div>
     </div>
   </div>
+
+  <!-- Installments How-To Modal -->
+  <div id="installmentHowModal" class="modal-overlay hidden" data-modal-id="installmentHowModal">
+    <div class="modal installments-how-modal">
+      <button class="modal-close" data-close-modal="installmentHowModal">×</button>
+      <h3>كيفية عمل طلب جديد للأقساط</h3>
+      <div class="installments-how-body">
+        <div class="installments-steps" id="installmentsSteps"></div>
+        <div class="installments-carousel">
+          <div class="carousel-image-wrapper">
+            <img id="installmentsHowImage" src="" alt="شرح طلب جديد للأقساط">
+          </div>
+          <div class="carousel-step-indicator" id="installmentsStepIndicator">الخطوة 1 من 5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Installments Payment Flow Modal -->
+  <div id="installmentPayModal" class="modal-overlay hidden" data-modal-id="installmentPayModal">
+    <div class="modal">
+      <button class="modal-close" data-close-modal="installmentPayModal">×</button>
+      <h3>شلون يدفع العميل</h3>
+      <div class="info-box" style="margin-top: 10px;">
+        <ol style="margin: 0; padding-right: 18px; line-height: 1.8;">
+          <li>يوصله مسج SMS، يضغط عليه.</li>
+          <li>يطلب منه رقم التلفون، وبعدين الـ OTP.</li>
+          <li>يطلب منه الرقم المدني ويوصله مصادقة على هويتي.</li>
+          <li>يطلب منه الإيميل ويوصله الـ OTP على نفس الإيميل.</li>
+          <li>تظهر له كافة البيانات: كل شهر كم راح يدفع.</li>
+          <li>طرق الدفع المتاحة: كي نت، آبل باي، فيزا.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
   
   <div class="dashboard-wrapper" id="dashboardWrapper"><!-- Sidebar -->
    <aside class="sidebar" id="sidebar">
@@ -1476,6 +1725,8 @@
     <div class="service-item" data-service="insurance"><span class="icon">🚧</span> <span class="label">تأمينات</span>
     </div>
     <div class="service-item" data-service="annualSubscription"><span class="icon">📅</span> <span class="label">الاشتراك السنوي</span>
+    </div>
+    <div class="service-item" data-service="installments"><span class="icon">💳</span> <span class="label">الاقساط</span>
     </div>
    </aside><!-- Main Content -->
    <main class="main-content"><!-- Header Bar -->
@@ -1846,6 +2097,86 @@
       // The user will see the same service they had before opening the iframe
     };
 
+    // Simple modal helpers (installments info)
+    function openSimpleModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('hidden');
+
+      if (modalId === 'installmentHowModal') {
+        initInstallmentCarousel();
+        showInstallmentStep(0);
+      }
+    }
+
+    function closeSimpleModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    const installmentHowImages = [
+      'https://f.top4top.io/p_3698ieqsv1.jpeg',
+      'https://j.top4top.io/p_369872oe41.png',
+      'https://k.top4top.io/p_3698hqeux1.png',
+      'https://j.top4top.io/p_3698miggh3.png',
+      'https://k.top4top.io/p_3698bhkkb2.png'
+    ];
+    let currentInstallmentStep = 0;
+
+    function initInstallmentCarousel() {
+      if (window._installmentCarouselInit) return;
+
+      const stepsContainer = document.getElementById('installmentsSteps');
+      if (!stepsContainer) return;
+
+      stepsContainer.innerHTML = installmentHowImages
+        .map((_, i) => `<div class="installments-step" data-step="${i}">الخطوة ${i + 1}</div>`)
+        .join('');
+
+      stepsContainer.addEventListener('click', (e) => {
+        const stepEl = e.target.closest('.installments-step');
+        if (!stepEl) return;
+        const stepIndex = parseInt(stepEl.dataset.step, 10);
+        if (!Number.isNaN(stepIndex)) showInstallmentStep(stepIndex);
+      });
+
+      window._installmentCarouselInit = true;
+    }
+
+    function showInstallmentStep(index) {
+      const total = installmentHowImages.length;
+      if (!total) return;
+
+      currentInstallmentStep = (index + total) % total;
+
+      const imageEl = document.getElementById('installmentsHowImage');
+      const indicatorEl = document.getElementById('installmentsStepIndicator');
+      const stepEls = document.querySelectorAll('#installmentsSteps .installments-step');
+
+      if (imageEl) imageEl.src = installmentHowImages[currentInstallmentStep];
+      if (indicatorEl) indicatorEl.textContent = `الخطوة ${currentInstallmentStep + 1} من ${total}`;
+
+      stepEls.forEach((el, idx) => {
+        if (idx === currentInstallmentStep) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      const closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        closeSimpleModal(closeBtn.dataset.closeModal);
+        return;
+      }
+
+      if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+        const modalId = e.target.dataset.modalId;
+        if (modalId) closeSimpleModal(modalId);
+      }
+    });
+
     // Service Selection
     document.addEventListener('click', (e) => {
       const serviceItem = e.target.closest('.service-item');
@@ -1886,7 +2217,8 @@
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
-          'annualSubscription': 'الاشتراك السنوي'
+          'annualSubscription': 'الاشتراك السنوي',
+          'installments': 'الاقساط'
         };
         
         document.getElementById('serviceTitle').textContent = serviceTitles[currentService];
@@ -1943,6 +2275,9 @@
           case 'annualSubscription':
             renderAnnualSubscriptionInterface();
             break;
+          case 'installments':
+            renderInstallmentsInterface();
+            break;
         }
       }
     });
@@ -1951,6 +2286,44 @@
     function renderBatterySubscriptionInterface() {
       renderServiceWithDatalist('اشتراك بطارية', 'خدمات5', [0, 1, 2, 4, 5, 6], 
         '<div class="info-box">في حال العميل يبي فحص بطارية: 10 د.ك تنخصم من سعر البطارية</div>');
+    }
+
+    // Render Installments Interface
+    function renderInstallmentsInterface() {
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = `
+        <div class="form-section full-width installments-card">
+          <h3 class="section-title">الاقساط</h3>
+          <div class="installments-hero">
+            <div class="installments-hero-media">
+              <img src="https://i.ibb.co/ch9MtQzZ/Whats-App-Image-2026-02-15-at-21-39-49.png" alt="Taly">
+            </div>
+            <div class="installments-title">اخذ الحين ودفع تالي</div>
+          </div>
+          <div class="installments-actions">
+            <div class="installments-actions-row">
+              <div class="installments-pay">
+                <span>شلون يدفع العميل</span>
+                <button class="info-icon" id="installmentsPayBtn" title="شلون يدفع العميل" aria-label="شلون يدفع العميل">i</button>
+              </div>
+              <div class="installments-buttons">
+                <a class="btn-primary btn-inline" href="https://taly.io/partners/auth/login" target="_blank" rel="noopener">تسجيل طلب اقساط</a>
+                <a class="btn-primary btn-inline btn-outline" href="https://taly.io/partners/terms-condition" target="_blank" rel="noopener">الشروط والاحكام</a>
+              </div>
+              <div class="installments-how">
+                <button class="info-icon" id="installmentsHowBtn" title="كيفية عمل طلب جديد للاقساط" aria-label="كيفية عمل طلب جديد للاقساط">i</button>
+                <span>كيفية عمل طلب جديد للأقساط</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const howBtn = document.getElementById('installmentsHowBtn');
+      if (howBtn) howBtn.onclick = () => openSimpleModal('installmentHowModal');
+
+      const payBtn = document.getElementById('installmentsPayBtn');
+      if (payBtn) payBtn.onclick = () => openSimpleModal('installmentPayModal');
     }
 
     // Render Staff Interface
@@ -2238,6 +2611,12 @@
               <tbody id="towResultBody">
               </tbody>
             </table>
+          </div>
+          <div id="towPortarageNote" class="info-box hidden" style="margin-top: 10px;">
+            في حال العميل طلب ونش<br>
+            تبلغون العميل نقدر نوفر لك سيارة فولفو مع سايق يوصلك لاي منطقة داخل الكويت السعر الخدمة 10 دك لاي منطقة<br><br>
+            في حال العميل سأل عن مدة الوصول 15 ل 25 اقصى مدة والخدمة متوفرة 24 ساعة على مدار اليوم<br><br>
+            ضروري تبلغون العميل انه في حال انتظار لسايق اول ربع ساعة مجانية وبعد الربع ساعة 0.150 فلس (لكل دقيقه) ويدفعها وهو بالطريج قبل لا يوصل وجهته
           </div>
         </div>
       `;
@@ -2692,9 +3071,11 @@
     function calculateTowPrice() {
       const routes = getTowRoutes(formData.company, formData.towType);
       const route = routes.find(r => r.from === formData.from && r.to === formData.to);
+      const portarageNote = document.getElementById('towPortarageNote');
       
       if (!route) {
         document.getElementById('towResultSection').classList.add('hidden');
+        if (portarageNote) portarageNote.classList.add('hidden');
         return;
       }
       
@@ -2822,6 +3203,14 @@
       
       tbody.innerHTML = rows;
       document.getElementById('towResultSection').classList.remove('hidden');
+
+      if (portarageNote) {
+        if (formData.companyArabic === 'بورتراج' && (formData.towType === 'normal' || formData.towType === 'flatbed')) {
+          portarageNote.classList.remove('hidden');
+        } else {
+          portarageNote.classList.add('hidden');
+        }
+      }
       
       setTimeout(() => {
         const resultSection = document.getElementById('towResultSection');
