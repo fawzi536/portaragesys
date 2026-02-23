@@ -2435,24 +2435,20 @@
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = `
         <div class="form-section full-width">
-          <h3 class="section-title">جدول السائقين</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <h3 class="section-title" style="margin:0;">جدول السائقين</h3>
+            <button id="driverLanguageToggle" class="btn-back" style="padding:6px 12px;font-size:12px;">English</button>
+          </div>
           <div class="driver-filters">
             <div class="filter-group">
-              <label for="driverLanguageToggle">لغة العرض</label>
-              <select id="driverLanguageToggle" class="form-control">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="driverViewFilter">فلتر العرض</label>
+              <label id="driverViewFilterLabel" for="driverViewFilter">فلتر العرض</label>
               <select id="driverViewFilter" class="form-control">
                 <option value="all">الكل</option>
                 <option value="now">المتواجدون الآن</option>
               </select>
             </div>
             <div class="filter-group">
-              <label for="driverTypeFilter">نوع المركبة</label>
+              <label id="driverTypeFilterLabel" for="driverTypeFilter">نوع المركبة</label>
               <select id="driverTypeFilter" class="form-control">
                 <option value="all">الكل</option>
               </select>
@@ -2464,12 +2460,12 @@
             <table class="data-table" id="driverStatusTable">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>اسم السائق</th>
-                  <th>النوع</th>
-                  <th>وقت بداية الدوام</th>
-                  <th>الحالة</th>
-                  <th>الإجازات</th>
+                  <th id="driverHeaderIndex">#</th>
+                  <th id="driverHeaderName">اسم السائق</th>
+                  <th id="driverHeaderType">النوع</th>
+                  <th id="driverHeaderShift">وقت بداية الدوام</th>
+                  <th id="driverHeaderStatus">الحالة</th>
+                  <th id="driverHeaderOff">الإجازات</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -2483,10 +2479,16 @@
       const languageToggle = document.getElementById('driverLanguageToggle');
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
-      if (languageToggle) languageToggle.onchange = () => {
+      if (languageToggle) languageToggle.onclick = () => {
+        const nextLang = (window._driverStatusLang || 'ar') === 'ar' ? 'en' : 'ar';
+        window._driverStatusLang = nextLang;
+        updateDriverStatusLanguageUI(nextLang);
         populateDriverTypeFilter(window._driverStatusRows || []);
         renderDriverStatusTable();
       };
+
+      window._driverStatusLang = 'ar';
+      updateDriverStatusLanguageUI('ar');
 
       loadDriverStatusData(true);
     }
@@ -2539,12 +2541,12 @@
     function populateDriverTypeFilter(rows) {
       const select = document.getElementById('driverTypeFilter');
       if (!select) return;
-      const languageToggle = document.getElementById('driverLanguageToggle');
-      const lang = languageToggle ? languageToggle.value : 'ar';
+      const lang = window._driverStatusLang || 'ar';
       const current = select.value || 'all';
       const types = Array.from(new Set(rows.map(r => r.type).filter(Boolean)));
       types.sort((a, b) => a.localeCompare(b, 'ar'));
-      select.innerHTML = `<option value="all">الكل</option>` +
+      const allLabel = lang === 'en' ? 'All' : 'الكل';
+      select.innerHTML = `<option value="all">${allLabel}</option>` +
         types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(formatDriverType(t, lang) || t)}</option>`).join('');
       select.value = types.includes(current) ? current : 'all';
     }
@@ -2561,10 +2563,9 @@
 
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
-      const languageToggle = document.getElementById('driverLanguageToggle');
       const view = viewFilter ? viewFilter.value : 'all';
       const type = typeFilter ? typeFilter.value : 'all';
-      const lang = languageToggle ? languageToggle.value : 'ar';
+      const lang = window._driverStatusLang || 'ar';
       const now = new Date();
 
       const computed = rows.map(r => {
@@ -2588,12 +2589,13 @@
         const daysOff = formatDaysOffDisplay(r);
         const name = getDriverNameByLanguage(r, lang);
         const typeDisplay = formatDriverType(r.type, lang);
+        const statusLabel = getDriverStatusLabel(r.status.key, lang);
         tr.innerHTML = `
           <td>${idx + 1}</td>
           <td>${escapeHtml(name || '-')}</td>
           <td>${escapeHtml(typeDisplay || '-')}</td>
           <td>${escapeHtml(shiftDisplay)}</td>
-          <td><span class="status-badge status-${r.status.key}">${r.status.label}</span></td>
+          <td><span class="status-badge status-${r.status.key}">${statusLabel}</span></td>
           <td>${escapeHtml(daysOff)}</td>
         `;
         tbody.appendChild(tr);
@@ -2626,23 +2628,79 @@
 
     function getDriverStatus(row, now) {
       if (isOffToday(row, now)) {
-        return { key: 'off', label: 'إجازة' };
+        return { key: 'off' };
       }
 
       const shiftStartToday = parseShiftTimeToDate(row.shiftRaw, row.shiftDisplay, now);
       if (!shiftStartToday) {
-        return { key: 'out', label: 'خارج الدوام' };
+        return { key: 'out' };
       }
 
       if (isInDuty(now, shiftStartToday)) {
-        return { key: 'in', label: 'في العمل' };
+        return { key: 'in' };
       }
 
       if (isSoon(now, shiftStartToday)) {
-        return { key: 'soon', label: 'قريباً' };
+        return { key: 'soon' };
       }
 
-      return { key: 'out', label: 'خارج الدوام' };
+      return { key: 'out' };
+    }
+
+    function getDriverStatusLabel(key, lang) {
+      if (lang === 'en') {
+        const map = { in: 'In Duty', soon: 'Soon', off: 'Off', out: 'Off Duty' };
+        return map[key] || 'Off Duty';
+      }
+      const map = { in: 'في العمل', soon: 'قريباً', off: 'إجازة', out: 'خارج الدوام' };
+      return map[key] || 'خارج الدوام';
+    }
+
+    function updateDriverStatusLanguageUI(lang) {
+      const toggle = document.getElementById('driverLanguageToggle');
+      const viewLabel = document.getElementById('driverViewFilterLabel');
+      const typeLabel = document.getElementById('driverTypeFilterLabel');
+      const headerIndex = document.getElementById('driverHeaderIndex');
+      const headerName = document.getElementById('driverHeaderName');
+      const headerType = document.getElementById('driverHeaderType');
+      const headerShift = document.getElementById('driverHeaderShift');
+      const headerStatus = document.getElementById('driverHeaderStatus');
+      const headerOff = document.getElementById('driverHeaderOff');
+      const viewSelect = document.getElementById('driverViewFilter');
+
+      if (lang === 'en') {
+        if (toggle) toggle.textContent = 'العربية';
+        if (viewLabel) viewLabel.textContent = 'View Filter';
+        if (typeLabel) typeLabel.textContent = 'Vehicle Type';
+        if (headerIndex) headerIndex.textContent = '#';
+        if (headerName) headerName.textContent = 'Driver Name';
+        if (headerType) headerType.textContent = 'Type';
+        if (headerShift) headerShift.textContent = 'Shift Start';
+        if (headerStatus) headerStatus.textContent = 'Status';
+        if (headerOff) headerOff.textContent = 'Days Off';
+        if (viewSelect) {
+          const allOption = viewSelect.querySelector('option[value="all"]');
+          const nowOption = viewSelect.querySelector('option[value="now"]');
+          if (allOption) allOption.textContent = 'All';
+          if (nowOption) nowOption.textContent = 'Available Now';
+        }
+      } else {
+        if (toggle) toggle.textContent = 'English';
+        if (viewLabel) viewLabel.textContent = 'فلتر العرض';
+        if (typeLabel) typeLabel.textContent = 'نوع المركبة';
+        if (headerIndex) headerIndex.textContent = '#';
+        if (headerName) headerName.textContent = 'اسم السائق';
+        if (headerType) headerType.textContent = 'النوع';
+        if (headerShift) headerShift.textContent = 'وقت بداية الدوام';
+        if (headerStatus) headerStatus.textContent = 'الحالة';
+        if (headerOff) headerOff.textContent = 'الإجازات';
+        if (viewSelect) {
+          const allOption = viewSelect.querySelector('option[value="all"]');
+          const nowOption = viewSelect.querySelector('option[value="now"]');
+          if (allOption) allOption.textContent = 'الكل';
+          if (nowOption) nowOption.textContent = 'المتواجدون الآن';
+        }
+      }
     }
 
     function isOffToday(row, now) {
