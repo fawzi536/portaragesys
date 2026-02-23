@@ -2445,8 +2445,12 @@
       contentArea.innerHTML = `
         <div class="form-section full-width">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <h3 class="section-title" style="margin:0;">جدول السائقين</h3>
-            <button id="driverLanguageToggle" class="btn-back" style="padding:6px 12px;font-size:12px;">English</button>
+            <h3 id="driverTitle" class="section-title" style="margin:0;">جدول السائقين</h3>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button id="driverLanguageToggle" class="btn-back" style="padding:6px 12px;font-size:12px;">English</button>
+              <button id="driverDownloadBtn" class="btn-back" style="padding:6px 12px;font-size:12px;display:none;">تحميل كصورة</button>
+              <button id="driverSheetBtn" class="btn-back" style="padding:6px 12px;font-size:12px;display:none;">فتح Google Sheet</button>
+            </div>
           </div>
           <div class="driver-filters">
             <div class="filter-group">
@@ -2486,6 +2490,8 @@
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
       const languageToggle = document.getElementById('driverLanguageToggle');
+      const downloadBtn = document.getElementById('driverDownloadBtn');
+      const sheetBtn = document.getElementById('driverSheetBtn');
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
       if (languageToggle) languageToggle.onclick = () => {
@@ -2498,6 +2504,17 @@
 
       window._driverStatusLang = 'ar';
       updateDriverStatusLanguageUI('ar');
+
+      const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
+      const isIdris = currentUser === 'idris';
+      if (downloadBtn) downloadBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
+      if (sheetBtn && isIdris) sheetBtn.onclick = () => {
+        const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=sharing`;
+        window.open(url, '_blank');
+      };
 
       loadDriverStatusData(true);
     }
@@ -2644,7 +2661,7 @@
       if (hasTow) {
         options.push({
           value: 'group_tow',
-          label: lang === 'en' ? 'Tow Trucks' : 'الونشات'
+          label: lang === 'en' ? 'Tow Trucks' : 'ونش'
         });
       }
 
@@ -2708,6 +2725,9 @@
 
     function updateDriverStatusLanguageUI(lang) {
       const toggle = document.getElementById('driverLanguageToggle');
+      const title = document.getElementById('driverTitle');
+      const downloadBtn = document.getElementById('driverDownloadBtn');
+      const sheetBtn = document.getElementById('driverSheetBtn');
       const viewLabel = document.getElementById('driverViewFilterLabel');
       const typeLabel = document.getElementById('driverTypeFilterLabel');
       const headerIndex = document.getElementById('driverHeaderIndex');
@@ -2720,6 +2740,9 @@
 
       if (lang === 'en') {
         if (toggle) toggle.textContent = 'العربية';
+        if (title) title.textContent = 'Drivers Table';
+        if (downloadBtn) downloadBtn.textContent = 'Download Image';
+        if (sheetBtn) sheetBtn.textContent = 'Open Google Sheet';
         if (viewLabel) viewLabel.textContent = 'View Filter';
         if (typeLabel) typeLabel.textContent = 'Vehicle Type';
         if (headerIndex) headerIndex.textContent = '#';
@@ -2736,6 +2759,9 @@
         }
       } else {
         if (toggle) toggle.textContent = 'English';
+        if (title) title.textContent = 'جدول السائقين';
+        if (downloadBtn) downloadBtn.textContent = 'تحميل كصورة';
+        if (sheetBtn) sheetBtn.textContent = 'فتح Google Sheet';
         if (viewLabel) viewLabel.textContent = 'فلتر العرض';
         if (typeLabel) typeLabel.textContent = 'نوع المركبة';
         if (headerIndex) headerIndex.textContent = '#';
@@ -2751,6 +2777,49 @@
           if (nowOption) nowOption.textContent = 'المتواجدون الآن';
         }
       }
+    }
+
+    async function exportDriverTableAsImage() {
+      const table = document.getElementById('driverStatusTable');
+      if (!table) return;
+
+      const scroll = table.closest('.table-scroll');
+      if (!scroll) return;
+
+      const previousMaxHeight = scroll.style.maxHeight;
+      const previousOverflow = scroll.style.overflowY;
+      scroll.style.maxHeight = 'none';
+      scroll.style.overflowY = 'visible';
+
+      try {
+        await ensureHtml2Canvas();
+        const canvas = await html2canvas(scroll, {
+          backgroundColor: '#1a1a1a',
+          scale: 2,
+          useCORS: true
+        });
+        const link = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        link.download = `drivers-table-${dateStr}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error('Export failed', err);
+      } finally {
+        scroll.style.maxHeight = previousMaxHeight;
+        scroll.style.overflowY = previousOverflow;
+      }
+    }
+
+    function ensureHtml2Canvas() {
+      return new Promise((resolve, reject) => {
+        if (window.html2canvas) return resolve();
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load html2canvas'));
+        document.head.appendChild(script);
+      });
     }
 
     function isOffToday(row, now) {
