@@ -2671,7 +2671,7 @@
       if (hasTow) {
         options.push({
           value: 'group_tow',
-          label: lang === 'en' ? 'Tow Trucks' : 'ونش'
+          label: lang === 'en' ? 'Tow Trucks' : 'ونش عادي'
         });
       }
 
@@ -2683,9 +2683,28 @@
       }
 
       const grouped = new Set(['NORMAL TOWTRUK', 'BIG TOWTRUK', 'FULL DOWN', 'FULL DOWN CLOSE']);
-      const otherTypes = rawTypes
-        .filter(t => !grouped.has(t.toString().trim().toUpperCase()))
-        .sort((a, b) => a.localeCompare(b, 'ar'))
+      const desiredOrder = [
+        'TIER BUS',
+        'BATTERY BUS',
+        'WASH BUS',
+        'OFFICE BOY',
+        'STORE'
+      ];
+
+      const otherTypesRaw = rawTypes
+        .filter(t => !grouped.has(t.toString().trim().toUpperCase()));
+
+      const ordered = [];
+      desiredOrder.forEach(key => {
+        const match = otherTypesRaw.find(t => t.toString().trim().toUpperCase() === key);
+        if (match) ordered.push(match);
+      });
+
+      const remaining = otherTypesRaw
+        .filter(t => !desiredOrder.includes(t.toString().trim().toUpperCase()))
+        .sort((a, b) => a.localeCompare(b, 'ar'));
+
+      const otherTypes = ordered.concat(remaining)
         .map(t => ({ value: t, label: formatDriverType(t, lang) || t }));
 
       return options.concat(otherTypes);
