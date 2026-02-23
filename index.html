@@ -1967,6 +1967,15 @@
         }
       });
     })();
+
+    // Auto-refresh the full page every 5 hours
+    setInterval(() => {
+      try {
+        window.location.reload();
+      } catch (e) {
+        console.error('Auto refresh failed', e);
+      }
+    }, 5 * 60 * 60 * 1000);
     
     // ========== ORIGINAL APP CODE ==========
     
@@ -2543,12 +2552,12 @@
       if (!select) return;
       const lang = window._driverStatusLang || 'ar';
       const current = select.value || 'all';
-      const types = Array.from(new Set(rows.map(r => r.type).filter(Boolean)));
-      types.sort((a, b) => a.localeCompare(b, 'ar'));
+      const rawTypes = Array.from(new Set(rows.map(r => r.type).filter(Boolean)));
+      const options = buildDriverTypeFilterOptions(rawTypes, lang);
       const allLabel = lang === 'en' ? 'All' : 'الكل';
       select.innerHTML = `<option value="all">${allLabel}</option>` +
-        types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(formatDriverType(t, lang) || t)}</option>`).join('');
-      select.value = types.includes(current) ? current : 'all';
+        options.map(opt => `<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`).join('');
+      select.value = options.some(opt => opt.value === current) ? current : 'all';
     }
 
     function renderDriverStatusTable() {
@@ -2572,7 +2581,7 @@
         const status = getDriverStatus(r, now);
         return { ...r, status };
       }).filter(r => {
-        if (type !== 'all' && r.type !== type) return false;
+        if (type !== 'all' && !matchesDriverTypeFilter(r.type, type)) return false;
         if (view === 'now' && !(r.status.key === 'in' || r.status.key === 'soon')) return false;
         return true;
       });
@@ -2624,6 +2633,47 @@
       };
       const key = value.toString().trim().toUpperCase();
       return map[key] || value;
+    }
+
+    function buildDriverTypeFilterOptions(rawTypes, lang) {
+      const options = [];
+      const upperTypes = rawTypes.map(t => t.toString().trim().toUpperCase());
+      const hasTow = upperTypes.includes('NORMAL TOWTRUK') || upperTypes.includes('BIG TOWTRUK');
+      const hasFullDown = upperTypes.includes('FULL DOWN') || upperTypes.includes('FULL DOWN CLOSE');
+
+      if (hasTow) {
+        options.push({
+          value: 'group_tow',
+          label: lang === 'en' ? 'Tow Trucks' : 'الونشات'
+        });
+      }
+
+      if (hasFullDown) {
+        options.push({
+          value: 'group_full_down',
+          label: lang === 'en' ? 'Full Down' : 'فل داون'
+        });
+      }
+
+      const grouped = new Set(['NORMAL TOWTRUK', 'BIG TOWTRUK', 'FULL DOWN', 'FULL DOWN CLOSE']);
+      const otherTypes = rawTypes
+        .filter(t => !grouped.has(t.toString().trim().toUpperCase()))
+        .sort((a, b) => a.localeCompare(b, 'ar'))
+        .map(t => ({ value: t, label: formatDriverType(t, lang) || t }));
+
+      return options.concat(otherTypes);
+    }
+
+    function matchesDriverTypeFilter(rowType, filterValue) {
+      if (!rowType) return false;
+      const typeKey = rowType.toString().trim().toUpperCase();
+      if (filterValue === 'group_tow') {
+        return typeKey === 'NORMAL TOWTRUK' || typeKey === 'BIG TOWTRUK';
+      }
+      if (filterValue === 'group_full_down') {
+        return typeKey === 'FULL DOWN' || typeKey === 'FULL DOWN CLOSE';
+      }
+      return rowType === filterValue;
     }
 
     function getDriverStatus(row, now) {
