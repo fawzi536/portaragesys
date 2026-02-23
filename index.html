@@ -923,6 +923,16 @@
       color: #cbd5f5;
       border: 1px solid rgba(148, 163, 184, 0.35);
     }
+
+    .status-ending {
+      background: rgba(245, 158, 11, 0.18);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
+
+    .export-mode .export-hide {
+      display: none !important;
+    }
     
     /* Info Boxes */
     .info-box {
@@ -2477,8 +2487,8 @@
                   <th id="driverHeaderName">اسم السائق</th>
                   <th id="driverHeaderType">النوع</th>
                   <th id="driverHeaderShift">وقت بداية الدوام</th>
-                  <th id="driverHeaderStatus">الحالة</th>
-                  <th id="driverHeaderOff">الإجازات</th>
+                  <th id="driverHeaderStatus" class="export-hide">الحالة</th>
+                  <th id="driverHeaderOff" class="export-hide">الإجازات</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -2599,7 +2609,7 @@
         return { ...r, status };
       }).filter(r => {
         if (type !== 'all' && !matchesDriverTypeFilter(r.type, type)) return false;
-        if (view === 'now' && !(r.status.key === 'in' || r.status.key === 'soon')) return false;
+        if (view === 'now' && !(r.status.key === 'in' || r.status.key === 'soon' || r.status.key === 'ending')) return false;
         return true;
       });
 
@@ -2621,8 +2631,8 @@
           <td>${escapeHtml(name || '-')}</td>
           <td>${escapeHtml(typeDisplay || '-')}</td>
           <td>${escapeHtml(shiftDisplay)}</td>
-          <td><span class="status-badge status-${r.status.key}">${statusLabel}</span></td>
-          <td>${escapeHtml(daysOff)}</td>
+          <td class="export-hide"><span class="status-badge status-${r.status.key}">${statusLabel}</span></td>
+          <td class="export-hide">${escapeHtml(daysOff)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2703,7 +2713,12 @@
         return { key: 'out' };
       }
 
-      if (isInDuty(now, shiftStartToday)) {
+      const duty = getDutyWindow(now, shiftStartToday);
+      if (duty && now >= duty.start && now < duty.end) {
+        const remainingMs = duty.end - now;
+        if (remainingMs <= 60 * 60 * 1000) {
+          return { key: 'ending' };
+        }
         return { key: 'in' };
       }
 
@@ -2716,10 +2731,10 @@
 
     function getDriverStatusLabel(key, lang) {
       if (lang === 'en') {
-        const map = { in: 'In Duty', soon: 'Soon', off: 'Off', out: 'Off Duty' };
+        const map = { in: 'In Duty', soon: 'Available', ending: 'Ending Soon', off: 'Off', out: 'Off Duty' };
         return map[key] || 'Off Duty';
       }
-      const map = { in: 'في العمل', soon: 'قريباً', off: 'إجازة', out: 'خارج الدوام' };
+      const map = { in: 'في العمل', soon: 'متاحة', ending: 'ينتهي قريباً', off: 'إجازة', out: 'خارج الدوام' };
       return map[key] || 'خارج الدوام';
     }
 
@@ -2788,6 +2803,7 @@
 
       const previousMaxHeight = scroll.style.maxHeight;
       const previousOverflow = scroll.style.overflowY;
+      scroll.classList.add('export-mode');
       scroll.style.maxHeight = 'none';
       scroll.style.overflowY = 'visible';
 
@@ -2808,6 +2824,7 @@
       } finally {
         scroll.style.maxHeight = previousMaxHeight;
         scroll.style.overflowY = previousOverflow;
+        scroll.classList.remove('export-mode');
       }
     }
 
@@ -2904,14 +2921,26 @@
     }
 
     function isInDuty(now, shiftStartToday) {
+      const window = getDutyWindow(now, shiftStartToday);
+      if (!window) return false;
+      return now >= window.start && now < window.end;
+    }
+
+    function getDutyWindow(now, shiftStartToday) {
       const startToday = shiftStartToday;
       const endToday = addHours(startToday, 12);
-      if (now >= startToday && now < endToday) return true;
+      if (now >= startToday && now < endToday) {
+        return { start: startToday, end: endToday };
+      }
 
       const startYesterday = new Date(startToday);
       startYesterday.setDate(startYesterday.getDate() - 1);
       const endYesterday = addHours(startYesterday, 12);
-      return now >= startYesterday && now < endYesterday;
+      if (now >= startYesterday && now < endYesterday) {
+        return { start: startYesterday, end: endYesterday };
+      }
+
+      return null;
     }
 
     function isSoon(now, shiftStartToday) {
