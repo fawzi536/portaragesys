@@ -862,6 +862,67 @@
       font-weight: 600;
       font-size: 15px;
     }
+
+    .driver-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .driver-filters .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 160px;
+    }
+
+    .driver-filters .filter-group label {
+      font-size: 13px;
+      color: #999;
+      font-weight: 600;
+    }
+
+    .muted-text {
+      color: #999;
+      font-size: 13px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      min-width: 80px;
+    }
+
+    .status-in {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-soon {
+      background: rgba(245, 158, 11, 0.18);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
+
+    .status-off {
+      background: rgba(239, 68, 68, 0.18);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .status-out {
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5f5;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
     
     /* Info Boxes */
     .info-box {
@@ -1685,6 +1746,8 @@
     <div class="service-submenu" id="staffSubmenu">
      <div class="service-item submenu-item" data-service="staff_centers"><span class="label">مراكز الطلبات</span>
      </div>
+      <div class="service-item submenu-item" data-service="driver_status"><span class="label">جدولة السائقين</span>
+      </div>
     </div>
     <div class="service-item" data-service="tow"><span class="icon">🚚</span> <span class="label">ونشات</span>
     </div>
@@ -2214,6 +2277,7 @@
           'ringRepair': 'تصليح الرنقات',
           'mechanical': 'خدمات ميكانيكية',
           'staff_centers': 'مراكز الطلبات',
+          'driver_status': 'جدولة السائقين الذكية',
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
@@ -2262,6 +2326,9 @@
             break;
           case 'staff_centers':
             renderStaffInterface();
+            break;
+          case 'driver_status':
+            renderDriverStatusInterface();
             break;
           case 'carwash':
             renderCarWashInterface();
@@ -2358,6 +2425,359 @@
       window.staffIntervalId = setInterval(() => {
         loadStaffData();
       }, 5 * 60 * 1000);
+    }
+
+    // Render Driver Status Interface (جدولة السائقين الذكية)
+    function renderDriverStatusInterface() {
+      if (window.driverStatusIntervalId) clearInterval(window.driverStatusIntervalId);
+      if (window.driverStatusRefreshId) clearInterval(window.driverStatusRefreshId);
+
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = `
+        <div class="form-section full-width">
+          <h3 class="section-title">جدولة السائقين الذكية</h3>
+          <div class="driver-filters">
+            <div class="filter-group">
+              <label for="driverViewFilter">فلتر العرض</label>
+              <select id="driverViewFilter" class="form-control">
+                <option value="all">الكل</option>
+                <option value="now">المتواجدون الآن</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="driverTypeFilter">نوع المركبة</label>
+              <select id="driverTypeFilter" class="form-control">
+                <option value="all">الكل</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>آخر تحديث</label>
+              <div id="driverStatusUpdated" class="muted-text">تحميل...</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section full-width">
+          <div class="table-scroll" style="max-height:420px;">
+            <table class="data-table" id="driverStatusTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>اسم السائق (عربي)</th>
+                  <th>اسم السائق (إنجليزي)</th>
+                  <th>النوع</th>
+                  <th>وقت بداية الدوام</th>
+                  <th>الحالة</th>
+                  <th>الإجازات</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      const viewFilter = document.getElementById('driverViewFilter');
+      const typeFilter = document.getElementById('driverTypeFilter');
+      if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
+      if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
+
+      loadDriverStatusData(true);
+
+      window.driverStatusRefreshId = setInterval(() => {
+        loadDriverStatusData();
+      }, 5 * 60 * 1000);
+
+      window.driverStatusIntervalId = setInterval(() => {
+        renderDriverStatusTable();
+      }, 60 * 1000);
+    }
+
+    async function loadDriverStatusData(force = false) {
+      const updatedEl = document.getElementById('driverStatusUpdated');
+      try {
+        const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+        const res = await fetch(sheetUrl, { cache: 'no-cache' });
+
+        if (!res.ok) throw new Error('failed to load drivers sheet');
+
+        const text = await res.text();
+        if (!force && window._driverStatusRawText && window._driverStatusRawText === text) {
+          renderDriverStatusTable();
+          return;
+        }
+        window._driverStatusRawText = text;
+
+        const jsonString = text.substring(47).slice(0, -2);
+        const data = JSON.parse(jsonString);
+        const rows = (data.table && data.table.rows) ? data.table.rows : [];
+
+        const drivers = rows.map(row => {
+          const c = row.c || [];
+          return {
+            nameEn: getCellDisplay(c[0]),
+            nameAr: getCellDisplay(c[1]),
+            type: getCellDisplay(c[2]),
+            shiftRaw: getCellValue(c[3]),
+            shiftDisplay: getCellDisplay(c[3]),
+            off1Raw: getCellValue(c[4]),
+            off1Display: getCellDisplay(c[4]),
+            off2Raw: getCellValue(c[5]),
+            off2Display: getCellDisplay(c[5])
+          };
+        }).filter(r => r.nameEn || r.nameAr || r.type || r.shiftDisplay);
+
+        window._driverStatusRows = drivers;
+        populateDriverTypeFilter(drivers);
+        if (updatedEl) updatedEl.textContent = new Date().toLocaleString('ar-KW');
+
+        renderDriverStatusTable();
+      } catch (err) {
+        console.error(err);
+        if (updatedEl) updatedEl.textContent = 'خطأ في تحميل البيانات';
+        const tbody = document.querySelector('#driverStatusTable tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="color:#f88;padding:12px">خطأ في تحميل البيانات</td></tr>';
+      }
+    }
+
+    function populateDriverTypeFilter(rows) {
+      const select = document.getElementById('driverTypeFilter');
+      if (!select) return;
+      const current = select.value || 'all';
+      const types = Array.from(new Set(rows.map(r => r.type).filter(Boolean)));
+      types.sort((a, b) => a.localeCompare(b, 'ar'));
+      select.innerHTML = `<option value="all">الكل</option>` +
+        types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+      select.value = types.includes(current) ? current : 'all';
+    }
+
+    function renderDriverStatusTable() {
+      const tbody = document.querySelector('#driverStatusTable tbody');
+      if (!tbody) return;
+
+      const rows = window._driverStatusRows || [];
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:#999;padding:12px">لا توجد بيانات</td></tr>';
+        return;
+      }
+
+      const viewFilter = document.getElementById('driverViewFilter');
+      const typeFilter = document.getElementById('driverTypeFilter');
+      const view = viewFilter ? viewFilter.value : 'all';
+      const type = typeFilter ? typeFilter.value : 'all';
+      const now = new Date();
+
+      const computed = rows.map(r => {
+        const status = getDriverStatus(r, now);
+        return { ...r, status };
+      }).filter(r => {
+        if (type !== 'all' && r.type !== type) return false;
+        if (view === 'now' && !(r.status.key === 'in' || r.status.key === 'soon')) return false;
+        return true;
+      });
+
+      if (computed.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:#999;padding:12px">لا توجد نتائج مطابقة</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      computed.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const shiftDisplay = formatShiftDisplay(r, now);
+        const daysOff = formatDaysOffDisplay(r);
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(r.nameAr || '-')}</td>
+          <td>${escapeHtml(r.nameEn || '-')}</td>
+          <td>${escapeHtml(r.type || '-')}</td>
+          <td>${escapeHtml(shiftDisplay)}</td>
+          <td><span class="status-badge status-${r.status.key}">${r.status.label}</span></td>
+          <td>${escapeHtml(daysOff)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function getDriverStatus(row, now) {
+      if (isOffToday(row, now)) {
+        return { key: 'off', label: 'إجازة' };
+      }
+
+      const shiftStartToday = parseShiftTimeToDate(row.shiftRaw, row.shiftDisplay, now);
+      if (!shiftStartToday) {
+        return { key: 'out', label: 'خارج الدوام' };
+      }
+
+      if (isInDuty(now, shiftStartToday)) {
+        return { key: 'in', label: 'في العمل' };
+      }
+
+      if (isSoon(now, shiftStartToday)) {
+        return { key: 'soon', label: 'قريباً' };
+      }
+
+      return { key: 'out', label: 'خارج الدوام' };
+    }
+
+    function isOffToday(row, now) {
+      const offDates = [row.off1Raw, row.off2Raw];
+      for (const value of offDates) {
+        const d = parseOffDate(value);
+        if (d && isSameDate(d, now)) return true;
+      }
+      return false;
+    }
+
+    function parseOffDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      if (typeof value === 'number') {
+        if (value > 10000000000) return new Date(value);
+      }
+      if (typeof value === 'string') {
+        const g = parseGoogleDate(value);
+        if (g) return g;
+        const iso = new Date(value);
+        if (!isNaN(iso)) return iso;
+        const m = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+        if (m) {
+          const day = parseInt(m[1], 10);
+          const month = parseInt(m[2], 10) - 1;
+          const yearRaw = parseInt(m[3], 10);
+          const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
+          return new Date(year, month, day);
+        }
+      }
+      return null;
+    }
+
+    function isSameDate(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+             a.getMonth() === b.getMonth() &&
+             a.getDate() === b.getDate();
+    }
+
+    function parseShiftTimeToDate(value, display, now) {
+      if (!value && !display) return null;
+
+      if (value instanceof Date) {
+        const d = new Date(now);
+        d.setHours(value.getHours(), value.getMinutes(), 0, 0);
+        return d;
+      }
+
+      if (typeof value === 'number' && value >= 0 && value < 1) {
+        const totalMinutes = Math.round(value * 24 * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        const d = new Date(now);
+        d.setHours(h, m, 0, 0);
+        return d;
+      }
+
+      const textToParse = (display || value || '').toString().trim();
+      const googleDate = parseGoogleDate(textToParse);
+      if (googleDate) {
+        const d = new Date(now);
+        d.setHours(googleDate.getHours(), googleDate.getMinutes(), 0, 0);
+        return d;
+      }
+
+      const timeMatch = textToParse.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/i);
+      if (timeMatch) {
+        let hour = parseInt(timeMatch[1], 10);
+        const minute = parseInt(timeMatch[2] || '0', 10);
+        const ampm = timeMatch[3] ? timeMatch[3].toUpperCase() : null;
+        if (ampm) {
+          if (ampm === 'PM' && hour < 12) hour += 12;
+          if (ampm === 'AM' && hour === 12) hour = 0;
+        }
+        const d = new Date(now);
+        d.setHours(hour, minute, 0, 0);
+        return d;
+      }
+
+      return null;
+    }
+
+    function isInDuty(now, shiftStartToday) {
+      const startToday = shiftStartToday;
+      const endToday = addHours(startToday, 12);
+      if (now >= startToday && now < endToday) return true;
+
+      const startYesterday = new Date(startToday);
+      startYesterday.setDate(startYesterday.getDate() - 1);
+      const endYesterday = addHours(startYesterday, 12);
+      return now >= startYesterday && now < endYesterday;
+    }
+
+    function isSoon(now, shiftStartToday) {
+      const nextStart = new Date(shiftStartToday);
+      if (now >= nextStart) nextStart.setDate(nextStart.getDate() + 1);
+      const diffMs = nextStart - now;
+      return diffMs > 0 && diffMs <= 60 * 60 * 1000;
+    }
+
+    function addHours(date, hours) {
+      const d = new Date(date);
+      d.setHours(d.getHours() + hours);
+      return d;
+    }
+
+    function formatShiftDisplay(row, now) {
+      if (row.shiftDisplay) return row.shiftDisplay.toString();
+      const parsed = parseShiftTimeToDate(row.shiftRaw, row.shiftDisplay, now);
+      if (!parsed) return '-';
+      return parsed.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function formatDaysOffDisplay(row) {
+      const list = [];
+      const d1 = formatAnyDateForDisplay(row.off1Display || row.off1Raw);
+      const d2 = formatAnyDateForDisplay(row.off2Display || row.off2Raw);
+      if (d1) list.push(d1);
+      if (d2) list.push(d2);
+      return list.length ? list.join(' ، ') : '-';
+    }
+
+    function formatAnyDateForDisplay(value) {
+      if (!value) return '';
+      if (value instanceof Date) return value.toLocaleDateString('ar-KW');
+      if (typeof value === 'number' && value > 10000000000) {
+        return new Date(value).toLocaleDateString('ar-KW');
+      }
+      if (typeof value === 'string') {
+        const g = parseGoogleDate(value);
+        if (g) return g.toLocaleDateString('ar-KW');
+        const d = new Date(value);
+        if (!isNaN(d)) return d.toLocaleDateString('ar-KW');
+        return value;
+      }
+      return String(value);
+    }
+
+    function parseGoogleDate(value) {
+      if (typeof value !== 'string') return null;
+      const match = value.match(/Date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})(?:,\s*(\d{1,2}),\s*(\d{1,2}),\s*(\d{1,2}))?\)/);
+      if (!match) return null;
+      const year = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10);
+      const day = parseInt(match[3], 10);
+      const hour = parseInt(match[4] || '0', 10);
+      const minute = parseInt(match[5] || '0', 10);
+      const second = parseInt(match[6] || '0', 10);
+      return new Date(year, month, day, hour, minute, second);
+    }
+
+    function getCellValue(cell) {
+      return cell ? cell.v : null;
+    }
+
+    function getCellDisplay(cell) {
+      if (!cell) return '';
+      if (cell.f !== null && cell.f !== undefined) return cell.f;
+      return cell.v !== null && cell.v !== undefined ? String(cell.v) : '';
     }
 
     async function loadStaffData(force = false) {
