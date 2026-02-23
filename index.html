@@ -2277,7 +2277,7 @@
           'ringRepair': 'تصليح الرنقات',
           'mechanical': 'خدمات ميكانيكية',
           'staff_centers': 'مراكز الطلبات',
-          'driver_status': 'جدولة السائقين الذكية',
+          'driver_status': 'جدول السائقين',
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
@@ -2427,7 +2427,7 @@
       }, 5 * 60 * 1000);
     }
 
-    // Render Driver Status Interface (جدولة السائقين الذكية)
+    // Render Driver Status Interface (جدول السائقين)
     function renderDriverStatusInterface() {
       if (window.driverStatusIntervalId) clearInterval(window.driverStatusIntervalId);
       if (window.driverStatusRefreshId) clearInterval(window.driverStatusRefreshId);
@@ -2435,8 +2435,15 @@
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = `
         <div class="form-section full-width">
-          <h3 class="section-title">جدولة السائقين الذكية</h3>
+          <h3 class="section-title">جدول السائقين</h3>
           <div class="driver-filters">
+            <div class="filter-group">
+              <label for="driverLanguageToggle">لغة العرض</label>
+              <select id="driverLanguageToggle" class="form-control">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+              </select>
+            </div>
             <div class="filter-group">
               <label for="driverViewFilter">فلتر العرض</label>
               <select id="driverViewFilter" class="form-control">
@@ -2450,10 +2457,6 @@
                 <option value="all">الكل</option>
               </select>
             </div>
-            <div class="filter-group">
-              <label>آخر تحديث</label>
-              <div id="driverStatusUpdated" class="muted-text">تحميل...</div>
-            </div>
           </div>
         </div>
         <div class="form-section full-width">
@@ -2462,8 +2465,7 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>اسم السائق (عربي)</th>
-                  <th>اسم السائق (إنجليزي)</th>
+                  <th>اسم السائق</th>
                   <th>النوع</th>
                   <th>وقت بداية الدوام</th>
                   <th>الحالة</th>
@@ -2478,22 +2480,18 @@
 
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
+      const languageToggle = document.getElementById('driverLanguageToggle');
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
+      if (languageToggle) languageToggle.onchange = () => {
+        populateDriverTypeFilter(window._driverStatusRows || []);
+        renderDriverStatusTable();
+      };
 
       loadDriverStatusData(true);
-
-      window.driverStatusRefreshId = setInterval(() => {
-        loadDriverStatusData();
-      }, 5 * 60 * 1000);
-
-      window.driverStatusIntervalId = setInterval(() => {
-        renderDriverStatusTable();
-      }, 60 * 1000);
     }
 
     async function loadDriverStatusData(force = false) {
-      const updatedEl = document.getElementById('driverStatusUpdated');
       try {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
         const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
@@ -2529,25 +2527,25 @@
 
         window._driverStatusRows = drivers;
         populateDriverTypeFilter(drivers);
-        if (updatedEl) updatedEl.textContent = new Date().toLocaleString('ar-KW');
 
         renderDriverStatusTable();
       } catch (err) {
         console.error(err);
-        if (updatedEl) updatedEl.textContent = 'خطأ في تحميل البيانات';
         const tbody = document.querySelector('#driverStatusTable tbody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="color:#f88;padding:12px">خطأ في تحميل البيانات</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="color:#f88;padding:12px">خطأ في تحميل البيانات</td></tr>';
       }
     }
 
     function populateDriverTypeFilter(rows) {
       const select = document.getElementById('driverTypeFilter');
       if (!select) return;
+      const languageToggle = document.getElementById('driverLanguageToggle');
+      const lang = languageToggle ? languageToggle.value : 'ar';
       const current = select.value || 'all';
       const types = Array.from(new Set(rows.map(r => r.type).filter(Boolean)));
       types.sort((a, b) => a.localeCompare(b, 'ar'));
       select.innerHTML = `<option value="all">الكل</option>` +
-        types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+        types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(formatDriverType(t, lang) || t)}</option>`).join('');
       select.value = types.includes(current) ? current : 'all';
     }
 
@@ -2557,14 +2555,16 @@
 
       const rows = window._driverStatusRows || [];
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="color:#999;padding:12px">لا توجد بيانات</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#999;padding:12px">لا توجد بيانات</td></tr>';
         return;
       }
 
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
+      const languageToggle = document.getElementById('driverLanguageToggle');
       const view = viewFilter ? viewFilter.value : 'all';
       const type = typeFilter ? typeFilter.value : 'all';
+      const lang = languageToggle ? languageToggle.value : 'ar';
       const now = new Date();
 
       const computed = rows.map(r => {
@@ -2577,7 +2577,7 @@
       });
 
       if (computed.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="color:#999;padding:12px">لا توجد نتائج مطابقة</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#999;padding:12px">لا توجد نتائج مطابقة</td></tr>';
         return;
       }
 
@@ -2586,17 +2586,42 @@
         const tr = document.createElement('tr');
         const shiftDisplay = formatShiftDisplay(r, now);
         const daysOff = formatDaysOffDisplay(r);
+        const name = getDriverNameByLanguage(r, lang);
+        const typeDisplay = formatDriverType(r.type, lang);
         tr.innerHTML = `
           <td>${idx + 1}</td>
-          <td>${escapeHtml(r.nameAr || '-')}</td>
-          <td>${escapeHtml(r.nameEn || '-')}</td>
-          <td>${escapeHtml(r.type || '-')}</td>
+          <td>${escapeHtml(name || '-')}</td>
+          <td>${escapeHtml(typeDisplay || '-')}</td>
           <td>${escapeHtml(shiftDisplay)}</td>
           <td><span class="status-badge status-${r.status.key}">${r.status.label}</span></td>
           <td>${escapeHtml(daysOff)}</td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function getDriverNameByLanguage(row, lang) {
+      if (lang === 'en') return row.nameEn || row.nameAr || '';
+      return row.nameAr || row.nameEn || '';
+    }
+
+    function formatDriverType(value, lang) {
+      if (!value) return '';
+      if (lang !== 'ar') return value;
+      const map = {
+        'NORMAL TOWTRUK': 'ونش عادي',
+        'BIG TOWTRUK': 'ونش العريض',
+        'FULL DOWN': 'فل داون',
+        'FULL DOWN CLOSE': 'فل داون مصكر',
+        'BATTERY BUS': 'باص البطاريات',
+        'TIER BUS': 'باص التواير',
+        'MECHANIC BUS': 'باص المكانيكيه',
+        'WASH BUS': 'باص الغسيل',
+        'STORE': 'امين المخزن',
+        'OFFICE BOY': 'تي بوي'
+      };
+      const key = value.toString().trim().toUpperCase();
+      return map[key] || value;
     }
 
     function getDriverStatus(row, now) {
