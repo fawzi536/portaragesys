@@ -1891,19 +1891,7 @@
     </div>
     <div class="service-item" data-service="carwash"><span class="icon">💧</span> <span class="label">غسيل السيارات</span>
     </div>
-    <div class="service-item has-submenu" data-service="other"><span class="icon">🧩</span> <span class="label">خدمات أخرى</span> <span class="arrow">▼</span>
-    </div>
-    <div class="service-submenu" id="otherSubmenu">
-     <div class="service-item submenu-item" data-service="protection"><span class="label">الحمايه والتغيم</span>
-     </div>
-     <div class="service-item submenu-item" data-service="insurance"><span class="label">تأمينات</span>
-     </div>
-     <div class="service-item submenu-item" data-service="annualSubscription"><span class="label">الاشتراك السنوي</span>
-     </div>
-     <div class="service-item submenu-item" data-service="installments"><span class="label">الاقساط</span>
-     </div>
-      <div class="service-item submenu-item" data-service="xoGame"><span class="label">لعبة اكس او (تحدي صعب)</span>
-      </div>
+    <div class="service-item" data-service="other"><span class="icon">🧩</span> <span class="label">خدمات أخرى</span>
     </div>
    </aside><!-- Main Content -->
    <main class="main-content"><!-- Header Bar -->
@@ -1936,7 +1924,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
-    const SITE_VERSION = '1.1';
+    const SITE_VERSION = '1.2';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -2020,6 +2008,12 @@
     (async function initLogin() {
       await loadUsers();
       checkAuthStatus();
+
+      // Check version updates every 1 minute
+      if (window.versionCheckIntervalId) clearInterval(window.versionCheckIntervalId);
+      window.versionCheckIntervalId = setInterval(() => {
+        loadUsers();
+      }, 60 * 1000);
       
       const loginForm = document.getElementById('loginForm');
       const loginError = document.getElementById('loginError');
@@ -2417,20 +2411,114 @@
       }
     });
 
+    const serviceTitles = {
+      'tow': 'خدمة ونشات',
+      'batterySubscription': 'اشتراك بطارية',
+      'newBattery': 'بطارية جديدة',
+      'batteryInstall': 'تركيب بطارية',
+      'fuel': 'خدمة بنزين',
+      'unlock': 'فتح قفل السيارة',
+      'tireSheet': 'شيت التواير',
+      'tireIncrease': 'زيادات التواير',
+      'tire_lop': 'فواتير التواير',
+      'puncture': 'بنشر',
+      'balance': 'ميزان وتركيب',
+      'ringRepair': 'تصليح الرنقات',
+      'mechanical': 'خدمات ميكانيكية',
+      'staff_centers': 'مراكز الطلبات',
+      'driver_status': 'جدول السائقين',
+      'carwash': 'غسيل السيارات',
+      'protection': 'الحمايه والتغيم',
+      'insurance': 'تأمينات',
+      'annualSubscription': 'الاشتراك السنوي',
+      'installments': 'الاقساط',
+      'xoGame': 'لعبة اكس او (تحدي صعب)',
+      'other': 'خدمات أخرى'
+    };
+
+    function handleServiceSelection(serviceKey) {
+      const title = serviceTitles[serviceKey] || '';
+      const titleEl = document.getElementById('serviceTitle');
+      if (titleEl) titleEl.textContent = title;
+
+      switch(serviceKey) {
+        case 'tow':
+          renderTowInterface();
+          break;
+        case 'batterySubscription':
+          renderBatterySubscriptionInterface();
+          break;
+        case 'newBattery':
+          openFullscreenIframe('https://portaragebatteries.netlify.app/', 'بطارية جديدة');
+          break;
+        case 'batteryInstall':
+          renderBatteryInstallInterface();
+          break;
+        case 'fuel':
+          renderFuelInterface();
+          break;
+        case 'unlock':
+          renderLockInterface();
+          break;
+        case 'tireSheet':
+          openFullscreenIframe('https://portiers.netlify.app/', 'شيت التواير');
+          break;
+        case 'tireIncrease':
+          openFullscreenIframe('https://portaragetiers.netlify.app/', 'زيادات التواير');
+          break;
+        case 'tire_lop':
+          renderLopInterface();
+          break;
+        case 'puncture':
+          renderPunctureService();
+          break;
+        case 'balance':
+          renderBalanceService();
+          break;
+        case 'ringRepair':
+          renderRingRepairInterface();
+          break;
+        case 'mechanical':
+          renderMechanicalInterface();
+          break;
+        case 'staff_centers':
+          renderStaffInterface();
+          break;
+        case 'driver_status':
+          renderDriverStatusInterface();
+          break;
+        case 'carwash':
+          renderCarWashInterface();
+          break;
+        case 'protection':
+          renderProtectionInterface();
+          break;
+        case 'insurance':
+          renderInsuranceInterface();
+          break;
+        case 'annualSubscription':
+          renderAnnualSubscriptionInterface();
+          break;
+        case 'installments':
+          renderInstallmentsInterface();
+          break;
+        case 'xoGame':
+          renderXOGameInterface();
+          break;
+        case 'other':
+          renderOtherServicesInterface();
+          break;
+      }
+    }
+
     // Service Selection
     document.addEventListener('click', (e) => {
       const serviceItem = e.target.closest('.service-item');
       if (serviceItem) {
-        // Handle submenu toggle for battery, tire, staff, and other
-        if ((serviceItem.dataset.service === 'battery' || serviceItem.dataset.service === 'tire' || serviceItem.dataset.service === 'staff' || serviceItem.dataset.service === 'other') && serviceItem.classList.contains('has-submenu')) {
+        // Handle submenu toggle for battery, tire, and staff
+        if ((serviceItem.dataset.service === 'battery' || serviceItem.dataset.service === 'tire' || serviceItem.dataset.service === 'staff') && serviceItem.classList.contains('has-submenu')) {
           serviceItem.classList.toggle('expanded');
-          const submenuId = serviceItem.dataset.service === 'battery'
-            ? 'batterySubmenu'
-            : (serviceItem.dataset.service === 'tire'
-              ? 'tireSubmenu'
-              : (serviceItem.dataset.service === 'staff'
-                ? 'staffSubmenu'
-                : 'otherSubmenu'));
+          const submenuId = serviceItem.dataset.service === 'battery' ? 'batterySubmenu' : (serviceItem.dataset.service === 'tire' ? 'tireSubmenu' : 'staffSubmenu');
           const submenu = document.getElementById(submenuId);
           if (submenu) submenu.classList.toggle('show');
           return;
@@ -2446,97 +2534,7 @@
         currentService = serviceItem.dataset.service;
         formData = {};
         
-        const serviceTitles = {
-          'tow': 'خدمة ونشات',
-          'batterySubscription': 'اشتراك بطارية',
-          'newBattery': 'بطارية جديدة',
-          'batteryInstall': 'تركيب بطارية',
-          'fuel': 'خدمة بنزين',
-          'unlock': 'فتح قفل السيارة',
-          'tireSheet': 'شيت التواير',
-          'tireIncrease': 'زيادات التواير',
-          'tire_lop': 'فواتير التواير',
-          'puncture': 'بنشر',
-          'balance': 'ميزان وتركيب',
-          'ringRepair': 'تصليح الرنقات',
-          'mechanical': 'خدمات ميكانيكية',
-          'staff_centers': 'مراكز الطلبات',
-          'driver_status': 'جدول السائقين',
-          'carwash': 'غسيل السيارات',
-          'protection': 'الحمايه والتغيم',
-          'insurance': 'تأمينات',
-          'annualSubscription': 'الاشتراك السنوي',
-          'installments': 'الاقساط',
-          'xoGame': 'لعبة اكس او (تحدي صعب)'
-        };
-        
-        document.getElementById('serviceTitle').textContent = serviceTitles[currentService];
-        
-        switch(currentService) {
-          case 'tow':
-            renderTowInterface();
-            break;
-          case 'batterySubscription':
-            renderBatterySubscriptionInterface();
-            break;
-          case 'newBattery':
-            openFullscreenIframe('https://portaragebatteries.netlify.app/', 'بطارية جديدة');
-            break;
-          case 'batteryInstall':
-            renderBatteryInstallInterface();
-            break;
-          case 'fuel':
-            renderFuelInterface();
-            break;
-          case 'unlock':
-            renderLockInterface();
-            break;
-          case 'tireSheet':
-            openFullscreenIframe('https://portiers.netlify.app/', 'شيت التواير');
-            break;
-          case 'tireIncrease':
-            openFullscreenIframe('https://portaragetiers.netlify.app/', 'زيادات التواير');
-            break;
-          case 'tire_lop':
-            renderLopInterface();
-            break;
-          case 'puncture':
-            renderPunctureService();
-            break;
-          case 'balance':
-            renderBalanceService();
-            break;
-          case 'ringRepair':
-            renderRingRepairInterface();
-            break;
-          case 'mechanical':
-            renderMechanicalInterface();
-            break;
-          case 'staff_centers':
-            renderStaffInterface();
-            break;
-          case 'driver_status':
-            renderDriverStatusInterface();
-            break;
-          case 'carwash':
-            renderCarWashInterface();
-            break;
-          case 'protection':
-            renderProtectionInterface();
-            break;
-          case 'insurance':
-            renderInsuranceInterface();
-            break;
-          case 'annualSubscription':
-            renderAnnualSubscriptionInterface();
-            break;
-          case 'installments':
-            renderInstallmentsInterface();
-            break;
-          case 'xoGame':
-            renderXOGameInterface();
-            break;
-        }
+        handleServiceSelection(currentService);
       }
     });
 
@@ -2582,6 +2580,33 @@
 
       const payBtn = document.getElementById('installmentsPayBtn');
       if (payBtn) payBtn.onclick = () => openSimpleModal('installmentPayModal');
+    }
+
+    function renderOtherServicesInterface() {
+      const contentArea = document.getElementById('contentArea');
+      if (!contentArea) return;
+      contentArea.innerHTML = `
+        <div class="form-section full-width">
+          <h3 class="section-title">خدمات أخرى</h3>
+          <div class="form-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));">
+            <button class="btn-back" data-other-service="protection">الحمايه والتغيم</button>
+            <button class="btn-back" data-other-service="insurance">تأمينات</button>
+            <button class="btn-back" data-other-service="annualSubscription">الاشتراك السنوي</button>
+            <button class="btn-back" data-other-service="installments">الاقساط</button>
+            <button class="btn-back" data-other-service="xoGame">لعبة اكس او (تحدي صعب)</button>
+          </div>
+        </div>
+      `;
+
+      contentArea.querySelectorAll('[data-other-service]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-other-service');
+          if (!target) return;
+          currentService = target;
+          formData = {};
+          handleServiceSelection(target);
+        });
+      });
     }
 
     function renderXOGameInterface() {
