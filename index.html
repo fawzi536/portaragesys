@@ -1891,13 +1891,17 @@
     </div>
     <div class="service-item" data-service="carwash"><span class="icon">💧</span> <span class="label">غسيل السيارات</span>
     </div>
-    <div class="service-item" data-service="protection"><span class="icon">🛡️</span> <span class="label">الحمايه والتغيم</span>
+    <div class="service-item has-submenu" data-service="other"><span class="icon">🧩</span> <span class="label">خدمات أخرى</span> <span class="arrow">▼</span>
     </div>
-    <div class="service-item" data-service="insurance"><span class="icon">🚧</span> <span class="label">تأمينات</span>
-    </div>
-    <div class="service-item" data-service="annualSubscription"><span class="icon">📅</span> <span class="label">الاشتراك السنوي</span>
-    </div>
-    <div class="service-item" data-service="installments"><span class="icon">💳</span> <span class="label">الاقساط</span>
+    <div class="service-submenu" id="otherSubmenu">
+     <div class="service-item submenu-item" data-service="protection"><span class="label">الحمايه والتغيم</span>
+     </div>
+     <div class="service-item submenu-item" data-service="insurance"><span class="label">تأمينات</span>
+     </div>
+     <div class="service-item submenu-item" data-service="annualSubscription"><span class="label">الاشتراك السنوي</span>
+     </div>
+     <div class="service-item submenu-item" data-service="installments"><span class="label">الاقساط</span>
+     </div>
     </div>
    </aside><!-- Main Content -->
    <main class="main-content"><!-- Header Bar -->
@@ -2415,10 +2419,16 @@
     document.addEventListener('click', (e) => {
       const serviceItem = e.target.closest('.service-item');
       if (serviceItem) {
-        // Handle submenu toggle for battery, tire, and staff
-        if ((serviceItem.dataset.service === 'battery' || serviceItem.dataset.service === 'tire' || serviceItem.dataset.service === 'staff') && serviceItem.classList.contains('has-submenu')) {
+        // Handle submenu toggle for battery, tire, staff, and other
+        if ((serviceItem.dataset.service === 'battery' || serviceItem.dataset.service === 'tire' || serviceItem.dataset.service === 'staff' || serviceItem.dataset.service === 'other') && serviceItem.classList.contains('has-submenu')) {
           serviceItem.classList.toggle('expanded');
-          const submenuId = serviceItem.dataset.service === 'battery' ? 'batterySubmenu' : (serviceItem.dataset.service === 'tire' ? 'tireSubmenu' : 'staffSubmenu');
+          const submenuId = serviceItem.dataset.service === 'battery'
+            ? 'batterySubmenu'
+            : (serviceItem.dataset.service === 'tire'
+              ? 'tireSubmenu'
+              : (serviceItem.dataset.service === 'staff'
+                ? 'staffSubmenu'
+                : 'otherSubmenu'));
           const submenu = document.getElementById(submenuId);
           if (submenu) submenu.classList.toggle('show');
           return;
