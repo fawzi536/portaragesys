@@ -1902,8 +1902,6 @@
      </div>
      <div class="service-item submenu-item" data-service="installments"><span class="label">الاقساط</span>
      </div>
-      <div class="service-item submenu-item" data-service="games"><span class="label">العاب</span>
-      </div>
     </div>
    </aside><!-- Main Content -->
    <main class="main-content"><!-- Header Bar -->
@@ -1936,7 +1934,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
-    const SITE_VERSION = '1.2';
+    const SITE_VERSION = '1.1';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -2118,14 +2116,19 @@
       }
     }
 
-    // Check version from sheet every hour (no auto refresh)
+    // Auto-refresh the full page every 2 minutes with notification
     setInterval(() => {
       try {
-        loadUsers();
+        if (typeof showToast === 'function') {
+          showToast('🔄 سيتم تحديث الصفحة الآن...');
+        }
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
       } catch (e) {
-        console.error('Version check failed', e);
+        console.error('Auto refresh failed', e);
       }
-    }, 60 * 60 * 1000);
+    }, 2 * 60 * 1000);
     
     // ========== ORIGINAL APP CODE ==========
     
@@ -2461,8 +2464,7 @@
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
           'annualSubscription': 'الاشتراك السنوي',
-          'installments': 'الاقساط',
-          'games': 'العاب'
+          'installments': 'الاقساط'
         };
         
         document.getElementById('serviceTitle').textContent = serviceTitles[currentService];
@@ -2528,9 +2530,6 @@
           case 'installments':
             renderInstallmentsInterface();
             break;
-          case 'games':
-            renderGamesInterface();
-            break;
         }
       }
     });
@@ -2577,20 +2576,6 @@
 
       const payBtn = document.getElementById('installmentsPayBtn');
       if (payBtn) payBtn.onclick = () => openSimpleModal('installmentPayModal');
-    }
-
-    function renderGamesInterface() {
-      const contentArea = document.getElementById('contentArea');
-      contentArea.innerHTML = `
-        <div class="form-section full-width" style="padding:0; overflow:hidden;">
-          <div style="padding:10px 12px; border-bottom:1px solid #333;">
-            <h3 class="section-title" style="margin:0;">العاب</h3>
-          </div>
-          <div style="height:70vh; min-height:520px;">
-            <iframe src="https://seenjeemkw.com/start-game" title="العاب" style="width:100%; height:100%; border:0;"></iframe>
-          </div>
-        </div>
-      `;
     }
 
     // Render Staff Interface
