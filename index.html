@@ -1793,6 +1793,20 @@
     </div>
   </div>
 
+  <!-- Version Update Modal (forced refresh) -->
+  <div id="versionUpdateModal" class="logout-modal-overlay hidden">
+    <div class="logout-modal">
+      <div class="logout-modal-icon">🔄</div>
+      <h2 class="logout-modal-title">تحديث النظام</h2>
+      <p id="versionUpdateMessage" class="logout-modal-message">
+        يوجد تحديث جديد للنظام. الرجاء تحديث الصفحة للحصول على آخر نسخة.
+      </p>
+      <div class="logout-modal-buttons">
+        <button id="versionUpdateConfirm" class="logout-modal-btn logout-modal-btn-confirm">تحديث الآن</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Installments How-To Modal -->
   <div id="installmentHowModal" class="modal-overlay hidden" data-modal-id="installmentHowModal">
     <div class="modal installments-how-modal">
@@ -1916,6 +1930,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
+    const SITE_VERSION = '1.1';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -1945,6 +1960,12 @@
         
         usersData = [];
         if (data.table && data.table.rows) {
+          const headerRow = data.table.rows[0];
+          if (headerRow && headerRow.c) {
+            const versionCell = headerRow.c[3];
+            const versionValue = versionCell ? (versionCell.v ?? versionCell.f) : '';
+            window._siteVersionFromSheet = (versionValue || '').toString().trim();
+          }
           // Skip header row (index 0) and start from index 1
           for (let i = 1; i < data.table.rows.length; i++) {
             const row = data.table.rows[i];
@@ -1959,9 +1980,11 @@
         }
         
         console.log('✅ Users loaded:', usersData.length);
+        checkSiteVersionGate();
         return true;
       } catch (error) {
         console.error('❌ Error loading users:', error);
+        checkSiteVersionGate();
         return false;
       }
     }
@@ -2062,14 +2085,46 @@
       });
     })();
 
-    // Auto-refresh the full page every 5 hours
+    function normalizeVersion(value) {
+      return (value || '').toString().trim();
+    }
+
+    function checkSiteVersionGate() {
+      const sheetVersion = normalizeVersion(window._siteVersionFromSheet);
+      const currentVersion = normalizeVersion(SITE_VERSION);
+      if (!sheetVersion || !currentVersion) return;
+      if (sheetVersion !== currentVersion) {
+        showVersionUpdateModal(currentVersion, sheetVersion);
+      }
+    }
+
+    function showVersionUpdateModal(currentVersion, sheetVersion) {
+      const modal = document.getElementById('versionUpdateModal');
+      if (!modal) return;
+      const msg = document.getElementById('versionUpdateMessage');
+      if (msg) {
+        msg.innerHTML = `يوجد تحديث جديد للنظام.<br>الإصدار الحالي: <strong>${escapeHtml(currentVersion)}</strong><br>الإصدار المطلوب: <strong>${escapeHtml(sheetVersion)}</strong><br>الرجاء تحديث الصفحة للحصول على آخر نسخة.`;
+      }
+      modal.classList.remove('hidden');
+      const confirmBtn = document.getElementById('versionUpdateConfirm');
+      if (confirmBtn) {
+        confirmBtn.onclick = () => window.location.reload();
+      }
+    }
+
+    // Auto-refresh the full page every 2 minutes with notification
     setInterval(() => {
       try {
-        window.location.reload();
+        if (typeof showToast === 'function') {
+          showToast('🔄 سيتم تحديث الصفحة الآن...');
+        }
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
       } catch (e) {
         console.error('Auto refresh failed', e);
       }
-    }, 5 * 60 * 60 * 1000);
+    }, 2 * 60 * 1000);
     
     // ========== ORIGINAL APP CODE ==========
     
@@ -2553,6 +2608,7 @@
       if (window.driverStatusRefreshId) clearInterval(window.driverStatusRefreshId);
 
       const contentArea = document.getElementById('contentArea');
+      window._driverStatusMonthName = getDriverMonthName(window._driverStatusLang || 'ar');
       contentArea.innerHTML = `
         <div class="form-section full-width">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -2608,6 +2664,7 @@
       if (languageToggle) languageToggle.onclick = () => {
         const nextLang = (window._driverStatusLang || 'ar') === 'ar' ? 'en' : 'ar';
         window._driverStatusLang = nextLang;
+        window._driverStatusUnavailableMessage = buildDriverUnavailableMessage(nextLang);
         updateDriverStatusLanguageUI(nextLang);
         populateDriverTypeFilter(window._driverStatusRows || []);
         renderDriverStatusTable();
@@ -2633,17 +2690,23 @@
     async function loadDriverStatusData(force = false) {
       try {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+        const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const today = new Date();
+        const monthIndex = today.getMonth(); // 0..11
+        const sheetName = monthShortNames[monthIndex] || 'Jan';
+        window._driverStatusMonthName = getDriverMonthName(window._driverStatusLang || 'ar');
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
         const res = await fetch(sheetUrl, { cache: 'no-cache' });
 
         if (!res.ok) throw new Error('failed to load drivers sheet');
 
         const text = await res.text();
-        if (!force && window._driverStatusRawText && window._driverStatusRawText === text) {
+        const cacheKey = `_driverStatusRawText_${sheetName}`;
+        if (!force && window[cacheKey] && window[cacheKey] === text) {
           renderDriverStatusTable();
           return;
         }
-        window._driverStatusRawText = text;
+        window[cacheKey] = text;
 
         const jsonString = text.substring(47).slice(0, -2);
         const data = JSON.parse(jsonString);
@@ -2663,7 +2726,13 @@
             off2Display: getCellDisplay(c[5]),
             problem: getCellDisplay(c[6])
           };
-        }).filter(r => r.nameEn || r.nameAr || r.type || r.shiftDisplay);
+        })
+        .filter(r => r.nameEn || r.nameAr || r.type || r.shiftDisplay)
+        .filter(r => !isDriverHeaderRow(r));
+
+        const unavailableMessage = buildDriverUnavailableMessage(window._driverStatusLang || 'ar');
+        window._driverStatusUnavailable = drivers.length === 0;
+        window._driverStatusUnavailableMessage = unavailableMessage;
 
         window._driverStatusRows = drivers;
         populateDriverTypeFilter(drivers);
@@ -2671,8 +2740,10 @@
         renderDriverStatusTable();
       } catch (err) {
         console.error(err);
+        window._driverStatusUnavailable = true;
+        window._driverStatusUnavailableMessage = buildDriverUnavailableMessage(window._driverStatusLang || 'ar');
         const tbody = document.querySelector('#driverStatusTable tbody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="color:#f88;padding:12px">خطأ في تحميل البيانات</td></tr>';
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="color:#fbbf24;padding:12px">${escapeHtml(window._driverStatusUnavailableMessage)}</td></tr>`;
       }
     }
 
@@ -2694,6 +2765,12 @@
       if (!tbody) return;
 
       const rows = window._driverStatusRows || [];
+      if (window._driverStatusUnavailable) {
+        const message = window._driverStatusUnavailableMessage || 'غير متوفر جدول السائقين لهذا الشهر، سيتم التحديث قريباً';
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#fbbf24;padding:12px">${escapeHtml(message)}</td></tr>`;
+        return;
+      }
+
       if (rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="color:#999;padding:12px">لا توجد بيانات</td></tr>';
         return;
@@ -2861,9 +2938,10 @@
       const headerOff = document.getElementById('driverHeaderOff');
       const viewSelect = document.getElementById('driverViewFilter');
 
+      const monthName = getDriverMonthName(lang);
       if (lang === 'en') {
         if (toggle) toggle.textContent = 'العربية';
-        if (title) title.textContent = 'Drivers Table';
+        if (title) title.textContent = `Drivers Table - ${monthName}`;
         if (downloadBtn) downloadBtn.textContent = 'Download Image';
         if (sheetBtn) sheetBtn.textContent = 'Open Google Sheet';
         if (viewLabel) viewLabel.textContent = 'View Filter';
@@ -2882,7 +2960,7 @@
         }
       } else {
         if (toggle) toggle.textContent = 'English';
-        if (title) title.textContent = 'جدول السائقين';
+        if (title) title.textContent = `جدول السائقين - ${monthName}`;
         if (downloadBtn) downloadBtn.textContent = 'تحميل كصورة';
         if (sheetBtn) sheetBtn.textContent = 'فتح Google Sheet';
         if (viewLabel) viewLabel.textContent = 'فلتر العرض';
@@ -2900,6 +2978,42 @@
           if (nowOption) nowOption.textContent = 'المتواجدون الآن';
         }
       }
+    }
+
+    function getDriverMonthName(lang) {
+      const now = new Date();
+      try {
+        const locale = lang === 'en' ? 'en' : 'ar';
+        return new Intl.DateTimeFormat(locale, { month: 'long' }).format(now);
+      } catch (e) {
+        const fallback = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        const fallbackEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        return (lang === 'en' ? fallbackEn : fallback)[now.getMonth()];
+      }
+    }
+
+    function buildDriverUnavailableMessage(lang) {
+      if (lang === 'en') return 'Drivers table is not available for this month. It will be updated soon.';
+      return 'غير متوفر جدول السائقين لهذا الشهر، سيتم التحديث قريباً';
+    }
+
+    function isDriverHeaderRow(row) {
+      const normalize = (v) => (v || '').toString().trim().toLowerCase();
+      const nameEn = normalize(row.nameEn);
+      const nameAr = normalize(row.nameAr);
+      const type = normalize(row.type);
+      const shift = normalize(row.shiftDisplay);
+      const off1 = normalize(row.off1Display);
+      const off2 = normalize(row.off2Display);
+      const problem = normalize(row.problem);
+
+      return nameEn === 'drivers name en'
+        && nameAr === 'drivers name ar'
+        && (type === 'type' || type === 'vehicle type')
+        && (shift === 'sheeft time' || shift === 'shift time')
+        && off1 === 'days off'
+        && off2 === 'days off'
+        && (problem === 'problem' || problem === '');
     }
 
     async function exportDriverTableAsImage() {
