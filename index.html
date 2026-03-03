@@ -2118,19 +2118,14 @@
       }
     }
 
-    // Auto-refresh the full page every 2 minutes with notification
+    // Check version from sheet every hour (no auto refresh)
     setInterval(() => {
       try {
-        if (typeof showToast === 'function') {
-          showToast('🔄 سيتم تحديث الصفحة الآن...');
-        }
-        setTimeout(() => {
-          window.location.reload();
-        }, 1200);
+        loadUsers();
       } catch (e) {
-        console.error('Auto refresh failed', e);
+        console.error('Version check failed', e);
       }
-    }, 2 * 60 * 1000);
+    }, 60 * 60 * 1000);
     
     // ========== ORIGINAL APP CODE ==========
     
