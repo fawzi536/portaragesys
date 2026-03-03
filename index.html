@@ -5019,12 +5019,16 @@
         return;
       }
       try {
+        const prevWidth = target.style.width;
+        const prevMaxWidth = target.style.maxWidth;
         target.classList.add('lop-export');
+        target.style.width = '794px';
+        target.style.maxWidth = '794px';
         await ensureLopLogoLoaded(target);
         await ensureHtml2Canvas();
         const canvas = await html2canvas(target, {
           backgroundColor: '#ffffff',
-          scale: 2,
+          scale: 3,
           useCORS: true
         }); 
         const link = document.createElement('a');
@@ -5037,6 +5041,8 @@
         console.error('Export failed', err);
       } finally {
         target.classList.remove('lop-export');
+        target.style.width = prevWidth;
+        target.style.maxWidth = prevMaxWidth;
       }
     }
 
