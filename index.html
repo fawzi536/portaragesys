@@ -1934,7 +1934,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
-    const SITE_VERSION = '1.1';
+    const SITE_VERSION = '1.2';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -2116,19 +2116,30 @@
       }
     }
 
-    // Auto-refresh the full page every 2 minutes with notification
-    setInterval(() => {
+    // Check site version every hour and refresh only if sheet version differs
+    async function hourlyVersionCheck() {
       try {
-        if (typeof showToast === 'function') {
-          showToast('🔄 سيتم تحديث الصفحة الآن...');
+        const resp = await fetch(GOOGLE_SHEET_URL);
+        const text = await resp.text();
+        // Parse Google Sheets JSON response (same approach as loadUsers)
+        const jsonString = text.substring(47).slice(0, -2);
+        const data = JSON.parse(jsonString);
+        const headerRow = data.table && data.table.rows && data.table.rows[0];
+        const versionCell = headerRow && headerRow.c ? headerRow.c[3] : null;
+        const sheetVersion = versionCell ? (versionCell.v ?? versionCell.f) : '';
+        const sheetVersionNorm = normalizeVersion(sheetVersion);
+        const currentVersionNorm = normalizeVersion(SITE_VERSION);
+        if (sheetVersionNorm && sheetVersionNorm !== currentVersionNorm) {
+          showVersionUpdateModal(currentVersionNorm, sheetVersionNorm);
         }
-        setTimeout(() => {
-          window.location.reload();
-        }, 1200);
       } catch (e) {
-        console.error('Auto refresh failed', e);
+        console.error('Hourly version check failed', e);
       }
-    }, 2 * 60 * 1000);
+    }
+
+    // Run immediately and then every hour (60 minutes)
+    hourlyVersionCheck();
+    setInterval(hourlyVersionCheck, 60 * 60 * 1000);
     
     // ========== ORIGINAL APP CODE ==========
     
