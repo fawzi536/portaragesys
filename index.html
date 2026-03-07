@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl" class="h-full">
+<html lang="ar" dir="rtl" class="h-full" style="background:#0a0a0a;">
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1646,6 +1646,7 @@
     }
 
     .embedded-service-frame {
+      position: relative;
       width: 100%;
       min-height: calc(100vh - 112px);
       border: none;
@@ -1659,7 +1660,26 @@
       width: 100%;
       height: calc(100vh - 112px);
       border: none;
-      background: #fff;
+      background: #0a0a0a;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .embedded-service-frame.loading iframe {
+      opacity: 0;
+    }
+
+    .embedded-service-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #F2BC1B;
+      font-weight: 700;
+      font-size: 16px;
+      background: #0a0a0a;
+      z-index: 2;
     }
 
     .content-area.embed-mode {
@@ -1820,7 +1840,7 @@
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
- <body class="h-full">
+ <body class="h-full" style="background:#0a0a0a;">
   
   <!-- Login Page -->
   <div id="loginContainer" class="login-container hidden">
@@ -2417,11 +2437,22 @@
 
       contentArea.innerHTML = `
         <div class="form-section full-width">
-          <div class="embedded-service-frame">
+          <div class="embedded-service-frame loading">
+            <div class="embedded-service-loader">جاري تحميل الخدمة...</div>
             <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
           </div>
         </div>
       `;
+
+      const frameWrap = contentArea.querySelector('.embedded-service-frame');
+      const iframe = contentArea.querySelector('.embedded-service-frame iframe');
+      if (iframe && frameWrap) {
+        iframe.onload = () => {
+          frameWrap.classList.remove('loading');
+          const loader = frameWrap.querySelector('.embedded-service-loader');
+          if (loader) loader.remove();
+        };
+      }
     }
 
     window.closeFullscreenIframe = function() {
@@ -2774,16 +2805,6 @@
         <div class="form-section full-width">
           <div class="table-scroll" style="max-height:420px;">
             <table class="data-table" id="driverStatusTable">
-              <thead>
-                <tr>
-                  <th id="driverHeaderIndex">#</th>
-                  <th id="driverHeaderName">اسم السائق</th>
-                  <th id="driverHeaderType">النوع</th>
-                  <th id="driverHeaderShift">وقت بداية الدوام</th>
-                  <th id="driverHeaderStatus" class="export-hide">الحالة</th>
-                  <th id="driverHeaderOff" class="export-hide">الإجازات</th>
-                </tr>
-              </thead>
               <tbody></tbody>
             </table>
           </div>
