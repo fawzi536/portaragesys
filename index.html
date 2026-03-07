@@ -2924,7 +2924,7 @@
         sectionRows.forEach((r, idx) => {
           const tr = document.createElement('tr');
           const shiftDisplay = formatShiftDisplay(r, now);
-          const daysOff = formatDaysOffDisplay(r);
+          const daysOff = formatDaysOffDisplay(r, lang);
           const name = getDriverNameByLanguage(r, lang);
           const typeDisplay = formatDriverType(r.type, lang);
           const problemText = (r.problem || '').toString().trim();
@@ -3405,44 +3405,46 @@
       return lang === 'en' ? formatted : convertAmPmToArabic(formatted);
     }
 
-    function formatDaysOffDisplay(row) {
+    function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar')) {
       const list = [];
-      const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw);
-      const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw);
+      const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw, lang);
+      const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw, lang);
       if (d1) list.push(d1);
       if (d2) list.push(d2);
-      return list.length ? list.join(' ، ') : '-';
+      return list.length ? list.join(lang === 'en' ? ' , ' : ' ، ') : '-';
     }
 
-    function formatAnyDateForDisplay(value) {
+    function formatAnyDateForDisplay(value, lang = (window._driverStatusLang || 'ar')) {
       if (!value) return '';
       const parsed = parseAnyDate(value);
-      if (parsed) return formatEnglishDate(parsed);
+      if (parsed) return formatEnglishDate(parsed, lang);
       if (typeof value === 'string') return value.replace(/\\/g, '/').trim();
       return String(value);
     }
 
-    function buildHoverDateHtml(value) {
-      const text = formatAnyDateForDisplay(value);
+    function buildHoverDateHtml(value, lang = (window._driverStatusLang || 'ar')) {
+      const text = formatAnyDateForDisplay(value, lang);
       if (!text) return '';
       const parsed = parseAnyDate(value);
       if (!parsed) {
         return `<span class="date-hover"><span class="date-text">${escapeHtml(text)}</span></span>`;
       }
-      const dayName = formatEnglishDayName(parsed);
+      const dayName = formatEnglishDayName(parsed, lang);
       return `<span class="date-hover"><span class="date-text">${escapeHtml(text)}</span><span class="day-text">${escapeHtml(dayName)}</span></span>`;
     }
 
-    function formatEnglishDate(date) {
-      return new Intl.DateTimeFormat('en-GB', {
+    function formatEnglishDate(date, lang = 'en') {
+      const locale = lang === 'en' ? 'en-GB' : 'ar-KW';
+      return new Intl.DateTimeFormat(locale, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       }).format(date);
     }
 
-    function formatEnglishDayName(date) {
-      return new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(date);
+    function formatEnglishDayName(date, lang = 'en') {
+      const locale = lang === 'en' ? 'en-GB' : 'ar-KW';
+      return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(date);
     }
 
     function parseAnyDate(value) {
