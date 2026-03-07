@@ -90,6 +90,7 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
+      background: #0a0a0a;
     }
     
     .dashboard-wrapper {
@@ -933,7 +934,7 @@
       background: #151515 !important;
       color: #F2BC1B !important;
       font-weight: 700;
-      text-align: right;
+      text-align: center;
       border-top: 1px solid #F2BC1B;
       border-bottom: 1px solid #333;
       padding: 10px 12px;
@@ -1636,18 +1637,38 @@
 
     .embedded-service-frame {
       width: 100%;
-      min-height: 72vh;
-      border: 1px solid #333;
-      border-radius: 8px;
+      min-height: calc(100vh - 112px);
+      border: none;
+      border-radius: 0;
       overflow: hidden;
-      background: #0d0d0d;
+      background: #0a0a0a;
+      grid-column: 1 / -1;
     }
 
     .embedded-service-frame iframe {
       width: 100%;
-      height: 72vh;
+      height: calc(100vh - 112px);
       border: none;
       background: #fff;
+    }
+
+    .content-area.embed-mode {
+      padding: 0;
+      grid-template-columns: 1fr;
+      align-content: stretch;
+    }
+
+    .content-area.embed-mode .form-section {
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+    }
+
+    .export-mode .data-table th {
+      position: static !important;
+      top: auto !important;
     }
     
     /* Wash Cards Compact */
@@ -2360,6 +2381,16 @@
     }
 
     // Fullscreen iframe functions
+    function setContentAreaEmbedMode(enabled) {
+      const contentArea = document.getElementById('contentArea');
+      if (!contentArea) return;
+      if (enabled) {
+        contentArea.classList.add('embed-mode');
+      } else {
+        contentArea.classList.remove('embed-mode');
+      }
+    }
+
     function openFullscreenIframe(url, title) {
       const contentArea = document.getElementById('contentArea');
       if (!contentArea) return;
@@ -2372,12 +2403,10 @@
         formData: { ...formData }
       };
 
+      setContentAreaEmbedMode(true);
+
       contentArea.innerHTML = `
         <div class="form-section full-width">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
-            <h3 class="section-title" style="margin:0;">${escapeHtml(title || '')}</h3>
-            <button class="btn-back" type="button" onclick="window.open('${url}', '_blank')">فتح في نافذة جديدة</button>
-          </div>
           <div class="embedded-service-frame">
             <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
           </div>
@@ -2520,6 +2549,7 @@
         
         currentService = serviceItem.dataset.service;
         formData = {};
+        setContentAreaEmbedMode(false);
         
         const serviceTitles = {
           'tow': 'خدمة ونشات',
@@ -2951,17 +2981,17 @@
     function getShiftSectionTitle(key, lang) {
       if (lang === 'en') {
         const enMap = {
-          morning: 'Morning Shift (6:00 AM - 12:00 PM)',
-          evening: 'Evening Shift (12:00 PM - 3:00 PM)',
-          night: 'Night Shift (After 3:00 PM)'
+          morning: 'Morning Shift',
+          evening: 'Evening Shift',
+          night: 'Night Shift'
         };
         return enMap[key] || 'Shift';
       }
 
       const arMap = {
-        morning: 'الشفت الصباحي (6:00 ص - 12:00 م)',
-        evening: 'الشفت المسائي (12:00 م - 3:00 م)',
-        night: 'الشفت الليلي (بعد 3:00 م)'
+        morning: 'الشفت الصباحي',
+        evening: 'الشفت المسائي',
+        night: 'الشفت الليلي'
       };
       return arMap[key] || 'الشفت';
     }
@@ -3200,6 +3230,7 @@
       scroll.prepend(exportHeading);
       scroll.style.maxHeight = 'none';
       scroll.style.overflowY = 'visible';
+      scroll.scrollTop = 0;
 
       try {
         await ensureHtml2Canvas();
