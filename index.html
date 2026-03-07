@@ -2982,13 +2982,9 @@
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
       if (shiftFilter) shiftFilter.onchange = () => renderDriverStatusTable();
-      if (gpsToggleBtn && gpsSection) {
+      if (gpsToggleBtn) {
         gpsToggleBtn.onclick = () => {
-          const isHidden = gpsSection.classList.contains('hidden');
-          gpsSection.classList.toggle('hidden', !isHidden);
-          if (isHidden) {
-            initDriverGpsPanel();
-          }
+          openFullscreenIframe('https://www.google.com/maps/d/embed?mid=1n_GQxvXz6K4zBE-vMp-YlTjBQ6zMBNk', 'GPS السواقين');
         };
       }
       if (languageToggle) languageToggle.onclick = () => {
@@ -3680,8 +3676,8 @@
 
     function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar')) {
       const list = [];
-      const d1 = formatAnyDateForDisplay(row.off1Display || row.off1Raw);
-      const d2 = formatAnyDateForDisplay(row.off2Display || row.off2Raw);
+      const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw, lang);
+      const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw, lang);
       if (d1) list.push(d1);
       if (d2) list.push(d2);
       return list.length ? list.join(lang === 'en' ? ' , ' : ' ، ') : '-';
