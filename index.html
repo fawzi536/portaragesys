@@ -2588,6 +2588,9 @@
 
       contentArea.innerHTML = `
         <div class="form-section full-width">
+          <div style="margin-bottom: 12px;">
+            <button onclick="renderDriverStatusInterface()" class="btn-back" style="padding: 8px 16px;">← رجوع للجدول</button>
+          </div>
           <div class="embedded-service-frame">
             <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
           </div>
