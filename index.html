@@ -2572,7 +2572,10 @@
       window._driverGpsSyncTimer = setInterval(syncDriverGpsCredentialsByUrl, 2000);
     }
 
-    function openFullscreenIframe(url, title) {
+    // متغير عام لحفظ GPS iframe container
+    let savedGpsContainer = null;
+
+    function openFullscreenIframe(url, title, persistIframe = false) {
       const contentArea = document.getElementById('contentArea');
       if (!contentArea) return;
 
@@ -2586,16 +2589,31 @@
 
       setContentAreaEmbedMode(true);
 
-      contentArea.innerHTML = `
-        <div class="form-section full-width">
-          <div style="margin-bottom: 12px;">
-            <button onclick="renderDriverStatusInterface()" class="btn-back" style="padding: 8px 16px;">← رجوع للجدول</button>
-          </div>
-          <div class="embedded-service-frame">
-            <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
-          </div>
+      // إذا كان GPS ويوجد container محفوظ، استخدمه
+      if (persistIframe && url === 'https://zantrack.fm-track.com/' && savedGpsContainer) {
+        contentArea.innerHTML = '';
+        contentArea.appendChild(savedGpsContainer);
+        return;
+      }
+
+      const container = document.createElement('div');
+      container.className = 'form-section full-width';
+      container.innerHTML = `
+        <div style="margin-bottom: 12px;">
+          <button onclick="renderDriverStatusInterface()" class="btn-back" style="padding: 8px 16px;">← رجوع للجدول</button>
+        </div>
+        <div class="embedded-service-frame">
+          <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
         </div>
       `;
+
+      contentArea.innerHTML = '';
+      contentArea.appendChild(container);
+
+      // حفظ GPS container للاستخدام لاحقاً
+      if (persistIframe && url === 'https://zantrack.fm-track.com/') {
+        savedGpsContainer = container;
+      }
     }
 
     window.closeFullscreenIframe = function() {
@@ -2987,7 +3005,7 @@
       if (shiftFilter) shiftFilter.onchange = () => renderDriverStatusTable();
       if (gpsToggleBtn) {
         gpsToggleBtn.onclick = () => {
-          openFullscreenIframe('https://zantrack.fm-track.com/', 'GPS السواقين');
+          openFullscreenIframe('https://zantrack.fm-track.com/', 'GPS السواقين', true);
         };
       }
       if (languageToggle) languageToggle.onclick = () => {
