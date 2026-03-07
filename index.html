@@ -929,6 +929,26 @@
       font-weight: 600;
     }
 
+    .shift-group-row td {
+      background: #151515 !important;
+      color: #F2BC1B !important;
+      font-weight: 700;
+      text-align: right;
+      border-top: 1px solid #F2BC1B;
+      border-bottom: 1px solid #333;
+      padding: 10px 12px;
+    }
+
+    .export-heading {
+      color: #F2BC1B;
+      font-weight: 700;
+      text-align: center;
+      font-size: 15px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 6px;
+    }
+
     .date-hover {
       position: relative;
       display: inline-flex;
@@ -1612,6 +1632,22 @@
       width: 100%;
       height: 100%;
       border: none;
+    }
+
+    .embedded-service-frame {
+      width: 100%;
+      min-height: 72vh;
+      border: 1px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0d0d0d;
+    }
+
+    .embedded-service-frame iframe {
+      width: 100%;
+      height: 72vh;
+      border: none;
+      background: #fff;
     }
     
     /* Wash Cards Compact */
@@ -2325,9 +2361,9 @@
 
     // Fullscreen iframe functions
     function openFullscreenIframe(url, title) {
-      const wrapper = document.getElementById('fullscreenIframeWrapper');
-      const container = document.getElementById('fullscreenIframeContainer');
-      
+      const contentArea = document.getElementById('contentArea');
+      if (!contentArea) return;
+
       // Store state before opening
       lastIframeState = {
         url: url,
@@ -2335,12 +2371,18 @@
         service: currentService,
         formData: { ...formData }
       };
-      
-      container.innerHTML = `<iframe src="${url}" title="${title}"></iframe>`;
-      wrapper.classList.remove('hidden');
-      
-      // Hide the main dashboard
-      document.getElementById('dashboardWrapper').style.display = 'none';
+
+      contentArea.innerHTML = `
+        <div class="form-section full-width">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
+            <h3 class="section-title" style="margin:0;">${escapeHtml(title || '')}</h3>
+            <button class="btn-back" type="button" onclick="window.open('${url}', '_blank')">فتح في نافذة جديدة</button>
+          </div>
+          <div class="embedded-service-frame">
+            <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
+          </div>
+        </div>
+      `;
     }
 
     window.closeFullscreenIframe = function() {
@@ -2679,7 +2721,7 @@
               </select>
             </div>
             <div id="driverShiftDownloadFilterGroup" class="filter-group" style="display:none;">
-              <label id="driverShiftFilterLabel" for="driverShiftDownloadFilter">فلتر الدوام للتحميل</label>
+              <label id="driverShiftFilterLabel" for="driverShiftDownloadFilter">فلتر الشفت</label>
               <select id="driverShiftDownloadFilter" class="form-control">
                 <option value="all">كل الأوقات</option>
                 <option value="morning">Morning Shift</option>
@@ -2710,11 +2752,13 @@
 
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
+      const shiftFilter = document.getElementById('driverShiftDownloadFilter');
       const languageToggle = document.getElementById('driverLanguageToggle');
       const downloadBtn = document.getElementById('driverDownloadBtn');
       const sheetBtn = document.getElementById('driverSheetBtn');
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
+      if (shiftFilter) shiftFilter.onchange = () => renderDriverStatusTable();
       if (languageToggle) languageToggle.onclick = () => {
         const nextLang = (window._driverStatusLang || 'ar') === 'ar' ? 'en' : 'ar';
         window._driverStatusLang = nextLang;
@@ -2834,17 +2878,21 @@
 
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
+      const shiftFilter = document.getElementById('driverShiftDownloadFilter');
       const view = viewFilter ? viewFilter.value : 'all';
       const type = typeFilter ? typeFilter.value : 'all';
+      const shift = shiftFilter ? shiftFilter.value : 'all';
       const lang = window._driverStatusLang || 'ar';
       const now = new Date();
 
       const computed = rows.map(r => {
         const status = getDriverStatus(r, now);
-        return { ...r, status };
+        const shiftCategory = getShiftCategory(r, now);
+        return { ...r, status, shiftCategory };
       }).filter(r => {
         if (type !== 'all' && !matchesDriverTypeFilter(r.type, type)) return false;
         if (view === 'now' && !(r.status.key === 'in' || r.status.key === 'soon' || r.status.key === 'ending')) return false;
+        if (shift !== 'all' && r.shiftCategory !== shift) return false;
         return true;
       });
 
@@ -2854,31 +2902,68 @@
       }
 
       tbody.innerHTML = '';
-      computed.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        const shiftDisplay = formatShiftDisplay(r, now);
-        const daysOff = formatDaysOffDisplay(r);
-        const name = getDriverNameByLanguage(r, lang);
-        const typeDisplay = formatDriverType(r.type, lang);
-        const problemText = (r.problem || '').toString().trim();
-        const statusLabel = problemText ? (lang === 'en' ? 'Out of Service' : 'متعطل') : getDriverStatusLabel(r.status.key, lang);
-        const shiftCategory = getShiftCategory(r, now);
-        tr.setAttribute('data-shift-category', shiftCategory || 'unknown');
-        tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${escapeHtml(name || '-')}</td>
-          <td>${escapeHtml(typeDisplay || '-')}</td>
-          <td>${escapeHtml(shiftDisplay)}</td>
-          <td class="export-hide"><span class="status-badge ${problemText ? 'status-problem' : `status-${r.status.key}`}" ${problemText ? `data-problem="${escapeHtml(problemText)}"` : ''}>${statusLabel}</span></td>
-          <td class="export-hide">${daysOff}</td>
-        `;
-        tbody.appendChild(tr);
+      const groupOrder = ['morning', 'evening', 'night'];
+      const groupsToRender = shift === 'all' ? groupOrder : groupOrder.filter(k => k === shift);
+
+      groupsToRender.forEach(groupKey => {
+        const sectionRows = computed.filter(r => r.shiftCategory === groupKey);
+        if (shift !== 'all' && sectionRows.length === 0) return;
+
+        const headerRow = document.createElement('tr');
+        headerRow.className = 'shift-group-row';
+        headerRow.innerHTML = `<td colspan="6">${escapeHtml(getShiftSectionTitle(groupKey, lang))}</td>`;
+        tbody.appendChild(headerRow);
+
+        if (sectionRows.length === 0) {
+          const emptyRow = document.createElement('tr');
+          emptyRow.innerHTML = `<td colspan="6" style="color:#777;padding:10px;">${lang === 'en' ? 'No drivers in this shift' : 'لا يوجد سائقون في هذا الشفت'}</td>`;
+          tbody.appendChild(emptyRow);
+          return;
+        }
+
+        sectionRows.forEach((r, idx) => {
+          const tr = document.createElement('tr');
+          const shiftDisplay = formatShiftDisplay(r, now);
+          const daysOff = formatDaysOffDisplay(r);
+          const name = getDriverNameByLanguage(r, lang);
+          const typeDisplay = formatDriverType(r.type, lang);
+          const problemText = (r.problem || '').toString().trim();
+          const statusLabel = problemText ? (lang === 'en' ? 'Out of Service' : 'متعطل') : getDriverStatusLabel(r.status.key, lang);
+          tr.setAttribute('data-shift-category', r.shiftCategory || 'unknown');
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${escapeHtml(name || '-')}</td>
+            <td>${escapeHtml(typeDisplay || '-')}</td>
+            <td>${escapeHtml(shiftDisplay)}</td>
+            <td class="export-hide"><span class="status-badge ${problemText ? 'status-problem' : `status-${r.status.key}`}" ${problemText ? `data-problem="${escapeHtml(problemText)}"` : ''}>${statusLabel}</span></td>
+            <td class="export-hide">${daysOff}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
 
       tbody.querySelectorAll('.status-problem').forEach(el => {
         el.onclick = () => openDriverProblemModal(el.getAttribute('data-problem') || '');
         el.title = 'اضغط لعرض السبب';
       });
+    }
+
+    function getShiftSectionTitle(key, lang) {
+      if (lang === 'en') {
+        const enMap = {
+          morning: 'Morning Shift (6:00 AM - 12:00 PM)',
+          evening: 'Evening Shift (12:00 PM - 3:00 PM)',
+          night: 'Night Shift (After 3:00 PM)'
+        };
+        return enMap[key] || 'Shift';
+      }
+
+      const arMap = {
+        morning: 'الشفت الصباحي (6:00 ص - 12:00 م)',
+        evening: 'الشفت المسائي (12:00 م - 3:00 م)',
+        night: 'الشفت الليلي (بعد 3:00 م)'
+      };
+      return arMap[key] || 'الشفت';
     }
 
     function getDriverNameByLanguage(row, lang) {
@@ -3006,7 +3091,7 @@
         if (sheetBtn) sheetBtn.textContent = 'Open Google Sheet';
         if (viewLabel) viewLabel.textContent = 'View Filter';
         if (typeLabel) typeLabel.textContent = 'Vehicle Type';
-        if (shiftFilterLabel) shiftFilterLabel.textContent = 'Download Shift Filter';
+        if (shiftFilterLabel) shiftFilterLabel.textContent = 'Shift Filter';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'Driver Name';
         if (headerType) headerType.textContent = 'Type';
@@ -3036,7 +3121,7 @@
         if (sheetBtn) sheetBtn.textContent = 'فتح Google Sheet';
         if (viewLabel) viewLabel.textContent = 'فلتر العرض';
         if (typeLabel) typeLabel.textContent = 'نوع المركبة';
-        if (shiftFilterLabel) shiftFilterLabel.textContent = 'فلتر الدوام للتحميل';
+        if (shiftFilterLabel) shiftFilterLabel.textContent = 'فلتر الشفت';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'اسم السائق';
         if (headerType) headerType.textContent = 'النوع';
@@ -3108,18 +3193,11 @@
       const previousMaxHeight = scroll.style.maxHeight;
       const previousOverflow = scroll.style.overflowY;
       scroll.classList.add('export-mode');
-      const shiftFilter = document.getElementById('driverShiftDownloadFilter');
-      const shiftValue = shiftFilter ? shiftFilter.value : 'all';
-      const hiddenRows = [];
-      if (shiftValue && shiftValue !== 'all') {
-        table.querySelectorAll('tbody tr').forEach(row => {
-          const category = row.getAttribute('data-shift-category') || 'unknown';
-          if (category !== shiftValue) {
-            hiddenRows.push(row);
-            row.style.display = 'none';
-          }
-        });
-      }
+      const titleEl = document.getElementById('driverTitle');
+      const exportHeading = document.createElement('div');
+      exportHeading.className = 'export-heading';
+      exportHeading.textContent = titleEl ? titleEl.textContent : 'Drivers Table';
+      scroll.prepend(exportHeading);
       scroll.style.maxHeight = 'none';
       scroll.style.overflowY = 'visible';
 
@@ -3141,7 +3219,7 @@
         scroll.style.maxHeight = previousMaxHeight;
         scroll.style.overflowY = previousOverflow;
         scroll.classList.remove('export-mode');
-        if (hiddenRows.length) hiddenRows.forEach(row => { row.style.display = ''; });
+        if (exportHeading && exportHeading.parentNode) exportHeading.parentNode.removeChild(exportHeading);
       }
     }
 
