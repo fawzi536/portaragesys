@@ -1700,6 +1700,55 @@
       position: static !important;
       top: auto !important;
     }
+
+    .gps-login-toast {
+      position: fixed;
+      top: 90px;
+      left: 18px;
+      width: min(320px, calc(100vw - 36px));
+      z-index: 2100;
+      background: linear-gradient(180deg, #131313 0%, #0b0b0b 100%);
+      border: 1px solid #F2BC1B;
+      border-radius: 12px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+      padding: 10px;
+      direction: rtl;
+    }
+
+    .gps-login-toast h4 {
+      margin: 0 0 8px 0;
+      color: #F2BC1B;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .gps-login-item {
+      width: 100%;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #121212;
+      color: #eee;
+      text-align: right;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .gps-login-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .gps-login-item:hover {
+      border-color: #F2BC1B;
+      background: #1a1a1a;
+    }
+
+    .gps-login-item .label {
+      color: #999;
+      margin-left: 6px;
+    }
     
     /* Wash Cards Compact */
     .wash-cards-grid {
@@ -1965,6 +2014,8 @@
      </div>
       <div class="service-item submenu-item" data-service="driver_status"><span class="label">جدولة السائقين</span>
       </div>
+        <div class="service-item submenu-item" data-service="drivers_gps"><span class="label">GPS السواقين</span>
+        </div>
     </div>
     <div class="service-item" data-service="tow"><span class="icon">🚚</span> <span class="label">ونشات</span>
     </div>
@@ -2418,12 +2469,47 @@
         contentArea.classList.add('embed-mode');
       } else {
         contentArea.classList.remove('embed-mode');
+        hideGpsLoginToast();
       }
+    }
+
+    function hideGpsLoginToast() {
+      const existing = document.getElementById('gpsLoginToast');
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    }
+
+    function showGpsLoginToast() {
+      hideGpsLoginToast();
+      const toast = document.createElement('div');
+      toast.id = 'gpsLoginToast';
+      toast.className = 'gps-login-toast';
+      toast.innerHTML = `
+        <h4>بيانات دخول GPS (اضغط للنسخ)</h4>
+        <button type="button" class="gps-login-item" data-copy="portarage@gmail.com">
+          <span class="label">اسم المستخدم:</span>
+          <strong>portarage@gmail.com</strong>
+        </button>
+        <button type="button" class="gps-login-item" data-copy="Mannaei71285556">
+          <span class="label">كلمة المرور:</span>
+          <strong>Mannaei71285556</strong>
+        </button>
+      `;
+
+      toast.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const value = btn.getAttribute('data-copy') || '';
+          await copyToClipboard(value);
+          showToast('تم النسخ');
+        });
+      });
+
+      document.body.appendChild(toast);
     }
 
     function openFullscreenIframe(url, title) {
       const contentArea = document.getElementById('contentArea');
       if (!contentArea) return;
+      hideGpsLoginToast();
 
       // Store state before opening
       lastIframeState = {
@@ -2446,11 +2532,27 @@
 
       const frameWrap = contentArea.querySelector('.embedded-service-frame');
       const iframe = contentArea.querySelector('.embedded-service-frame iframe');
+      const isGpsTrack = /zantrack\.fm-track\.com/i.test(url || '');
+      const maybeShowGpsCredentials = () => {
+        if (!isGpsTrack) return;
+        let shouldShow = false;
+        try {
+          const href = iframe && iframe.contentWindow && iframe.contentWindow.location
+            ? iframe.contentWindow.location.href
+            : '';
+          shouldShow = /\/login(?:$|[?#])/i.test(href || '');
+        } catch (e) {
+          // Cross-origin access blocked: show credentials for quick login support
+          shouldShow = true;
+        }
+        if (shouldShow) showGpsLoginToast();
+      };
       if (iframe && frameWrap) {
         iframe.onload = () => {
           frameWrap.classList.remove('loading');
           const loader = frameWrap.querySelector('.embedded-service-loader');
           if (loader) loader.remove();
+          maybeShowGpsCredentials();
         };
       }
     }
@@ -2608,6 +2710,7 @@
           'mechanical': 'خدمات ميكانيكية',
           'staff_centers': 'مراكز الطلبات',
           'driver_status': 'جدول السائقين',
+          'drivers_gps': 'GPS السواقين',
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
@@ -2662,6 +2765,9 @@
             break;
           case 'driver_status':
             renderDriverStatusInterface();
+            break;
+          case 'drivers_gps':
+            openFullscreenIframe('https://zantrack.fm-track.com/', 'GPS السواقين');
             break;
           case 'carwash':
             renderCarWashInterface();
