@@ -929,6 +929,30 @@
       font-weight: 600;
     }
 
+    .date-hover {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 18px;
+      cursor: default;
+    }
+
+    .date-hover .day-text {
+      display: none;
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    .date-hover:hover .date-text {
+      display: none;
+    }
+
+    .date-hover:hover .day-text {
+      display: inline;
+    }
+
     .muted-text {
       color: #999;
       font-size: 13px;
@@ -2654,6 +2678,15 @@
                 <option value="all">الكل</option>
               </select>
             </div>
+            <div id="driverShiftDownloadFilterGroup" class="filter-group" style="display:none;">
+              <label id="driverShiftFilterLabel" for="driverShiftDownloadFilter">فلتر الدوام للتحميل</label>
+              <select id="driverShiftDownloadFilter" class="form-control">
+                <option value="all">كل الأوقات</option>
+                <option value="morning">Morning Shift</option>
+                <option value="evening">Evening Shift</option>
+                <option value="night">Night Shift</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="form-section full-width">
@@ -2698,6 +2731,8 @@
       const isIdris = currentUser === 'idris';
       if (downloadBtn) downloadBtn.style.display = isIdris ? 'inline-flex' : 'none';
       if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
+      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isIdris ? 'flex' : 'none';
       if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
       if (sheetBtn && isIdris) sheetBtn.onclick = () => {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
@@ -2827,13 +2862,15 @@
         const typeDisplay = formatDriverType(r.type, lang);
         const problemText = (r.problem || '').toString().trim();
         const statusLabel = problemText ? (lang === 'en' ? 'Out of Service' : 'متعطل') : getDriverStatusLabel(r.status.key, lang);
+        const shiftCategory = getShiftCategory(r, now);
+        tr.setAttribute('data-shift-category', shiftCategory || 'unknown');
         tr.innerHTML = `
           <td>${idx + 1}</td>
           <td>${escapeHtml(name || '-')}</td>
           <td>${escapeHtml(typeDisplay || '-')}</td>
           <td>${escapeHtml(shiftDisplay)}</td>
           <td class="export-hide"><span class="status-badge ${problemText ? 'status-problem' : `status-${r.status.key}`}" ${problemText ? `data-problem="${escapeHtml(problemText)}"` : ''}>${statusLabel}</span></td>
-          <td class="export-hide">${escapeHtml(daysOff)}</td>
+          <td class="export-hide">${daysOff}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2951,6 +2988,7 @@
       const sheetBtn = document.getElementById('driverSheetBtn');
       const viewLabel = document.getElementById('driverViewFilterLabel');
       const typeLabel = document.getElementById('driverTypeFilterLabel');
+      const shiftFilterLabel = document.getElementById('driverShiftFilterLabel');
       const headerIndex = document.getElementById('driverHeaderIndex');
       const headerName = document.getElementById('driverHeaderName');
       const headerType = document.getElementById('driverHeaderType');
@@ -2958,6 +2996,7 @@
       const headerStatus = document.getElementById('driverHeaderStatus');
       const headerOff = document.getElementById('driverHeaderOff');
       const viewSelect = document.getElementById('driverViewFilter');
+      const shiftSelect = document.getElementById('driverShiftDownloadFilter');
 
       const monthName = getDriverMonthName(lang);
       if (lang === 'en') {
@@ -2967,6 +3006,7 @@
         if (sheetBtn) sheetBtn.textContent = 'Open Google Sheet';
         if (viewLabel) viewLabel.textContent = 'View Filter';
         if (typeLabel) typeLabel.textContent = 'Vehicle Type';
+        if (shiftFilterLabel) shiftFilterLabel.textContent = 'Download Shift Filter';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'Driver Name';
         if (headerType) headerType.textContent = 'Type';
@@ -2979,6 +3019,16 @@
           if (allOption) allOption.textContent = 'All';
           if (nowOption) nowOption.textContent = 'Available Now';
         }
+        if (shiftSelect) {
+          const allShift = shiftSelect.querySelector('option[value="all"]');
+          const morningShift = shiftSelect.querySelector('option[value="morning"]');
+          const eveningShift = shiftSelect.querySelector('option[value="evening"]');
+          const nightShift = shiftSelect.querySelector('option[value="night"]');
+          if (allShift) allShift.textContent = 'All Shifts';
+          if (morningShift) morningShift.textContent = 'Morning Shift';
+          if (eveningShift) eveningShift.textContent = 'Evening Shift';
+          if (nightShift) nightShift.textContent = 'Night Shift';
+        }
       } else {
         if (toggle) toggle.textContent = 'English';
         if (title) title.textContent = `جدول السائقين - ${monthName}`;
@@ -2986,6 +3036,7 @@
         if (sheetBtn) sheetBtn.textContent = 'فتح Google Sheet';
         if (viewLabel) viewLabel.textContent = 'فلتر العرض';
         if (typeLabel) typeLabel.textContent = 'نوع المركبة';
+        if (shiftFilterLabel) shiftFilterLabel.textContent = 'فلتر الدوام للتحميل';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'اسم السائق';
         if (headerType) headerType.textContent = 'النوع';
@@ -2997,6 +3048,16 @@
           const nowOption = viewSelect.querySelector('option[value="now"]');
           if (allOption) allOption.textContent = 'الكل';
           if (nowOption) nowOption.textContent = 'المتواجدون الآن';
+        }
+        if (shiftSelect) {
+          const allShift = shiftSelect.querySelector('option[value="all"]');
+          const morningShift = shiftSelect.querySelector('option[value="morning"]');
+          const eveningShift = shiftSelect.querySelector('option[value="evening"]');
+          const nightShift = shiftSelect.querySelector('option[value="night"]');
+          if (allShift) allShift.textContent = 'كل الأوقات';
+          if (morningShift) morningShift.textContent = 'صباحي (6-12)';
+          if (eveningShift) eveningShift.textContent = 'مسائي (12-3)';
+          if (nightShift) nightShift.textContent = 'ليلي (بعد 3)';
         }
       }
     }
@@ -3047,6 +3108,18 @@
       const previousMaxHeight = scroll.style.maxHeight;
       const previousOverflow = scroll.style.overflowY;
       scroll.classList.add('export-mode');
+      const shiftFilter = document.getElementById('driverShiftDownloadFilter');
+      const shiftValue = shiftFilter ? shiftFilter.value : 'all';
+      const hiddenRows = [];
+      if (shiftValue && shiftValue !== 'all') {
+        table.querySelectorAll('tbody tr').forEach(row => {
+          const category = row.getAttribute('data-shift-category') || 'unknown';
+          if (category !== shiftValue) {
+            hiddenRows.push(row);
+            row.style.display = 'none';
+          }
+        });
+      }
       scroll.style.maxHeight = 'none';
       scroll.style.overflowY = 'visible';
 
@@ -3068,7 +3141,17 @@
         scroll.style.maxHeight = previousMaxHeight;
         scroll.style.overflowY = previousOverflow;
         scroll.classList.remove('export-mode');
+        if (hiddenRows.length) hiddenRows.forEach(row => { row.style.display = ''; });
       }
+    }
+
+    function getShiftCategory(row, now) {
+      const shiftStart = parseShiftTimeToDate(row.shiftRaw, row.shiftDisplay, now);
+      if (!shiftStart) return 'unknown';
+      const minutes = shiftStart.getHours() * 60 + shiftStart.getMinutes();
+      if (minutes >= 6 * 60 && minutes < 12 * 60) return 'morning';
+      if (minutes >= 12 * 60 && minutes < 15 * 60) return 'evening';
+      return 'night';
     }
 
     function ensureHtml2Canvas() {
@@ -3128,25 +3211,7 @@
 
     function parseOffDate(value) {
       if (!value) return null;
-      if (value instanceof Date) return value;
-      if (typeof value === 'number') {
-        if (value > 10000000000) return new Date(value);
-      }
-      if (typeof value === 'string') {
-        const g = parseGoogleDate(value);
-        if (g) return g;
-        const iso = new Date(value);
-        if (!isNaN(iso)) return iso;
-        const m = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-        if (m) {
-          const day = parseInt(m[1], 10);
-          const month = parseInt(m[2], 10) - 1;
-          const yearRaw = parseInt(m[3], 10);
-          const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
-          return new Date(year, month, day);
-        }
-      }
-      return null;
+      return parseAnyDate(value);
     }
 
     function isSameDate(a, b) {
@@ -3264,8 +3329,8 @@
 
     function formatDaysOffDisplay(row) {
       const list = [];
-      const d1 = formatAnyDateForDisplay(row.off1Display || row.off1Raw);
-      const d2 = formatAnyDateForDisplay(row.off2Display || row.off2Raw);
+      const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw);
+      const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw);
       if (d1) list.push(d1);
       if (d2) list.push(d2);
       return list.length ? list.join(' ، ') : '-';
@@ -3273,18 +3338,71 @@
 
     function formatAnyDateForDisplay(value) {
       if (!value) return '';
-      if (value instanceof Date) return value.toLocaleDateString('ar-KW');
-      if (typeof value === 'number' && value > 10000000000) {
-        return new Date(value).toLocaleDateString('ar-KW');
+      const parsed = parseAnyDate(value);
+      if (parsed) return formatEnglishDate(parsed);
+      if (typeof value === 'string') return value.replace(/\\/g, '/').trim();
+      return String(value);
+    }
+
+    function buildHoverDateHtml(value) {
+      const text = formatAnyDateForDisplay(value);
+      if (!text) return '';
+      const parsed = parseAnyDate(value);
+      if (!parsed) {
+        return `<span class="date-hover"><span class="date-text">${escapeHtml(text)}</span></span>`;
+      }
+      const dayName = formatEnglishDayName(parsed);
+      return `<span class="date-hover"><span class="date-text">${escapeHtml(text)}</span><span class="day-text">${escapeHtml(dayName)}</span></span>`;
+    }
+
+    function formatEnglishDate(date) {
+      return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date);
+    }
+
+    function formatEnglishDayName(date) {
+      return new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(date);
+    }
+
+    function parseAnyDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      if (typeof value === 'number') {
+        if (value > 10000000000) return new Date(value);
       }
       if (typeof value === 'string') {
         const g = parseGoogleDate(value);
-        if (g) return g.toLocaleDateString('ar-KW');
+        if (g) return g;
+        const dm = parseDayMonthYearString(value);
+        if (dm) return dm;
+        const iso = value.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+        if (iso) {
+          const year = parseInt(iso[1], 10);
+          const month = parseInt(iso[2], 10) - 1;
+          const day = parseInt(iso[3], 10);
+          return new Date(year, month, day);
+        }
         const d = new Date(value);
-        if (!isNaN(d)) return d.toLocaleDateString('ar-KW');
-        return value;
+        if (!isNaN(d)) return d;
       }
-      return String(value);
+      return null;
+    }
+
+    function parseDayMonthYearString(value) {
+      if (typeof value !== 'string') return null;
+      const cleaned = value.trim().replace(/\\/g, '/');
+      const match = cleaned.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+      if (!match) return null;
+      const day = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1;
+      const yearRaw = parseInt(match[3], 10);
+      const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
+      if (month < 0 || month > 11) return null;
+      if (day < 1 || day > 31) return null;
+      return new Date(year, month, day);
     }
 
     function parseGoogleDate(value) {
