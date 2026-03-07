@@ -940,6 +940,16 @@
       padding: 10px 12px;
     }
 
+    .shift-columns-row td {
+      background: #262626 !important;
+      color: #F2BC1B !important;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 1px solid #404040;
+      padding: 10px 8px;
+    }
+
     .export-heading {
       color: #F2BC1B;
       font-weight: 700;
@@ -2944,6 +2954,19 @@
         headerRow.innerHTML = `<td colspan="6">${escapeHtml(getShiftSectionTitle(groupKey, lang))}</td>`;
         tbody.appendChild(headerRow);
 
+        const columns = getDriverColumnsRowLabels(lang);
+        const columnsRow = document.createElement('tr');
+        columnsRow.className = 'shift-columns-row';
+        columnsRow.innerHTML = `
+          <td>${escapeHtml(columns.index)}</td>
+          <td>${escapeHtml(columns.name)}</td>
+          <td>${escapeHtml(columns.type)}</td>
+          <td>${escapeHtml(columns.shift)}</td>
+          <td class="export-hide">${escapeHtml(columns.status)}</td>
+          <td class="export-hide">${escapeHtml(columns.off)}</td>
+        `;
+        tbody.appendChild(columnsRow);
+
         if (sectionRows.length === 0) {
           const emptyRow = document.createElement('tr');
           emptyRow.innerHTML = `<td colspan="6" style="color:#777;padding:10px;">${lang === 'en' ? 'No drivers in this shift' : 'لا يوجد سائقون في هذا الشفت'}</td>`;
@@ -2976,6 +2999,28 @@
         el.onclick = () => openDriverProblemModal(el.getAttribute('data-problem') || '');
         el.title = 'اضغط لعرض السبب';
       });
+    }
+
+    function getDriverColumnsRowLabels(lang) {
+      if (lang === 'en') {
+        return {
+          index: '#',
+          name: 'Driver Name',
+          type: 'Type',
+          shift: 'Shift Start',
+          status: 'Status',
+          off: 'Days Off'
+        };
+      }
+
+      return {
+        index: '#',
+        name: 'اسم السائق',
+        type: 'النوع',
+        shift: 'وقت بداية الدوام',
+        status: 'الحالة',
+        off: 'الإجازات'
+      };
     }
 
     function getShiftSectionTitle(key, lang) {
