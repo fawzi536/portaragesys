@@ -2047,7 +2047,7 @@
     <div class="service-submenu" id="staffSubmenu">
      <div class="service-item submenu-item" data-service="staff_centers"><span class="label">مراكز الطلبات</span>
      </div>
-      <div class="service-item submenu-item" data-service="driver_status"><span class="label">جدول السائقين</span>
+      <div class="service-item submenu-item" data-service="driver_status"><span class="label">جدولة السائقين</span>
       </div>
     </div>
     <div class="service-item" data-service="tow"><span class="icon">🚚</span> <span class="label">ونشات</span>
@@ -2572,10 +2572,7 @@
       window._driverGpsSyncTimer = setInterval(syncDriverGpsCredentialsByUrl, 2000);
     }
 
-    // متغير عام لحفظ GPS iframe container
-    let savedGpsContainer = null;
-
-    function openFullscreenIframe(url, title, persistIframe = false) {
+    function openFullscreenIframe(url, title) {
       const contentArea = document.getElementById('contentArea');
       if (!contentArea) return;
 
@@ -2589,31 +2586,13 @@
 
       setContentAreaEmbedMode(true);
 
-      // إذا كان GPS ويوجد container محفوظ، استخدمه
-      if (persistIframe && url === 'https://zantrack.fm-track.com/' && savedGpsContainer) {
-        contentArea.innerHTML = '';
-        contentArea.appendChild(savedGpsContainer);
-        return;
-      }
-
-      const container = document.createElement('div');
-      container.className = 'form-section full-width';
-      container.innerHTML = `
-        <div style="margin-bottom: 12px;">
-          <button onclick="renderDriverStatusInterface()" class="btn-back" style="padding: 8px 16px;">← رجوع للجدول</button>
-        </div>
-        <div class="embedded-service-frame">
-          <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
+      contentArea.innerHTML = `
+        <div class="form-section full-width">
+          <div class="embedded-service-frame">
+            <iframe src="${url}" title="${escapeHtml(title || '')}" loading="lazy"></iframe>
+          </div>
         </div>
       `;
-
-      contentArea.innerHTML = '';
-      contentArea.appendChild(container);
-
-      // حفظ GPS container للاستخدام لاحقاً
-      if (persistIframe && url === 'https://zantrack.fm-track.com/') {
-        savedGpsContainer = container;
-      }
     }
 
     window.closeFullscreenIframe = function() {
@@ -2938,7 +2917,6 @@
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <h3 id="driverTitle" class="section-title" style="margin:0;">جدول السائقين</h3>
             <div style="display:flex;gap:8px;align-items:center;">
-              <button id="driverGpsToggleBtn" class="btn-back" style="padding:6px 12px;font-size:12px;">GPS السواقين</button>
               <button id="driverLanguageToggle" class="btn-back" style="padding:6px 12px;font-size:12px;">English</button>
               <button id="driverDownloadBtn" class="btn-back" style="padding:6px 12px;font-size:12px;display:none;">تحميل كصورة</button>
               <button id="driverSheetBtn" class="btn-back" style="padding:6px 12px;font-size:12px;display:none;">فتح Google Sheet</button>
@@ -2995,19 +2973,12 @@
       const viewFilter = document.getElementById('driverViewFilter');
       const typeFilter = document.getElementById('driverTypeFilter');
       const shiftFilter = document.getElementById('driverShiftDownloadFilter');
-      const gpsToggleBtn = document.getElementById('driverGpsToggleBtn');
-      const gpsSection = document.getElementById('driverGpsSection');
       const languageToggle = document.getElementById('driverLanguageToggle');
       const downloadBtn = document.getElementById('driverDownloadBtn');
       const sheetBtn = document.getElementById('driverSheetBtn');
       if (viewFilter) viewFilter.onchange = () => renderDriverStatusTable();
       if (typeFilter) typeFilter.onchange = () => renderDriverStatusTable();
       if (shiftFilter) shiftFilter.onchange = () => renderDriverStatusTable();
-      if (gpsToggleBtn) {
-        gpsToggleBtn.onclick = () => {
-          openFullscreenIframe('https://zantrack.fm-track.com/', 'GPS السواقين', true);
-        };
-      }
       if (languageToggle) languageToggle.onclick = () => {
         const nextLang = (window._driverStatusLang || 'ar') === 'ar' ? 'en' : 'ar';
         window._driverStatusLang = nextLang;
