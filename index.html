@@ -3150,7 +3150,7 @@
         sectionRows.forEach((r, idx) => {
           const tr = document.createElement('tr');
           const shiftDisplay = formatShiftDisplay(r, now);
-          const daysOff = formatDaysOffDisplay(r, lang);
+          const daysOff = formatDaysOffDisplay(r, lang, now);
           const name = getDriverNameByLanguage(r, lang);
           const typeDisplay = formatDriverType(r.type, lang);
           const problemText = (r.problem || '').toString().trim();
@@ -3666,7 +3666,11 @@
       return lang === 'en' ? formatted : convertAmPmToArabic(formatted);
     }
 
-    function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar')) {
+    function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar'), now = new Date()) {
+      if (isOffToday(row, now)) {
+        const offText = lang === 'en' ? 'OFF' : 'إجازة';
+        return `<span class="status-off">${offText}</span>`;
+      }
       const list = [];
       const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw, lang);
       const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw, lang);
