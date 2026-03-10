@@ -1832,7 +1832,7 @@
       padding: 2px 0;
       padding-right: 14px;
       position: relative;
-      line-height: 1.3;
+      line-height: 1.4;
     }
     
     .wash-card-compact li:before {
@@ -3717,6 +3717,10 @@
       if (value instanceof Date) return value;
       if (typeof value === 'number') {
         if (value > 10000000000) return new Date(value);
+        if (value > 0 && value < 100000) {
+          // Assume Google Sheets serial date (days since 1899-12-30)
+          return new Date((value - 25569) * 86400 * 1000);
+        }
       }
       if (typeof value === 'string') {
         const g = parseGoogleDate(value);
