@@ -3741,10 +3741,16 @@
       const cleaned = value.trim().replace(/\\/g, '/');
       const match = cleaned.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
       if (!match) return null;
-      const day = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10) - 1;
+      let day = parseInt(match[1], 10);
+      let month = parseInt(match[2], 10) - 1;
       const yearRaw = parseInt(match[3], 10);
       const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
+      // If month > 11, assume it's MM/DD/YYYY instead of DD/MM/YYYY
+      if (month > 11) {
+        const temp = day;
+        day = month + 1; // month was actually day
+        month = temp - 1; // day was actually month
+      }
       if (month < 0 || month > 11) return null;
       if (day < 1 || day > 31) return null;
       return new Date(year, month, day);
