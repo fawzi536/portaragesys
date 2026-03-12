@@ -3547,6 +3547,17 @@
         const d = parseOffDate(value);
         console.log('Parsed date:', d, 'is same as now:', d && isSameDate(d, now));
         if (d && isSameDate(d, now)) return true;
+        // if not matched, try swapping day/month in ambiguous string
+        if (!d || !isSameDate(d, now)) {
+          if (typeof value === 'string') {
+            const swapped = swapDayMonth(value);
+            if (swapped !== value) {
+              const d2 = parseOffDate(swapped);
+              console.log('Swapped value:', swapped, 'parsed as', d2, 'match?', d2 && isSameDate(d2, now));
+              if (d2 && isSameDate(d2, now)) return true;
+            }
+          }
+        }
       }
       return false;
     }
@@ -3554,6 +3565,14 @@
     function parseOffDate(value) {
       if (!value) return null;
       return parseAnyDate(value);
+    }
+
+    function swapDayMonth(str) {
+      // swap first two numeric components separated by / or -
+      const match = str.match(/^(\s*)(\d{1,2})([\/\-])(\d{1,2})(.*)$/);
+      if (!match) return str;
+      const [, prefix, a, sep, b, rest] = match;
+      return `${prefix}${b}${sep}${a}${rest}`;
     }
 
     function isSameDate(a, b) {
@@ -3748,19 +3767,23 @@
       const cleaned = value.trim().replace(/\\/g, '/');
       const match = cleaned.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
       if (!match) return null;
-      let month = parseInt(match[1], 10) - 1;
-      let day = parseInt(match[2], 10);
+      let day = parseInt(match[1], 10);
+      let month = parseInt(match[2], 10) - 1;
       const yearRaw = parseInt(match[3], 10);
       const year = yearRaw < 100 ? 2000 + yearRaw : yearRaw;
-      // Assume MM/DD/YYYY first, if month > 11, swap to DD/MM/YYYY
-      if (month > 11) {
+      const originalDay = day;
+      const originalMonth = month;
+      // Assume DD/MM/YYYY first, if month > 11 or day > 31 swap to MM/DD/YYYY
+      let swapped = false;
+      if (month > 11 || day > 31) {
         const temp = day;
         day = month + 1; // month was actually day
         month = temp - 1; // day was actually month
+        swapped = true;
       }
-      if (month < 0 || month > 11) return null;
-      if (day < 1 || day > 31) return null;
-      return new Date(year, month, day);
+      const result = new Date(year, month, day);
+      console.log('parseDayMonthYearString', value, '->', result.toISOString().slice(0,10), swapped ? '(swapped)' : '');
+      return result;
     }
 
     function parseGoogleDate(value) {
