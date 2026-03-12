@@ -3150,7 +3150,7 @@
         sectionRows.forEach((r, idx) => {
           const tr = document.createElement('tr');
           const shiftDisplay = formatShiftDisplay(r, now);
-          const daysOff = formatDaysOffDisplay(r, lang, now);
+          const daysOff = formatDaysOffDisplay(r, lang);
           const name = getDriverNameByLanguage(r, lang);
           const typeDisplay = formatDriverType(r.type, lang);
           const problemText = (r.problem || '').toString().trim();
@@ -3688,20 +3688,16 @@
       return lang === 'en' ? formatted : convertAmPmToArabic(formatted);
     }
 
-    function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar'), now = new Date()) {
+    function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar')) {
+      // always show whatever is in the two off columns, separated by comma
       const list = [];
-      // helper to decide if a raw value equals today
-      function isTodayVal(val) {
-        const d = parseOffDate(val);
-        return d && isSameDate(d, now);
-      }
       const raw1 = row.off1Display || row.off1Raw;
       const raw2 = row.off2Display || row.off2Raw;
-      if (raw1 && !isTodayVal(raw1)) {
+      if (raw1) {
         const d1 = buildHoverDateHtml(raw1, lang);
         if (d1) list.push(d1);
       }
-      if (raw2 && !isTodayVal(raw2)) {
+      if (raw2) {
         const d2 = buildHoverDateHtml(raw2, lang);
         if (d2) list.push(d2);
       }
