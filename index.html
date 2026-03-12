@@ -3689,15 +3689,22 @@
     }
 
     function formatDaysOffDisplay(row, lang = (window._driverStatusLang || 'ar'), now = new Date()) {
-      if (isOffToday(row, now)) {
-        const offText = lang === 'en' ? 'OFF' : 'إجازة';
-        return `<span class="status-off">${offText}</span>`;
-      }
       const list = [];
-      const d1 = buildHoverDateHtml(row.off1Display || row.off1Raw, lang);
-      const d2 = buildHoverDateHtml(row.off2Display || row.off2Raw, lang);
-      if (d1) list.push(d1);
-      if (d2) list.push(d2);
+      // helper to decide if a raw value equals today
+      function isTodayVal(val) {
+        const d = parseOffDate(val);
+        return d && isSameDate(d, now);
+      }
+      const raw1 = row.off1Display || row.off1Raw;
+      const raw2 = row.off2Display || row.off2Raw;
+      if (raw1 && !isTodayVal(raw1)) {
+        const d1 = buildHoverDateHtml(raw1, lang);
+        if (d1) list.push(d1);
+      }
+      if (raw2 && !isTodayVal(raw2)) {
+        const d2 = buildHoverDateHtml(raw2, lang);
+        if (d2) list.push(d2);
+      }
       return list.length ? list.join(lang === 'en' ? ' , ' : ' ، ') : '-';
     }
 
