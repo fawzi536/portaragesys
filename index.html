@@ -3542,23 +3542,24 @@
 
     function isOffToday(row, now) {
       const offDates = [row.off1Raw, row.off2Raw];
-      console.log('Checking off dates for row:', row.nameEn || row.nameAr, offDates, 'now:', now);
+      console.log('Checking off dates for row:', row.nameEn || row.nameAr, 'off1Raw:', row.off1Raw, 'off2Raw:', row.off2Raw, 'now:', now.toISOString().slice(0,10));
       for (const value of offDates) {
+        if (!value) continue;
         const d = parseOffDate(value);
-        console.log('Parsed date:', d, 'is same as now:', d && isSameDate(d, now));
+        console.log('Original parsing - value:', value, '-> parsed date:', d ? d.toISOString().slice(0,10) : null, 'matches today?', d && isSameDate(d, now));
         if (d && isSameDate(d, now)) return true;
+        
         // if not matched, try swapping day/month in ambiguous string
-        if (!d || !isSameDate(d, now)) {
-          if (typeof value === 'string') {
-            const swapped = swapDayMonth(value);
-            if (swapped !== value) {
-              const d2 = parseOffDate(swapped);
-              console.log('Swapped value:', swapped, 'parsed as', d2, 'match?', d2 && isSameDate(d2, now));
-              if (d2 && isSameDate(d2, now)) return true;
-            }
+        if (typeof value === 'string') {
+          const swapped = swapDayMonth(value);
+          if (swapped !== value) {
+            const d2 = parseOffDate(swapped);
+            console.log('Swapped parsing - value:', swapped, '-> parsed date:', d2 ? d2.toISOString().slice(0,10) : null, 'matches today?', d2 && isSameDate(d2, now));
+            if (d2 && isSameDate(d2, now)) return true;
           }
         }
       }
+      console.log('No match found for off today');
       return false;
     }
 
@@ -3784,8 +3785,16 @@
         month = temp - 1; // day was actually month
         swapped = true;
       }
+      if (month < 0 || month > 11) {
+        console.log('Invalid month after parsing', value, 'month:', month);
+        return null;
+      }
+      if (day < 1 || day > 31) {
+        console.log('Invalid day after parsing', value, 'day:', day);
+        return null;
+      }
       const result = new Date(year, month, day);
-      console.log('parseDayMonthYearString', value, '->', result.toISOString().slice(0,10), swapped ? '(swapped)' : '');
+      console.log('parseDayMonthYearString', value, 'parsed as', result.toISOString().slice(0,10), swapped ? '(swapped)' : '(DD/MM)');
       return result;
     }
 
