@@ -3541,13 +3541,22 @@
     }
 
     function isOffToday(row, now) {
-      const offDates = [row.off1Raw, row.off2Raw];
-      console.log('Checking off dates for row:', row.nameEn || row.nameAr, 'off1Raw:', row.off1Raw, 'off2Raw:', row.off2Raw, 'now:', now.toISOString().slice(0,10));
+      // Check all possible values: raw and display for both columns
+      const offDates = [
+        row.off1Raw,
+        row.off1Display,
+        row.off2Raw,
+        row.off2Display
+      ];
+      console.log('Checking off dates for row:', row.nameEn || row.nameAr, 'values:', offDates, 'now:', now.toISOString().slice(0,10));
       for (const value of offDates) {
         if (!value) continue;
         const d = parseOffDate(value);
         console.log('Original parsing - value:', value, '-> parsed date:', d ? d.toISOString().slice(0,10) : null, 'matches today?', d && isSameDate(d, now));
-        if (d && isSameDate(d, now)) return true;
+        if (d && isSameDate(d, now)) {
+          console.log('MATCH FOUND on original parse');
+          return true;
+        }
         
         // if not matched, try swapping day/month in ambiguous string
         if (typeof value === 'string') {
@@ -3555,7 +3564,10 @@
           if (swapped !== value) {
             const d2 = parseOffDate(swapped);
             console.log('Swapped parsing - value:', swapped, '-> parsed date:', d2 ? d2.toISOString().slice(0,10) : null, 'matches today?', d2 && isSameDate(d2, now));
-            if (d2 && isSameDate(d2, now)) return true;
+            if (d2 && isSameDate(d2, now)) {
+              console.log('MATCH FOUND on swapped parse');
+              return true;
+            }
           }
         }
       }
