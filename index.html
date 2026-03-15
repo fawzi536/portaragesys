@@ -2991,15 +2991,14 @@
       window._driverStatusLang = 'ar';
       updateDriverStatusLanguageUI('ar');
 
-        const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
-        const allowedUsers = ['Salem','Salem']; // حط الأسماء هنا
-        const isAllowed = allowedUsers.includes(currentUser);
-        if (downloadBtn) downloadBtn.style.display = isAllowed ? 'inline-flex' : 'none';
-        if (sheetBtn) sheetBtn.style.display = isAllowed ? 'inline-flex' : 'none';
-        const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
-        if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isAllowed ? 'flex' : 'none';
-        if (downloadBtn && isAllowed) downloadBtn.onclick = () => exportDriverTableAsImage();
-        if (sheetBtn && isAllowed) sheetBtn.onclick = () => {
+      const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
+      const isIdris = currentUser === 'idris';
+      if (downloadBtn) downloadBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
+      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isIdris ? 'flex' : 'none';
+      if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
+      if (sheetBtn && isIdris) sheetBtn.onclick = () => {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=sharing`;
         window.open(url, '_blank');
