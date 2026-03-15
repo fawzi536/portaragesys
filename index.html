@@ -2992,7 +2992,7 @@
       updateDriverStatusLanguageUI('ar');
 
         const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
-        const allowedUsers = ['idris','Salem']; // حط الأسماء هنا
+        const allowedUsers = ['Salem','Salem']; // حط الأسماء هنا
         const isAllowed = allowedUsers.includes(currentUser);
         if (downloadBtn) downloadBtn.style.display = isAllowed ? 'inline-flex' : 'none';
         if (sheetBtn) sheetBtn.style.display = isAllowed ? 'inline-flex' : 'none';
