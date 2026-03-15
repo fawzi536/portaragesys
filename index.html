@@ -2992,13 +2992,13 @@
       updateDriverStatusLanguageUI('ar');
 
       const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
-      const isIdris = currentUser === 'idris';
-      if (downloadBtn) downloadBtn.style.display = isIdris ? 'inline-flex' : 'none';
-      if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      const isSalem = currentUser === 'Salem';
+      if (downloadBtn) downloadBtn.style.display = isSalem ? 'inline-flex' : 'none';
+      if (sheetBtn) sheetBtn.style.display = isSalem ? 'inline-flex' : 'none';
       const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
-      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isIdris ? 'flex' : 'none';
-      if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
-      if (sheetBtn && isIdris) sheetBtn.onclick = () => {
+      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isSalem ? 'flex' : 'none';
+      if (downloadBtn && isSalem) downloadBtn.onclick = () => exportDriverTableAsImage();
+      if (sheetBtn && isSalem) sheetBtn.onclick = () => {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=sharing`;
         window.open(url, '_blank');
