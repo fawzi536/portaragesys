@@ -2940,9 +2940,9 @@
               <label id="driverShiftFilterLabel" for="driverShiftDownloadFilter">فلتر الشفت</label>
               <select id="driverShiftDownloadFilter" class="form-control">
                 <option value="all">كل الأوقات</option>
-                <option value="morning">Morning Shift</option>
-                <option value="evening">Evening Shift</option>
-                <option value="night">Night Shift</option>
+                <option value="morning">MORNING SHIFT</option>
+                <option value="evening">EVENING SHIFT</option>
+                <option value="night">NIGHT SHIFT</option>
               </select>
             </div>
           </div>
@@ -3199,9 +3199,9 @@
     function getShiftSectionTitle(key, lang) {
       if (lang === 'en') {
         const enMap = {
-          morning: 'Morning Shift',
-          evening: 'Evening Shift',
-          night: 'Night Shift'
+          morning: 'MORNING SHIFT',
+          evening: 'EVENING SHIFT',
+          night: 'NIGHT SHIFTt'
         };
         return enMap[key] || 'Shift';
       }
@@ -3367,9 +3367,9 @@
           const eveningShift = shiftSelect.querySelector('option[value="evening"]');
           const nightShift = shiftSelect.querySelector('option[value="night"]');
           if (allShift) allShift.textContent = 'All Shifts';
-          if (morningShift) morningShift.textContent = 'Morning Shift';
-          if (eveningShift) eveningShift.textContent = 'Evening Shift';
-          if (nightShift) nightShift.textContent = 'Night Shift';
+          if (morningShift) morningShift.textContent = 'MORNING SHIFT';
+          if (eveningShift) eveningShift.textContent = 'EVENING SHIFT';
+          if (nightShift) nightShift.textContent = 'NIGHT SHIFTt';
         }
       } else {
         if (toggle) toggle.textContent = 'English';
