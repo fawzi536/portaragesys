@@ -2945,6 +2945,11 @@
                 <option value="night">NIGHT SHIFT</option>
               </select>
             </div>
+            <div id="driverMonthFilterGroup" class="filter-group" style="display:none;">
+              <label id="driverMonthFilterLabel" for="driverMonthFilter">الشهر</label>
+              <select id="driverMonthFilter" class="form-control">
+              </select>
+            </div>
           </div>
         </div>
         <div class="form-section full-width">
@@ -2985,6 +2990,7 @@
         window._driverStatusUnavailableMessage = buildDriverUnavailableMessage(nextLang);
         updateDriverStatusLanguageUI(nextLang);
         populateDriverTypeFilter(window._driverStatusRows || []);
+        if (isIdris) populateMonthFilter(nextLang);
         renderDriverStatusTable();
       };
 
@@ -2997,6 +3003,11 @@
       if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
       const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
       if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isIdris ? 'flex' : 'none';
+      const monthFilterGroup = document.getElementById('driverMonthFilterGroup');
+      if (monthFilterGroup) monthFilterGroup.style.display = isIdris ? 'flex' : 'none';
+      if (isIdris) {
+        populateMonthFilter(window._driverStatusLang || 'ar');
+      }
       if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
       if (sheetBtn && isIdris) sheetBtn.onclick = () => {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
@@ -3007,13 +3018,14 @@
       loadDriverStatusData(true);
     }
 
-    async function loadDriverStatusData(force = false) {
+    async function loadDriverStatusData(force = false, monthIndex = null) {
       try {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
         const monthShortNames = ['Jan 1', 'Feb 2', 'Mar 3', 'Apr 4', 'May 5', 'Jun 6', 'Jul 7', 'Aug 8', 'Sep 9', 'Oct 10', 'Nov 11', 'Dec 12'];
         const today = new Date();
-        const monthIndex = today.getMonth(); // 0..11
-        const sheetName = monthShortNames[monthIndex] || 'Jan';
+        const selectedMonth = monthIndex !== null ? monthIndex : today.getMonth();
+        window._driverStatusSelectedMonth = selectedMonth;
+        const sheetName = monthShortNames[selectedMonth] || 'Jan';
         window._driverStatusMonthName = getDriverMonthName(window._driverStatusLang || 'ar');
         const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
         const res = await fetch(sheetUrl, { cache: 'no-cache' });
@@ -3078,6 +3090,26 @@
       select.innerHTML = `<option value="all">${allLabel}</option>` +
         options.map(opt => `<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`).join('');
       select.value = options.some(opt => opt.value === current) ? current : 'all';
+    }
+
+    function populateMonthFilter(lang) {
+      const select = document.getElementById('driverMonthFilter');
+      if (!select) return;
+      const monthNames = lang === 'en' 
+        ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        : ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+      const current = window._driverStatusSelectedMonth !== undefined ? window._driverStatusSelectedMonth : new Date().getMonth();
+      select.innerHTML = '';
+      monthNames.forEach((name, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+      select.value = current;
+      select.onchange = () => {
+        loadDriverStatusData(true, parseInt(select.value));
+      };
     }
 
     function renderDriverStatusTable() {
@@ -3327,6 +3359,7 @@
       const viewLabel = document.getElementById('driverViewFilterLabel');
       const typeLabel = document.getElementById('driverTypeFilterLabel');
       const shiftFilterLabel = document.getElementById('driverShiftFilterLabel');
+      const monthFilterLabel = document.getElementById('driverMonthFilterLabel');
       const headerIndex = document.getElementById('driverHeaderIndex');
       const headerName = document.getElementById('driverHeaderName');
       const headerType = document.getElementById('driverHeaderType');
@@ -3349,6 +3382,7 @@
         if (viewLabel) viewLabel.textContent = 'View Filter';
         if (typeLabel) typeLabel.textContent = 'Vehicle Type';
         if (shiftFilterLabel) shiftFilterLabel.textContent = 'Shift Filter';
+        if (monthFilterLabel) monthFilterLabel.textContent = 'Month';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'Driver Name';
         if (headerType) headerType.textContent = 'Type';
@@ -3383,6 +3417,7 @@
         if (viewLabel) viewLabel.textContent = 'فلتر العرض';
         if (typeLabel) typeLabel.textContent = 'نوع المركبة';
         if (shiftFilterLabel) shiftFilterLabel.textContent = 'فلتر الشفت';
+        if (monthFilterLabel) monthFilterLabel.textContent = 'الشهر';
         if (headerIndex) headerIndex.textContent = '#';
         if (headerName) headerName.textContent = 'اسم السائق';
         if (headerType) headerType.textContent = 'النوع';
@@ -3409,14 +3444,16 @@
     }
 
     function getDriverMonthName(lang) {
-      const now = new Date();
+      const monthIndex = window._driverStatusSelectedMonth !== undefined ? window._driverStatusSelectedMonth : new Date().getMonth();
       try {
         const locale = lang === 'en' ? 'en' : 'ar';
-        return new Intl.DateTimeFormat(locale, { month: 'long' }).format(now);
+        const date = new Date();
+        date.setMonth(monthIndex);
+        return new Intl.DateTimeFormat(locale, { month: 'long' }).format(date);
       } catch (e) {
         const fallback = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
         const fallbackEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        return (lang === 'en' ? fallbackEn : fallback)[now.getMonth()];
+        return (lang === 'en' ? fallbackEn : fallback)[monthIndex];
       }
     }
 
