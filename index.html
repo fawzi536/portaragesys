@@ -2990,7 +2990,9 @@
         window._driverStatusUnavailableMessage = buildDriverUnavailableMessage(nextLang);
         updateDriverStatusLanguageUI(nextLang);
         populateDriverTypeFilter(window._driverStatusRows || []);
-        if (isIdris) populateMonthFilter(nextLang);
+        const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
+        const isAdmin = currentUser === 'idris' || currentUser === 'salem';
+        if (isAdmin) populateMonthFilter(nextLang);
         renderDriverStatusTable();
       };
 
@@ -2998,18 +3000,18 @@
       updateDriverStatusLanguageUI('ar');
 
       const currentUser = (localStorage.getItem('currentUser') || '').trim().toLowerCase();
-      const isIdris = currentUser === 'idris';
-      if (downloadBtn) downloadBtn.style.display = isIdris ? 'inline-flex' : 'none';
-      if (sheetBtn) sheetBtn.style.display = isIdris ? 'inline-flex' : 'none';
+      const isAdmin = currentUser === 'idris' || currentUser === 'salem';
+      if (downloadBtn) downloadBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      if (sheetBtn) sheetBtn.style.display = isAdmin ? 'inline-flex' : 'none';
       const shiftDownloadFilterGroup = document.getElementById('driverShiftDownloadFilterGroup');
-      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isIdris ? 'flex' : 'none';
+      if (shiftDownloadFilterGroup) shiftDownloadFilterGroup.style.display = isAdmin ? 'flex' : 'none';
       const monthFilterGroup = document.getElementById('driverMonthFilterGroup');
-      if (monthFilterGroup) monthFilterGroup.style.display = isIdris ? 'flex' : 'none';
-      if (isIdris) {
+      if (monthFilterGroup) monthFilterGroup.style.display = isAdmin ? 'flex' : 'none';
+      if (isAdmin) {
         populateMonthFilter(window._driverStatusLang || 'ar');
       }
-      if (downloadBtn && isIdris) downloadBtn.onclick = () => exportDriverTableAsImage();
-      if (sheetBtn && isIdris) sheetBtn.onclick = () => {
+      if (downloadBtn && isAdmin) downloadBtn.onclick = () => exportDriverTableAsImage();
+      if (sheetBtn && isAdmin) sheetBtn.onclick = () => {
         const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo';
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=sharing`;
         window.open(url, '_blank');
