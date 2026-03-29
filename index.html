@@ -8622,10 +8622,10 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           <h3 class="section-title">البحث في التأمينات</h3>
           <div class="form-field">
             <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-              <span>البحث برقم اللوحة أو اسم العميل</span>
+              <span>البحث برقم اللوحة، رقم الهيكل، رقم البوليصة أو اسم العميل</span>
               <span id="insuranceInfoIcon" style="cursor: pointer; background: #3b82f6; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);">i</span>
             </label>
-            <input type="text" list="insuranceSuggestions" id="insuranceSearch" class="form-control" placeholder="أدخل رقم اللوحة أو اسم العميل" style="font-size: 16px; padding: 12px;">
+            <input type="text" list="insuranceSuggestions" id="insuranceSearch" class="form-control" placeholder="أدخل رقم اللوحة أو رقم الهيكل أو رقم البوليصة أو اسم العميل" style="font-size: 16px; padding: 12px;">
             <datalist id="insuranceSuggestions"></datalist>
           </div>
           
@@ -9051,6 +9051,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         
         let customerNameCol = -1;
         let plateNumberCol = -1;
+        let chassisCol = -1;
+        let policyCol = -1;
         
         for (let i = 0; i < headers.length; i++) {
           const header = (headers[i] || '').toLowerCase().trim();
@@ -9059,6 +9061,12 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           }
           if (header.includes('plate') && header.includes('number')) {
             plateNumberCol = i;
+          }
+          if (header.includes('chassis') || header.includes('chassis no') || header.includes('chassis number') || header.includes('رقم الهيكل') || header.includes('هيكل')) {
+            chassisCol = i;
+          }
+          if (header.includes('policy') || header.includes('policy no') || header.includes('policy number') || header.includes('رقم البوليصة') || header.includes('بوليصة')) {
+            policyCol = i;
           }
         }
         
@@ -9076,6 +9084,20 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
             const plateNumber = (row[plateNumberCol] || '').toString();
             if (plateNumber.toLowerCase().includes(query.toLowerCase())) {
               suggestions.add(plateNumber);
+            }
+          }
+          
+          if (chassisCol !== -1 && row[chassisCol]) {
+            const chassis = (row[chassisCol] || '').toString();
+            if (chassis.toLowerCase().includes(query.toLowerCase())) {
+              suggestions.add(chassis);
+            }
+          }
+          
+          if (policyCol !== -1 && row[policyCol]) {
+            const policy = (row[policyCol] || '').toString();
+            if (policy.toLowerCase().includes(query.toLowerCase())) {
+              suggestions.add(policy);
             }
           }
         }
@@ -9104,6 +9126,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         
         let customerNameCol = -1;
         let plateNumberCol = -1;
+        let chassisCol = -1;
+        let policyCol = -1;
         
         for (let i = 0; i < headers.length; i++) {
           const header = (headers[i] || '').toLowerCase().trim();
@@ -9112,6 +9136,12 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           }
           if (header.includes('plate') && header.includes('number')) {
             plateNumberCol = i;
+          }
+          if (header.includes('chassis') || header.includes('chassis no') || header.includes('chassis number') || header.includes('رقم الهيكل') || header.includes('هيكل')) {
+            chassisCol = i;
+          }
+          if (header.includes('policy') || header.includes('policy no') || header.includes('policy number') || header.includes('رقم البوليصة') || header.includes('بوليصة')) {
+            policyCol = i;
           }
         }
         
@@ -9129,6 +9159,20 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
           if (plateNumberCol !== -1 && row[plateNumberCol]) {
             const plateNumber = (row[plateNumberCol] || '').toString().toLowerCase();
             if (plateNumber.includes(query.toLowerCase())) {
+              match = true;
+            }
+          }
+          
+          if (chassisCol !== -1 && row[chassisCol]) {
+            const chassis = (row[chassisCol] || '').toString().toLowerCase();
+            if (chassis.includes(query.toLowerCase())) {
+              match = true;
+            }
+          }
+          
+          if (policyCol !== -1 && row[policyCol]) {
+            const policy = (row[policyCol] || '').toString().toLowerCase();
+            if (policy.includes(query.toLowerCase())) {
               match = true;
             }
           }
