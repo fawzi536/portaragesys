@@ -1869,20 +1869,178 @@
       color: #fff;
     }
 
-    /* Completed months floating box */
-    .completed-months {
-      position: fixed;
-      left: 12px;
-      top: 12px;
-      background: rgba(10,10,10,0.95);
+    /* Staff Schedule Styles */
+    .staff-schedule-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .staff-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 15px;
+      background: #1a1a1a;
+      border-radius: 10px;
       border: 1px solid #333;
-      padding: 10px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #ccc;
+    }
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+    
+    .staff-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .staff-search {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .staff-toggle {
+      display: flex;
+      gap: 5px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      padding: 4px;
+      border: 1px solid #404040;
+    }
+    
+    .toggle-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: #ccc;
       border-radius: 6px;
-      z-index: 1200;
-      max-height: 80vh;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+    
+    .toggle-btn.active {
+      background: #F2BC1B;
+      color: #000;
+      font-weight: 600;
+    }
+    
+    .staff-section {
+      background: #1a1a1a;
+      border-radius: 10px;
+      border: 1px solid #333;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    
+    .staff-section-header {
+      background: #F2BC1B;
+      color: #000;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+    
+    .staff-table-container {
+      position: relative;
+      max-height: 600px;
       overflow: auto;
-      width: 360px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+    
+    .staff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .staff-table th {
+      background: #262626;
+      color: #F2BC1B;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid #404040;
+      white-space: nowrap;
+    }
+    
+    .staff-table td {
+      padding: 8px 6px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+      transition: all 0.2s ease;
+    }
+    
+    .staff-table tr:hover td {
+      background: #2a2a2a;
+    }
+    
+    .staff-name-cell {
+      position: sticky;
+      left: 0;
+      background: #1a1a1a;
+      color: #F2BC1B;
+      font-weight: 600;
+      z-index: 5;
+      border-right: 2px solid #F2BC1B;
+      min-width: 150px;
+      text-align: right;
+    }
+    
+    .staff-table tr:hover .staff-name-cell {
+      background: #2a2a2a;
+    }
+    
+    .shift-cell {
+      min-width: 80px;
+      border-radius: 6px;
+      margin: 2px;
+      font-weight: 500;
+    }
+    
+    /* Shift Colors */
+    .shift-off { background: #dc2626; color: #fff; }
+    .shift-holiday { background: #eab308; color: #000; }
+    .shift-sick { background: #9333ea; color: #fff; }
+    .shift-7-3 { background: #2563eb; color: #fff; }
+    .shift-8-4 { background: #0d9488; color: #fff; }
+    .shift-9-5 { background: #4338ca; color: #fff; }
+    .shift-11-7 { background: #374151; color: #fff; }
+    .shift-12-8 { background: #16a34a; color: #fff; }
+    .shift-3-11 { background: #ea580c; color: #fff; }
+    .shift-unknown { background: #6b7280; color: #fff; }
+    
+    .staff-loading {
+      text-align: center;
+      padding: 40px;
+      color: #F2BC1B;
+      font-size: 16px;
+    }
+    
+    .staff-error {
+      text-align: center;
+      padding: 20px;
+      background: #4a1a1a;
+      border: 1px solid #ef4444;
+      border-radius: 8px;
+      color: #fca5a5;
+      margin: 20px;
     }
     .animated-highlight{ animation: glowGradient 6s linear infinite; background: linear-gradient(90deg, rgba(242,188,27,0.12), rgba(242,188,27,0.04)); border:1px solid rgba(242,188,27,0.2); }
     @keyframes glowGradient{ 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
@@ -2064,6 +2222,8 @@
      <div class="service-item submenu-item" data-service="staff_centers"><span class="label">مراكز الطلبات</span>
      </div>
       <div class="service-item submenu-item" data-service="driver_status"><span class="label">جدولة السائقين</span>
+      </div>
+      <div class="service-item submenu-item" data-service="staff_schedule"><span class="label">جدول الموظفين</span>
       </div>
     </div>
     <div class="service-item" data-service="coords"><span class="icon">📍</span> <span class="label">الاحداثيات</span>
@@ -2769,6 +2929,7 @@
           'mechanical': 'خدمات ميكانيكية',
           'staff_centers': 'مراكز الطلبات',
           'driver_status': 'جدول السائقين',
+          'staff_schedule': 'جدول الموظفين',
           'carwash': 'غسيل السيارات',
           'protection': 'الحمايه والتغيم',
           'insurance': 'تأمينات',
@@ -2824,6 +2985,9 @@
             break;
           case 'driver_status':
             renderDriverStatusInterface();
+            break;
+          case 'staff_schedule':
+            renderStaffScheduleInterface();
             break;
           case 'carwash':
             renderCarWashInterface();
@@ -3010,6 +3174,239 @@
       input.addEventListener('paste', () => setTimeout(tryParseAndCopy, 60));
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryParseAndCopy(); } });
       clearBtn.onclick = () => { input.value = ''; showToast('تم المسح', 'success'); input.focus(); };
+    }
+
+    // Render Staff Schedule Interface
+    function renderStaffScheduleInterface() {
+      if (window.staffScheduleIntervalId) clearInterval(window.staffScheduleIntervalId);
+
+      const contentArea = document.getElementById('contentArea');
+      contentArea.innerHTML = `
+        <div class="staff-schedule-container">
+          <div class="staff-legend">
+            <div class="legend-item"><div class="legend-color shift-off"></div><span>إجازة</span></div>
+            <div class="legend-item"><div class="legend-color shift-holiday"></div><span>إجازة رسمية</span></div>
+            <div class="legend-item"><div class="legend-color shift-sick"></div><span>مرضية</span></div>
+            <div class="legend-item"><div class="legend-color shift-7-3"></div><span>7:00 - 3:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-8-4"></div><span>8:00 - 4:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-9-5"></div><span>9:00 - 5:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-11-7"></div><span>11:00 - 7:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-12-8"></div><span>12:00 - 8:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-3-11"></div><span>3:00 - 11:00</span></div>
+            <div class="legend-item"><div class="legend-color shift-unknown"></div><span>غير محدد</span></div>
+          </div>
+          
+          <div class="staff-controls">
+            <input type="text" id="staffSearch" class="form-control staff-search" placeholder="البحث في أسماء الموظفين...">
+            <div class="staff-toggle">
+              <button id="toggleCallCenter" class="toggle-btn active">مركز الاتصال</button>
+              <button id="toggleBackOffice" class="toggle-btn">المكتب الخلفي</button>
+            </div>
+          </div>
+          
+          <div id="callCenterSection" class="staff-section">
+            <div class="staff-section-header">مركز الاتصال</div>
+            <div class="staff-table-container">
+              <table class="staff-table" id="callCenterTable">
+                <thead id="callCenterHeader"></thead>
+                <tbody id="callCenterBody"></tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div id="backOfficeSection" class="staff-section hidden">
+            <div class="staff-section-header">المكتب الخلفي</div>
+            <div class="staff-table-container">
+              <table class="staff-table" id="backOfficeTable">
+                <thead id="backOfficeHeader"></thead>
+                <tbody id="backOfficeBody"></tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div id="staffScheduleLoading" class="staff-loading">جاري تحميل البيانات...</div>
+          <div id="staffScheduleError" class="staff-error hidden"></div>
+        </div>
+      `;
+
+      // Initialize
+      loadStaffScheduleData(true);
+      window.staffScheduleIntervalId = setInterval(() => loadStaffScheduleData(), 5 * 60 * 1000);
+
+      // Event listeners
+      document.getElementById('staffSearch').oninput = filterStaffTables;
+      document.getElementById('toggleCallCenter').onclick = () => toggleStaffSection('callCenter');
+      document.getElementById('toggleBackOffice').onclick = () => toggleStaffSection('backOffice');
+    }
+
+    function loadStaffScheduleData(force = false) {
+      const sheetId = '1nhjZLD1VoYYusxKi4wUFIP3fdToVlrIREy31WZdipWo'; // Same as driver sheet
+      const sheetName = 'THIS WEEK';
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+
+      if (!force && window._staffScheduleData) {
+        renderStaffScheduleTables(window._staffScheduleData);
+        return;
+      }
+
+      document.getElementById('staffScheduleLoading').style.display = 'block';
+      document.getElementById('staffScheduleError').classList.add('hidden');
+
+      fetch(csvUrl, { cache: 'no-cache' })
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to load staff schedule');
+          return res.text();
+        })
+        .then(csvText => {
+          const rows = parseCSV(csvText);
+          if (rows.length < 2) throw new Error('No data found');
+
+          const parsedData = parseStaffScheduleData(rows);
+          window._staffScheduleData = parsedData;
+          renderStaffScheduleTables(parsedData);
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('staffScheduleError').textContent = 'خطأ في تحميل جدول الموظفين: ' + err.message;
+          document.getElementById('staffScheduleError').classList.remove('hidden');
+        })
+        .finally(() => {
+          document.getElementById('staffScheduleLoading').style.display = 'none';
+        });
+    }
+
+    function parseStaffScheduleData(rows) {
+      const headers = rows[0];
+      const data = { callCenter: [], backOffice: [], dates: [] };
+
+      // Find date columns (skip first column which is names)
+      for (let i = 1; i < headers.length; i++) {
+        const header = (headers[i] || '').toString().trim();
+        if (header && !header.toLowerCase().includes('staff names') && !header.toLowerCase().includes('back office staff')) {
+          data.dates.push(header);
+        }
+      }
+
+      let currentSection = null;
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const firstCell = (row[0] || '').toString().trim().toLowerCase();
+
+        if (firstCell.includes('staff names')) {
+          currentSection = 'callCenter';
+          continue;
+        } else if (firstCell.includes('back office staff')) {
+          currentSection = 'backOffice';
+          continue;
+        }
+
+        if (currentSection && row[0] && row[0].toString().trim()) {
+          const employee = {
+            name: row[0].toString().trim(),
+            shifts: []
+          };
+
+          for (let j = 1; j < row.length && j - 1 < data.dates.length; j++) {
+            employee.shifts.push((row[j] || '').toString().trim());
+          }
+
+          data[currentSection].push(employee);
+        }
+      }
+
+      return data;
+    }
+
+    function renderStaffScheduleTables(data) {
+      renderStaffTable('callCenter', data.callCenter, data.dates);
+      renderStaffTable('backOffice', data.backOffice, data.dates);
+    }
+
+    function renderStaffTable(section, employees, dates) {
+      const headerEl = document.getElementById(`${section}Header`);
+      const bodyEl = document.getElementById(`${section}Body`);
+
+      // Header
+      let headerHtml = '<tr><th style="position: sticky; left: 0; background: #262626; z-index: 15;">الموظف</th>';
+      dates.forEach(date => {
+        headerHtml += `<th>${escapeHtml(date)}</th>`;
+      });
+      headerHtml += '</tr>';
+      headerEl.innerHTML = headerHtml;
+
+      // Body
+      let bodyHtml = '';
+      employees.forEach(employee => {
+        bodyHtml += `<tr><td class="staff-name-cell">${escapeHtml(employee.name)}</td>`;
+        employee.shifts.forEach(shift => {
+          const shiftClass = getShiftClass(shift);
+          const displayText = getShiftDisplayText(shift);
+          bodyHtml += `<td><div class="shift-cell ${shiftClass}">${escapeHtml(displayText)}</div></td>`;
+        });
+        bodyHtml += '</tr>';
+      });
+      bodyEl.innerHTML = bodyHtml;
+    }
+
+    function getShiftClass(shift) {
+      const s = (shift || '').toString().trim().toLowerCase();
+      if (s === 'off') return 'shift-off';
+      if (s === 'holi day' || s === 'holiday') return 'shift-holiday';
+      if (s === 'sick' || s === 'sick leave') return 'shift-sick';
+      if (s === '7:00 - 3:00') return 'shift-7-3';
+      if (s === '8:00 - 4:00') return 'shift-8-4';
+      if (s === '9:00 - 5:00') return 'shift-9-5';
+      if (s === '11:00 - 7:00') return 'shift-11-7';
+      if (s === '12:00 - 8:00') return 'shift-12-8';
+      if (s === '3:00 - 11:00') return 'shift-3-11';
+      return 'shift-unknown';
+    }
+
+    function getShiftDisplayText(shift) {
+      const s = (shift || '').toString().trim().toLowerCase();
+      if (s === 'off') return 'إجازة';
+      if (s === 'holi day' || s === 'holiday') return 'إجازة رسمية';
+      if (s === 'sick' || s === 'sick leave') return 'مرضية';
+      return shift || '-';
+    }
+
+    function toggleStaffSection(section) {
+      const callCenterBtn = document.getElementById('toggleCallCenter');
+      const backOfficeBtn = document.getElementById('toggleBackOffice');
+      const callCenterSection = document.getElementById('callCenterSection');
+      const backOfficeSection = document.getElementById('backOfficeSection');
+
+      if (section === 'callCenter') {
+        callCenterBtn.classList.add('active');
+        backOfficeBtn.classList.remove('active');
+        callCenterSection.classList.remove('hidden');
+        backOfficeSection.classList.add('hidden');
+      } else {
+        backOfficeBtn.classList.add('active');
+        callCenterBtn.classList.remove('active');
+        backOfficeSection.classList.remove('hidden');
+        callCenterSection.classList.add('hidden');
+      }
+    }
+
+    function filterStaffTables() {
+      const searchTerm = document.getElementById('staffSearch').value.toLowerCase().trim();
+      const tables = ['callCenterTable', 'backOfficeTable'];
+
+      tables.forEach(tableId => {
+        const table = document.getElementById(tableId);
+        const rows = table.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+          const nameCell = row.querySelector('.staff-name-cell');
+          const name = nameCell ? nameCell.textContent.toLowerCase() : '';
+          if (name.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
     }
 
     // Render Staff Interface
