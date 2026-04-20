@@ -10325,33 +10325,21 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         
         <div id="termsModal" class="modal-overlay hidden">
           <div class="modal" style="max-height: 80vh; overflow-y: auto;">
-            <button type="button" class="modal-close" aria-label="إغلاق">×</button>
+            <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+              <button id="termsCopyBtn" type="button" class="btn-outline" aria-label="نسخ" title="نسخ النص">📋</button>
+              <button type="button" class="modal-close" aria-label="إغلاق">×</button>
+            </div>
             <h3 style="color: #F2BC1B; text-align: center; margin-bottom: 16px;">شروط وأحكام الاشتراك السنوي</h3>
             <div id="termsContent" style="color: #ddd; font-size: 13px; line-height: 1.6;">
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">1. مدة اشتراك العضوية</strong> - سنة كاملة.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">2. تفعيل الاشتراك</strong> - يتم تفعيل الاشتراك بعد ثلاث أيام عمل من شراء العضوية.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">3. صلاحية الاشتراك</strong> - يجب أن يكون الاشتراك صالح عند طلب الخدمة.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">4. دفتر السيارة</strong> - يجب أن يكون دفتر السيارة صالح.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">5. تسجيل البيانات</strong> - الاشتراك للسيارات التي تم تسجيل بياناتها فقط.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">6. الأمن والسلامة</strong> - أولويتنا أمن وسلامة موظفين الشركة، بحيث لا يمكن استخدام الاشتراك في أماكن مجهولة وخطرة.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">7. خدمة نقل المركبة</strong> - غير متاحة / لا يمكن استخدامها في حال وقوف السيارة امام منزل العميل.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">8. الخدمات المتاحة</strong> - يمكن للمشترك الاستفادة من خدمات المساعدة على الطريق الآتية:
-                <ul style="margin: 8px 0 0 0; padding-right: 20px;">
+              <div style="margin-bottom: 8px;">1- مدة اشتراك العضوية - سنة كاملة.</div>
+              <div style="margin-bottom: 8px;">2- تفعيل الاشتراك - يتم تفعيل الاشتراك بعد ثلاث أيام عمل من شراء العضوية.</div>
+              <div style="margin-bottom: 8px;">3- صلاحية الاشتراك - يجب أن يكون الاشتراك صالح عند طلب الخدمة.</div>
+              <div style="margin-bottom: 8px;">4- دفتر السيارة - يجب أن يكون دفتر السيارة صالح.</div>
+              <div style="margin-bottom: 8px;">5- تسجيل البيانات - الاشتراك للسيارات التي تم تسجيل بياناتها فقط.</div>
+              <div style="margin-bottom: 8px;">6- الأمن والسلامة - أولويتنا أمن وسلامة موظفين الشركة، بحيث لا يمكن استخدام الاشتراك في أماكن مجهولة وخطرة.</div>
+              <div style="margin-bottom: 8px;">7- خدمة نقل المركبة - غير متاحة / لا يمكن استخدامها في حال وقوف السيارة امام منزل العميل.</div>
+              <div style="margin-bottom: 8px;">8- الخدمات المتاحة - يمكن للمشترك الاستفادة من خدمات المساعدة على الطريق الآتية:
+                <ul style="margin: 6px 0 0 0; padding-right: 20px;">
                   <li>خدمات نقل السيارة</li>
                   <li>خدمات شحن البطارية</li>
                   <li>خدمات تصليح الإطار</li>
@@ -10359,62 +10347,37 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
                   <li>خدمات فتح قفل السيارة</li>
                 </ul>
               </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">9. حالات الطوارئ</strong> - يمكن للمشترك الاستفادة من خدمات المساعدة على الطريق المشمولة في الاشتراك في حالة الطوارئ فقط.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">10. عمر المركبة</strong> - يجب ألا يكون موديل المركبة أقدم من 15 سنة.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">11. النقل على السطحات</strong> - الاشتراك لا يشمل نقل المركبة على السطحات الفل داون.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">12. خدمات نقل السيارة</strong> - تشمل نقل السيارة في حالة العطل الميكانيكي أو الكهربائي ولجهة واحدة محددة، ولا يشمل نقل السيارة من والى محلات البيع أو المزاد أو المهرجانات أو السكراب.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">13. حوادث الاصطدام</strong> - خدمات نقل السيارة لا يشملها نقلها من حادث.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">14. أنواع المركبات</strong> - تقتصر الخدمات على مركبات السيدان والدفع الرباعي. ولا تشمل المركبات التجارية والشاحنات.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">15. خدمات الوقود</strong> - تستخدم فقط عند توقف السيارة على الطريق، ويتم دفع قيمة الوقود من قبل المشترك.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">16. تبديل الإطارات</strong> - خدمات تبديل الإطارات في حال توفر الإطار الاحتياطي فقط.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">17. الكوارث الطبيعية</strong> - لا يتم توفير الخدمات في حالة الكوارث الطبيعية والحوادث المرورية وانغماس المركبات في الماء أو الرمال.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">18. المنطقة الجغرافية</strong> - يتم توفير الخدمات فقط داخل حدود دولة الكويت.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">19. عدد الطلبات اليومية</strong> - للمشترك الحق بطلب خدمة واحدة في اليوم الواحد.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">20. تجديد الرخصة</strong> - اشتراكات تجديد الرخصة تشمل فقط السيارات الخاصة ولا تشمل نقل خاص (الوانيت) ولا نقل خاص (باص خاص).
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">21. صلاحية التراخيص</strong> - تجديد ترخيص المركبة يشمل فقط التراخيص المنتهية من تاريخ 12/3/2020 إلى تاريخ 16/8/2020.
-              </div>
-              <div style="margin-bottom: 12px; padding: 0 0 12px 0; border-bottom: 1px solid #333;">
-                <strong style="color: #F2BC1B;">22. سوء الاستخدام</strong> - للمشترك الحق في استخدام العضوية وفي حالة ثبوت سوء الاستخدام بصورة تتنافى مع شروط وأحكام البرنامج، يحق لشركة بورتراج للجر والمساعدة للمركبات على الطريق إلغاء الاشتراك.
-              </div>
-              <div style="margin-bottom: 12px;">
-                <strong style="color: #F2BC1B;">23. الامتثال للشروط</strong> - كمستخدم لخدمات شركة بورتراج للجر والمساعدة للمركبات على الطريق وبقبول هذا العرض، يوافق المشترك على الامتثال لشروط وأحكام شركة بورتراج للجر والمساعدة للمركبات على الطريق.
-              </div>
+              <div style="margin-bottom: 8px;">9- حالات الطوارئ - يمكن للمشترك الاستفادة من خدمات المساعدة على الطريق المشمولة في الاشتراك في حالة الطوارئ فقط.</div>
+              <div style="margin-bottom: 8px;">10- عمر المركبة - يجب ألا يكون موديل المركبة أقدم من 10 سنوات.</div>
+              <div style="margin-bottom: 8px;">11- النقل على السطحات - الاشتراك لا يشمل نقل المركبة على السطحات الفل داون.</div>
+              <div style="margin-bottom: 8px;">12- خدمات نقل السيارة - تشمل نقل السيارة في حالة العطل الميكانيكي أو الكهربائي ولجهة واحدة محددة، ولا يشمل نقل السيارة من والى محلات البيع أو المزاد أو المهرجانات أو السكراب.</div>
+              <div style="margin-bottom: 8px;">13- حوادث الاصطدام - خدمات نقل السيارة لا يشملها نقلها من حادث.</div>
+              <div style="margin-bottom: 8px;">14- أنواع المركبات - تقتصر الخدمات على مركبات السيدان والدفع الرباعي. ولا تشمل المركبات التجارية والشاحنات.</div>
+              <div style="margin-bottom: 8px;">15- خدمات الوقود - تستخدم فقط عند توقف السيارة على الطريق، ويتم دفع قيمة الوقود من قبل المشترك.</div>
+              <div style="margin-bottom: 8px;">16- تبديل الإطارات - خدمات تبديل الإطارات في حال توفر الإطار الاحتياطي فقط , ويدفع قيمة الاطار.</div>
+              <div style="margin-bottom: 8px;">17- الكوارث الطبيعية - لا يتم توفير الخدمات في حالة الكوارث الطبيعية والحوادث المرورية وانغماس المركبات في الماء أو الرمال.</div>
+              <div style="margin-bottom: 8px;">18- المنطقة الجغرافية - يتم توفير الخدمات فقط داخل حدود دولة الكويت.</div>
+              <div style="margin-bottom: 8px;">19- عدد الطلبات اليومية - للمشترك الحق بطلب خدمة واحدة في اليوم الواحد.</div>
+              <div style="margin-bottom: 8px;">20- سياسه الإلغاء – لا يحق للمشترك استرداد قيمه الاشتراك بعد مرور ثلاثة أيام على الدفع (تفعيل الاشتراك) حتى وإن لم يتم الانتفاع بالخدمات.</div>
+              <div style="margin-bottom: 8px;">21- سوء الاستخدام - للمشترك الحق في استخدام العضوية وفي حالة ثبوت سوء الاستخدام بصورة تتنافى مع شروط وأحكام البرنامج، يحق لشركة بورتراج للجر والمساعدة للمركبات على الطريق إلغاء الاشتراك.</div>
+              <div style="margin-bottom: 8px;">22- الامتثال للشروط - كمستخدم لخدمات شركة بورتراج للجر والمساعدة للمركبات على الطريق وبقبول هذا العرض، يوافق المشترك على الامتثال لشروط وأحكام شركة بورتراج للجر والمساعدة للمركبات على الطريق.</div>
             </div>
-            <button id="termsCloseBtn" class="btn-primary" style="width: 100%; margin-top: 16px;">إغلاق</button>
+            <div style="display:flex;gap:8px;margin-top:16px;">
+              <button id="termsCopyBottomBtn" type="button" class="btn-outline">نسخ</button>
+              <button id="termsCloseBtn" class="btn-primary" style="flex:1;">إغلاق</button>
+            </div>
           </div>
         </div>
         
         <div id="detailsModal" class="modal-overlay hidden">
           <div class="modal" style="max-height: 80vh; overflow-y: auto;">
-            <button type="button" class="modal-close" aria-label="إغلاق">×</button>
+            <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+              <button id="detailsCopyBtn" type="button" class="btn-outline" aria-label="نسخ" title="نسخ النص">📋</button>
+              <button type="button" class="modal-close" aria-label="إغلاق">×</button>
+            </div>
             <h3 style="color: #F2BC1B; text-align: center; margin-bottom: 16px;">تفاصيل الاشتراك السنوي</h3>
             <div id="detailsContent" style="color: #ddd; font-size: 13px; line-height: 1.6;">
-              <div style="margin-bottom: 16px; padding: 12px; border-bottom: 2px solid #F2BC1B;">
+              <div style="margin-bottom: 12px; padding: 12px; border-bottom: 2px solid #F2BC1B;">
                 <strong style="color: #F2BC1B; font-size: 14px;">الاشتراك السنوي - شركة بورتراج</strong>
               </div>
               
@@ -10459,7 +10422,10 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
                 <div style="font-size: 12px; color: #fde68a; margin-top: 6px;">الاشتراك يتفعل بعد الدفع ب 3 أيام عمل. كل 24 ساعة لك خدمة واحدة فقط.</div>
               </div>
             </div>
-            <button id="detailsCloseBtn" class="btn-primary" style="width: 100%; margin-top: 16px;">إغلاق</button>
+            <div style="display:flex;gap:8px;margin-top:16px;">
+              <button id="detailsCopyBottomBtn" type="button" class="btn-outline">نسخ</button>
+              <button id="detailsCloseBtn" class="btn-primary" style="flex:1;">إغلاق</button>
+            </div>
           </div>
         </div>
       `;
@@ -10482,6 +10448,29 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       
       termsModal.querySelector('.modal-close').onclick = () => termsModal.classList.add('hidden');
       detailsModal.querySelector('.modal-close').onclick = () => detailsModal.classList.add('hidden');
+
+      // Copy buttons (top and bottom) for terms and details
+      const termsCopyTop = document.getElementById('termsCopyBtn');
+      const termsCopyBottom = document.getElementById('termsCopyBottomBtn');
+      const detailsCopyTop = document.getElementById('detailsCopyBtn');
+      const detailsCopyBottom = document.getElementById('detailsCopyBottomBtn');
+
+      const doCopy = async (sourceId) => {
+        try {
+          const el = document.getElementById(sourceId);
+          if (!el) return;
+          const text = el.innerText || el.textContent || '';
+          await copyToClipboard(text);
+          showToast('تم النسخ');
+        } catch (e) {
+          console.warn('copy failed', e);
+        }
+      };
+
+      if (termsCopyTop) termsCopyTop.onclick = () => doCopy('termsContent');
+      if (termsCopyBottom) termsCopyBottom.onclick = () => doCopy('termsContent');
+      if (detailsCopyTop) detailsCopyTop.onclick = () => doCopy('detailsContent');
+      if (detailsCopyBottom) detailsCopyBottom.onclick = () => doCopy('detailsContent');
 
       // Handle subscription selection
       document.querySelectorAll('[data-subscription]').forEach(btn => {
@@ -10740,3 +10729,8 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
   </script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b5a74feb5de51ca',t:'MTc2NzAyMzQ2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
+
+
+
+
