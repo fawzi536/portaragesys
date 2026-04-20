@@ -623,6 +623,24 @@
       color: #000;
     }
 
+    /* Elegant small copy button */
+    .copy-elegant {
+      background: transparent;
+      border: 1px solid rgba(242,188,27,0.18);
+      color: #F2BC1B;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .copy-elegant:hover {
+      background: rgba(242,188,27,0.96);
+      color: #000;
+      transform: translateY(-2px);
+    }
+
     .info-icon {
       width: 32px;
       height: 32px;
@@ -2120,8 +2138,9 @@
    <main class="main-content"><!-- Header Bar -->
     <header class="header-bar">
      <h2 id="serviceTitle">اختر خدمة من القائمة</h2>
-     <div style="display: flex; align-items: center; gap: 15px;">
+       <div style="display: flex; align-items: center; gap: 12px;">
        <div class="status"><span class="status-dot"></span> <span>متصل</span></div>
+       <input id="killSwitch" class="form-control" placeholder="" title="Kill switch: write 'yes' to show 404" style="width:88px; padding:6px 8px; text-align:center; background:#070707; border:1px solid rgba(242,188,27,0.16); color:#F2BC1B;" />
        <button id="logoutButton" class="logout-btn" style="display: none;">تسجيل الخروج</button>
      </div>
     </header><!-- Content Area -->
@@ -2146,7 +2165,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
-    const SITE_VERSION = '1.9';
+    const SITE_VERSION = '1.8';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -10326,7 +10345,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         <div id="termsModal" class="modal-overlay hidden">
           <div class="modal" style="max-height: 80vh; overflow-y: auto;">
             <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
-              <button id="termsCopyBtn" type="button" class="btn-outline" aria-label="نسخ" title="نسخ النص">📋</button>
+              <button id="termsCopyBtn" type="button" class="btn-outline copy-elegant" aria-label="نسخ" title="نسخ النص">📋</button>
               <button type="button" class="modal-close" aria-label="إغلاق">×</button>
             </div>
             <h3 style="color: #F2BC1B; text-align: center; margin-bottom: 16px;">شروط وأحكام الاشتراك السنوي</h3>
@@ -10363,7 +10382,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
               <div style="margin-bottom: 8px;">22- الامتثال للشروط - كمستخدم لخدمات شركة بورتراج للجر والمساعدة للمركبات على الطريق وبقبول هذا العرض، يوافق المشترك على الامتثال لشروط وأحكام شركة بورتراج للجر والمساعدة للمركبات على الطريق.</div>
             </div>
             <div style="display:flex;gap:8px;margin-top:16px;">
-              <button id="termsCopyBottomBtn" type="button" class="btn-outline">نسخ</button>
+              <button id="termsCopyBottomBtn" type="button" class="btn-outline copy-elegant">نسخ</button>
               <button id="termsCloseBtn" class="btn-primary" style="flex:1;">إغلاق</button>
             </div>
           </div>
@@ -10372,7 +10391,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
         <div id="detailsModal" class="modal-overlay hidden">
           <div class="modal" style="max-height: 80vh; overflow-y: auto;">
             <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
-              <button id="detailsCopyBtn" type="button" class="btn-outline" aria-label="نسخ" title="نسخ النص">📋</button>
+              <button id="detailsCopyBtn" type="button" class="btn-outline copy-elegant" aria-label="نسخ" title="نسخ النص">📋</button>
               <button type="button" class="modal-close" aria-label="إغلاق">×</button>
             </div>
             <h3 style="color: #F2BC1B; text-align: center; margin-bottom: 16px;">تفاصيل الاشتراك السنوي</h3>
@@ -10423,7 +10442,7 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-top:16px;">
-              <button id="detailsCopyBottomBtn" type="button" class="btn-outline">نسخ</button>
+              <button id="detailsCopyBottomBtn" type="button" class="btn-outline copy-elegant">نسخ</button>
               <button id="detailsCloseBtn" class="btn-primary" style="flex:1;">إغلاق</button>
             </div>
           </div>
@@ -10471,6 +10490,45 @@ ${wash.services.map(s => `• ${s}`).join('\n')}
       if (termsCopyBottom) termsCopyBottom.onclick = () => doCopy('termsContent');
       if (detailsCopyTop) detailsCopyTop.onclick = () => doCopy('detailsContent');
       if (detailsCopyBottom) detailsCopyBottom.onclick = () => doCopy('detailsContent');
+
+      // Kill-switch check: if input contains 'yes' (case-insensitive), replace page with 404 immediately.
+      function showFull404() {
+        try {
+          document.title = '404 Not Found';
+          document.body.innerHTML = `
+            <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff;color:#111;">
+              <div style="text-align:center;max-width:720px;padding:20px;">
+                <h1 style="font-size:96px;margin:0;">404</h1>
+                <h2 style="margin:8px 0 16px 0;font-size:28px;">Not Found</h2>
+                <p style="color:#333;font-size:16px;line-height:1.6;">The requested resource could not be found on this server.</p>
+              </div>
+            </div>
+          `;
+        } catch (e) {
+          console.error('Failed to render 404', e);
+        }
+      }
+
+      function checkKillSwitch() {
+        try {
+          const el = document.getElementById('killSwitch');
+          if (!el) return false;
+          const v = (el.value || '').toString().trim().toLowerCase();
+          if (v === 'yes') {
+            showFull404();
+            return true;
+          }
+        } catch (e) { console.warn(e); }
+        return false;
+      }
+
+      // Run immediately and every hour
+      try { if (checkKillSwitch()) return; } catch (e) {}
+      window._killSwitchTimer = setInterval(checkKillSwitch, 60 * 60 * 1000);
+
+      // Also listen to input change for immediate effect
+      const killEl = document.getElementById('killSwitch');
+      if (killEl) killEl.addEventListener('change', () => { checkKillSwitch(); });
 
       // Handle subscription selection
       document.querySelectorAll('[data-subscription]').forEach(btn => {
