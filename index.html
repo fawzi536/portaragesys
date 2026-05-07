@@ -2146,7 +2146,7 @@
     const GOOGLE_SHEET_ID = '1x2ongtstODqEEWh_jAwN8zLHjsYeIppk8EH_Q1CXMzk';
     const USERS_SHEET_NAME = 'users';
     const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${USERS_SHEET_NAME}`;
-    const SITE_VERSION = '2.2';
+    const SITE_VERSION = '2.3';
     
     let usersData = [];
     let isAuthenticated = false;
@@ -4175,20 +4175,23 @@
         
         <div id="towTypeSection" class="form-section hidden">
           <h3 class="section-title">نوع الونش</h3>
-          <div class="btn-grid" id="towTypeButtons" style="grid-template-columns: repeat(2, 1fr);">
-            <button class="btn-option" data-type="normal">ونش عادي</button>
-            <button class="btn-option" data-type="flatbed">ونش فل داون</button>
+          <div class="btn-grid" id="towTypeButtons" style="grid-template-columns: 1fr;">
+            <div class="btn-grid" id="towTypeRow1" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
+              <button class="btn-option" data-type="normal">ونش عادي</button>
+              <button class="btn-option" data-type="flatbed">ونش فل داون</button>
+              <button class="btn-option" data-type="flatbedClose">ونش فل داون مصكر</button>
+            </div>
+            <div class="btn-grid" id="towTypeRow2" style="grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px;">
+              <button class="btn-option" data-type="jetskiBaqi">جت سكي - بقي</button>
+              <button class="btn-option" data-type="jetSki">قلص طراد</button>
+            </div>
           </div>
-          
-          
-          <div id="lockedOption" class="hidden" style="margin-top: 10px;">
-            <h3 class="section-title">ونش مسكر</h3>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: #262626; border-radius: 4px; border: 1px solid #404040;">
-              <input type="checkbox" id="lockedCheckbox" style="width: 18px; height: 18px; cursor: pointer; accent-color: #F2BC1B;">
-              <span style="color: #F2BC1B; font-size: 12px; font-weight: 600;">تفعيل ونش مسكر (+5 د.ك)</span>
-            </label>
-            <div id="lockedYesNote" class="warning-box hidden">
-              <strong>⚠️ تنويه:</strong> إذا القير ما يتبوش او السيارة فيها حادث ما نقدر نشيلها بالونش المسكر
+
+          <div id="qalsSizeSection" class="form-section hidden" style="margin-top: 12px;">
+            <h3 class="section-title">نوع قلص الطراد</h3>
+            <div class="btn-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">
+              <button class="btn-option" data-qals-size="less27">قلص طراد (أقل من 27 قدم)</button>
+              <button class="btn-option" data-qals-size="28plus">قلص طراد (28 قدم فما فوق)</button>
             </div>
           </div>
           
@@ -4265,11 +4268,21 @@
               </tbody>
             </table>
           </div>
+          <div id="qalsNote" class="info-box hidden" style="margin-top: 10px; background: #0F172A; border-color: #60A5FA; color: #D7EFFF;">
+            <strong>ملاحظة قلص طراد:</strong> الي يطلع ادريس بالوانيت، بس اهم شي تاكدو من حجم الطراد ومن سلامه الهيئه والتواير الخاصه بالعربانه.
+          </div>
+          <div id="jetskiBaqiNote" class="info-box hidden" style="margin-top: 10px; background: #0F172A; border-color: #60A5FA; color: #D7EFFF;">
+            <strong>ملاحظة جت سكي - بقي:</strong> يرجى التأكد من الونش الذي سيتم توجيه الى العميل.
+            <br>سيكل: التأكد من وجود قاعدة السكيل مع الفني.
+            <br>جت سكي: اذا كان بامكانه نقله ام فني اخر.
+          </div>
+          <div id="towRequestNote" class="info-box hidden" style="margin-top: 10px;">
+            <strong>ملاحظة ونش:</strong>
+            <br>في حال العميل طلب ونش تبلّغون العميل: نقدر نوفر لك سيارة فولفو مع سايق يوصلك لأي منطقة داخل الكويت، السعر الخدمة 10 د.ك لأي منطقة (باستثناء المناطق اللي بعد الأحمدي 18 د.ك).
+            <br>في حال العميل سأل عن مدة الوصول: 15 إلى 25 دقيقة أقصى مدة، والخدمة متوفرة 24 ساعة على مدار اليوم.
+            <br>ضروري تبلغون العميل أنه في حال انتظار للسايق أول ربع ساعة مجانية، وبعد الربع ساعة 0.150 فلس لكل دقيقة، ويدفعها وهو بالطريق قبل ما يوصل وجهته.
+          </div>
           <div id="towPortarageNote" class="info-box hidden" style="margin-top: 10px;">
-            في حال العميل طلب ونش<br>
-            (تبلغون العميل نقدر نوفر لك سيارة فولفو مع سايق يوصلك لاي منطقة داخل الكويت السعر الخدمة 10 دك لاي منطقة (باستثناء المناطق الي عقب الاحمدي 18 دك <br><br>
-            في حال العميل سأل عن مدة الوصول 15 ل 25 اقصى مدة والخدمة متوفرة 24 ساعة على مدار اليوم<br><br>
-            ضروري تبلغون العميل انه في حال انتظار لسايق اول ربع ساعة مجانية وبعد الربع ساعة 0.150 فلس (لكل دقيقه) ويدفعها وهو بالطريج قبل لا يوصل وجهته
           </div>
         </div>
       `;
@@ -4296,7 +4309,6 @@
             
             formData.companyArabic = 'بورتراج';
             formData.company = 'portarage towtruk';
-            formData.isLocked = false;
             formData.gearWorks = true;
             updateTowTypeOptions();
           }
@@ -4316,16 +4328,18 @@
           formData.towType = null;
           formData.from = null;
           formData.to = null;
-          formData.isLocked = false;
+          formData.qalsSize = null;
           formData.extraCharges = 'no';
+          formData.flatbedPortarageExtraCharges = 'no';
           
           // Hide sections
           document.getElementById('towTypeSection').classList.add('hidden');
           document.getElementById('towLocationsSection').classList.add('hidden');
           document.getElementById('towResultSection').classList.add('hidden');
-          document.getElementById('lockedOption').classList.add('hidden');
-          document.getElementById('lockedYesNote').classList.add('hidden');
           document.getElementById('flatbedOnlyNote').classList.add('hidden');
+          document.getElementById('qalsSizeSection').classList.add('hidden');
+          document.getElementById('qalsNote').classList.add('hidden');
+          document.querySelectorAll('[data-qals-size]').forEach(b => b.classList.remove('active'));
           
           updateTowTypeOptions();
         });
@@ -4334,9 +4348,21 @@
       // Set default to بورتراج
       formData.companyArabic = 'بورتراج';
       formData.company = 'portarage towtruk';
-      formData.isLocked = false;
       formData.gearWorks = true;
       updateTowTypeOptions();
+
+      const qalsButtons = document.querySelectorAll('[data-qals-size]');
+      qalsButtons.forEach(btn => {
+        btn.onclick = () => {
+          qalsButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          formData.qalsSize = btn.dataset.qalsSize;
+          document.getElementById('towLocationsSection').classList.remove('hidden');
+          document.getElementById('qalsSizeSection').classList.remove('hidden');
+          document.getElementById('qalsNote').classList.add('hidden');
+          updateTowLocations();
+        };
+      });
     }
 
     // Render Driver Follow-up Interface (متابعة الطلبات)
@@ -4452,22 +4478,35 @@
       const rows = sheetsData[sheetName];
       let hasNormal = false;
       let hasFlatbed = false;
+      let hasFlatbedClose = false;
+      let hasJetSki = false;
+      let hasJetSkiBaqi = false;
       
       for (let i = 2; i < rows.length; i++) {
         const row = rows[i];
         if (row[4] || row[1]) hasNormal = true;
         if (row[12] || row[9]) hasFlatbed = true;
+        if (row[22] || row[16]) hasFlatbedClose = true;
+        if (row[22] || row[16]) hasJetSki = true;
+        if (row[8] || row[6]) hasJetSkiBaqi = true;
       }
       
       // Update buttons visibility
       const towTypeButtons = document.getElementById('towTypeButtons');
       const buttons = towTypeButtons.querySelectorAll('.btn-option');
       
+      const isPortarageCompany = formData.companyArabic === 'بورتراج';
       buttons.forEach(btn => {
         const type = btn.dataset.type;
         if (type === 'normal' && !hasNormal) {
           btn.style.display = 'none';
         } else if (type === 'flatbed' && !hasFlatbed) {
+          btn.style.display = 'none';
+        } else if (type === 'flatbedClose' && !hasFlatbedClose) {
+          btn.style.display = 'none';
+        } else if (type === 'jetskiBaqi' && (!isPortarageCompany || !hasJetSkiBaqi)) {
+          btn.style.display = 'none';
+        } else if (type === 'jetSki' && !hasJetSki) {
           btn.style.display = 'none';
         } else {
           btn.style.display = 'block';
@@ -4475,14 +4514,22 @@
       });
       
       const visibleButtons = Array.from(buttons).filter(btn => btn.style.display !== 'none');
-      towTypeButtons.style.gridTemplateColumns = `repeat(${visibleButtons.length}, 1fr)`;
+      towTypeButtons.style.gridTemplateColumns = '1fr';
       
+      const activeButton = Array.from(buttons).find(btn => btn.dataset.type === formData.towType && btn.style.display !== 'none');
       buttons.forEach(btn => btn.classList.remove('active'));
-      
+      if (activeButton) {
+        activeButton.classList.add('active');
+      } else if (visibleButtons.length > 0) {
+        visibleButtons[0].classList.add('active');
+        formData.towType = visibleButtons[0].dataset.type;
+        document.getElementById('towLocationsSection').classList.add('hidden');
+        document.getElementById('towResultSection').classList.add('hidden');
+      }
+
       if (!formData.towType) {
         document.getElementById('towLocationsSection').classList.add('hidden');
         document.getElementById('towResultSection').classList.add('hidden');
-        document.getElementById('lockedOption').classList.add('hidden');
       }
       
       // Tow type selection
@@ -4491,72 +4538,56 @@
           buttons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           
+          const preservedFrom = formData.from;
+          const preservedTo = formData.to;
+          
           formData.towType = btn.dataset.type;
+          formData.extraCharges = formData.extraCharges || 'no';
+          formData.flatbedPortarageExtraCharges = formData.flatbedPortarageExtraCharges || 'no';
           
-          // Reset all sections
           document.getElementById('towResultSection').classList.add('hidden');
-          document.getElementById('towLocationsSection').classList.add('hidden');
-          formData.from = null;
-          formData.to = null;
-          
           const fromSelect = document.getElementById('fromSelect');
           const toSelect = document.getElementById('toSelect');
-          if (fromSelect) fromSelect.value = '';
-          if (toSelect) toSelect.value = '';
+          if (fromSelect) fromSelect.value = preservedFrom || '';
+          if (toSelect) toSelect.value = preservedTo || '';
           
-          const lockedOption = document.getElementById('lockedOption');
           const flatbedOnlyNote = document.getElementById('flatbedOnlyNote');
-          const lockedCheckbox = document.getElementById('lockedCheckbox');
           const flatbedExtraChargesSection = document.getElementById('flatbedExtraChargesSection');
+          const qalsSizeSection = document.getElementById('qalsSizeSection');
+          const qalsNote = document.getElementById('qalsNote');
           
-          if (formData.towType === 'flatbed') {
-            if (formData.companyArabic === 'بورتراج') {
-              lockedOption.classList.remove('hidden');
-              flatbedOnlyNote.classList.add('hidden');
-              flatbedExtraChargesSection.classList.add('hidden');
-              
-              if (formData.isLocked === undefined) {
-                formData.isLocked = false;
-              }
-              
-              if (lockedCheckbox) {
-                lockedCheckbox.checked = formData.isLocked;
-              }
-              
-              if (lockedCheckbox) {
-                lockedCheckbox.onchange = () => {
-                  formData.isLocked = lockedCheckbox.checked;
-                  
-                  const lockedYesNote = document.getElementById('lockedYesNote');
-                  
-                  if (formData.isLocked) {
-                    lockedYesNote.classList.remove('hidden');
-                  } else {
-                    lockedYesNote.classList.add('hidden');
-                  }
-                  
-                  if (formData.from && formData.to) {
-                    calculateTowPrice();
-                  }
-                };
-              }
-            } else {
-              // For other companies - NO gear question for flatbed
-              lockedOption.classList.add('hidden');
-              flatbedOnlyNote.classList.add('hidden');
-              document.getElementById('lockedYesNote').classList.add('hidden');
-              flatbedExtraChargesSection.classList.add('hidden');
-              formData.isLocked = false;
-              formData.flatbedExtraCharges = 'no';
-            }
-          } else {
-            lockedOption.classList.add('hidden');
+          if (formData.towType === 'jetSki') {
+            qalsSizeSection.classList.remove('hidden');
+            qalsNote.classList.add('hidden');
+            document.getElementById('towLocationsSection').classList.add('hidden');
+            formData.qalsSize = null;
+            document.querySelectorAll('[data-qals-size]').forEach(b => b.classList.remove('active'));
+            
             flatbedOnlyNote.classList.add('hidden');
             flatbedExtraChargesSection.classList.add('hidden');
-            document.getElementById('lockedYesNote').classList.add('hidden');
-            document.getElementById('flatbedExtraChargesNote').classList.add('hidden');
-            formData.isLocked = false;
-            formData.flatbedExtraCharges = 'no';
+          } else if (formData.towType === 'jetskiBaqi') {
+            qalsSizeSection.classList.add('hidden');
+            qalsNote.classList.add('hidden');
+            formData.qalsSize = null;
+            document.querySelectorAll('[data-qals-size]').forEach(b => b.classList.remove('active'));
+            
+            flatbedOnlyNote.classList.add('hidden');
+            flatbedExtraChargesSection.classList.add('hidden');
+          } else {
+            qalsSizeSection.classList.add('hidden');
+            qalsNote.classList.add('hidden');
+            formData.qalsSize = null;
+            document.querySelectorAll('[data-qals-size]').forEach(b => b.classList.remove('active'));
+            
+            if (formData.towType === 'flatbed' || formData.towType === 'flatbedClose') {
+              flatbedOnlyNote.classList.add('hidden');
+              flatbedExtraChargesSection.classList.add('hidden');
+            } else {
+              flatbedOnlyNote.classList.add('hidden');
+              flatbedExtraChargesSection.classList.add('hidden');
+              document.getElementById('flatbedExtraChargesNote').classList.add('hidden');
+              formData.flatbedPortarageExtraCharges = 'no';
+            }
           }
           
           updateTowLocations();
@@ -4566,9 +4597,17 @@
 
     function updateTowLocations() {
       const towLocationsSection = document.getElementById('towLocationsSection');
+      const qalsNote = document.getElementById('qalsNote');
+      
+      if (formData.towType === 'jetSki' && !formData.qalsSize) {
+        towLocationsSection.classList.add('hidden');
+        qalsNote.classList.add('hidden');
+        return;
+      }
+      
       towLocationsSection.classList.remove('hidden');
       
-      const routes = getTowRoutes(formData.company, formData.towType);
+      const routes = getTowRoutes(formData.company, formData.towType, formData.qalsSize);
       const fromLocations = [...new Set(routes.map(r => r.from))].filter(Boolean);
       
       const fromDatalist = document.getElementById('fromLocations');
@@ -4600,20 +4639,25 @@
         }
       };
       
+      if (formData.from) {
+        fromSelect.value = formData.from;
+        fromSelect.oninput();
+      }
+      
       toSelect.oninput = () => {
         formData.to = toSelect.value;
         const currentToInput = toSelect.value.toLowerCase();
-      if (formData.from) {
-        const routes = getTowRoutes(formData.company, formData.towType);
-        const filteredToLocations = [...new Set(
-          routes
-            .filter(r => r.from === formData.from && r.to.toLowerCase().includes(currentToInput))
-            .map(r => r.to)
-        )].filter(Boolean);
+        if (formData.from) {
+          const routes = getTowRoutes(formData.company, formData.towType, formData.qalsSize);
+          const filteredToLocations = [...new Set(
+            routes
+              .filter(r => r.from === formData.from && r.to.toLowerCase().includes(currentToInput))
+              .map(r => r.to)
+          )].filter(Boolean);
 
-        const toDatalist = document.getElementById('toLocations');
-        toDatalist.innerHTML = filteredToLocations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
-      }
+          const toDatalist = document.getElementById('toLocations');
+          toDatalist.innerHTML = filteredToLocations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+        }
         if (!formData.to) {
           document.getElementById('towResultSection').classList.add('hidden');
           
@@ -4624,30 +4668,11 @@
         }
         
         if (formData.to) {
-          // Show gear question ONLY for بورتراج flatbed
-          if (formData.companyArabic === 'بورتراج' && formData.towType === 'flatbed') {
-            document.getElementById('flatbedPortarageExtraChargesSection').classList.remove('hidden');
+          if (formData.companyArabic === 'بورتراج' && formData.towType === 'jetSki') {
+            document.getElementById('qalsNote').classList.remove('hidden');
             document.getElementById('extraChargesSection').classList.add('hidden');
-            
-            const flatbedPortarageExtraChargesSelect = document.getElementById('flatbedPortarageExtraChargesSelect');
-            if (!formData.flatbedPortarageExtraCharges) {
-              formData.flatbedPortarageExtraCharges = 'no';
-            }
-            flatbedPortarageExtraChargesSelect.value = formData.flatbedPortarageExtraCharges;
-            
-            flatbedPortarageExtraChargesSelect.onchange = () => {
-              formData.flatbedPortarageExtraCharges = flatbedPortarageExtraChargesSelect.value;
-              
-              if (formData.flatbedPortarageExtraCharges === 'yes') {
-                document.getElementById('flatbedPortarageExtraChargesNote').classList.remove('hidden');
-              } else {
-                document.getElementById('flatbedPortarageExtraChargesNote').classList.add('hidden');
-              }
-              
-              calculateTowPrice();
-            };
+            document.getElementById('flatbedPortarageExtraChargesSection').classList.add('hidden');
           } else if (formData.companyArabic === 'بورتراج' && formData.towType === 'normal') {
-            // For بورتراج normal tow
             document.getElementById('extraChargesSection').classList.remove('hidden');
             document.getElementById('flatbedPortarageExtraChargesSection').classList.add('hidden');
             
@@ -4668,19 +4693,43 @@
               
               calculateTowPrice();
             };
+          } else if (formData.companyArabic === 'بورتراج' && (formData.towType === 'flatbed' || formData.towType === 'flatbedClose')) {
+            document.getElementById('flatbedPortarageExtraChargesSection').classList.remove('hidden');
+            document.getElementById('extraChargesSection').classList.add('hidden');
+            
+            const flatbedPortarageExtraChargesSelect = document.getElementById('flatbedPortarageExtraChargesSelect');
+            if (!formData.flatbedPortarageExtraCharges) {
+              formData.flatbedPortarageExtraCharges = 'no';
+            }
+            flatbedPortarageExtraChargesSelect.value = formData.flatbedPortarageExtraCharges;
+            
+            flatbedPortarageExtraChargesSelect.onchange = () => {
+              formData.flatbedPortarageExtraCharges = flatbedPortarageExtraChargesSelect.value;
+              
+              if (formData.flatbedPortarageExtraCharges === 'yes') {
+                document.getElementById('flatbedPortarageExtraChargesNote').classList.remove('hidden');
+              } else {
+                document.getElementById('flatbedPortarageExtraChargesNote').classList.add('hidden');
+              }
+              
+              calculateTowPrice();
+            };
           } else {
-            // For other companies - no gear question at all
             document.getElementById('extraChargesSection').classList.add('hidden');
             document.getElementById('flatbedPortarageExtraChargesSection').classList.add('hidden');
           }
           
-          // Always recalculate when "to" location changes
           calculateTowPrice();
         }
       };
+      
+      if (formData.from && formData.to) {
+        toSelect.value = formData.to;
+        calculateTowPrice();
+      }
     }
 
-    function getTowRoutes(sheetName, towType) {
+    function getTowRoutes(sheetName, towType, qalsSize) {
       const rows = sheetsData[sheetName];
       if (!rows || rows.length < 3) return [];
       
@@ -4689,31 +4738,100 @@
       for (let i = 2; i < rows.length; i++) {
         const row = rows[i];
         
-        if (towType === 'normal') {
-          const from = row[6];
-          const toF = row[5];
-          const toC = row[2];
-          const priceE = row[4];
-          const priceB = row[1];
-          
-          if (from && toF && priceE) {
-            routes.push({ from, to: toF, price: priceE, cancelCol: 3 });
+        if (sheetName === 'portarage towtruk') {
+          if (towType === 'normal') {
+            const from = row[3];
+            const to = row[2];
+            const price = row[1];
+            const cancelCol = 0;
+            if (from && to && price) {
+              routes.push({ from, to, price, cancelCol });
+            }
+          } else if (towType === 'flatbed') {
+            const from = row[8];
+            const to = row[7];
+            const price = row[6];
+            const cancelCol = 5;
+            if (from && to && price) {
+              routes.push({ from, to, price, cancelCol });
+            }
+          } else if (towType === 'flatbedClose') {
+            const from = row[13];
+            const to = row[12];
+            const price = row[11];
+            const cancelCol = 10;
+            if (from && to && price) {
+              routes.push({ from, to, price, cancelCol });
+            }
+          } else if (towType === 'jetSki') {
+            if (qalsSize === 'less27') {
+              const from = row[18];
+              const to = row[17];
+              const price = row[16];
+              const cancelCol = 15;
+              if (from && to && price) {
+                routes.push({ from, to, price, cancelCol });
+              }
+            } else if (qalsSize === '28plus') {
+              const from = row[23];
+              const to = row[22];
+              const price = row[21];
+              const cancelCol = 20;
+              if (from && to && price) {
+                routes.push({ from, to, price, cancelCol });
+              }
+            }
+          } else if (towType === 'jetskiBaqi') {
+            const from = row[8];
+            const to = row[7];
+            const price = row[6];
+            const cancelCol = 5;
+            if (from && to && price) {
+              routes.push({ from, to, price, cancelCol });
+            }
           }
-          if (from && toC && priceB) {
-            routes.push({ from, to: toC, price: priceB, cancelCol: 0 });
-          }
-        } else if (towType === 'flatbed') {
-          const from = row[14];
-          const toN = row[13];
-          const toK = row[10];
-          const priceM = row[12];
-          const priceJ = row[9];
-          
-          if (from && toN && priceM) {
-            routes.push({ from, to: toN, price: priceM, cancelCol: 11 });
-          }
-          if (from && toK && priceJ) {
-            routes.push({ from, to: toK, price: priceJ, cancelCol: 8 });
+        } else {
+          if (towType === 'normal') {
+            const from = row[6];
+            const toF = row[5];
+            const toC = row[2];
+            const priceE = row[4];
+            const priceB = row[1];
+            
+            if (from && toF && priceE) {
+              routes.push({ from, to: toF, price: priceE, cancelCol: 3 });
+            }
+            if (from && toC && priceB) {
+              routes.push({ from, to: toC, price: priceB, cancelCol: 0 });
+            }
+          } else if (towType === 'flatbed') {
+            const from = row[14];
+            const toN = row[13];
+            const toK = row[10];
+            const priceM = row[12];
+            const priceJ = row[9];
+            
+            if (from && toN && priceM) {
+              routes.push({ from, to: toN, price: priceM, cancelCol: 11 });
+            }
+            if (from && toK && priceJ) {
+              routes.push({ from, to: toK, price: priceJ, cancelCol: 8 });
+            }
+          } else if (towType === 'flatbedClose' || towType === 'jetSki') {
+            const from = row[22];
+            const toU = row[21];
+            const priceU = row[20];
+            const cancelU = row[19];
+            const toReturn = row[18];
+            const priceReturn = row[17];
+            const cancelReturn = row[16];
+            
+            if (from && toU && priceU) {
+              routes.push({ from, to: toU, price: priceU, cancelCol: 19 });
+            }
+            if (from && toReturn && priceReturn) {
+              routes.push({ from, to: toReturn, price: priceReturn, cancelCol: 16 });
+            }
           }
         }
       }
@@ -4722,7 +4840,7 @@
     }
 
     function calculateTowPrice() {
-      const routes = getTowRoutes(formData.company, formData.towType);
+      const routes = getTowRoutes(formData.company, formData.towType, formData.qalsSize);
       const route = routes.find(r => r.from === formData.from && r.to === formData.to);
       const portarageNote = document.getElementById('towPortarageNote');
       
@@ -4737,71 +4855,37 @@
       let extraCharges = 0;
       
       if (formData.towType === 'normal') {
-        // For normal tow بورتراج
         extraCharges = (formData.companyArabic === 'بورتراج' && formData.extraCharges === 'yes') ? 10 : 0;
-      } else if (formData.towType === 'flatbed') {
+      } else if (formData.towType === 'flatbed' || formData.towType === 'flatbedClose') {
         if (formData.companyArabic === 'بورتراج') {
-          // For flatbed بورتراج - use flatbedPortarageExtraCharges
           extraCharges = (formData.flatbedPortarageExtraCharges === 'yes') ? 10 : 0;
         } else {
-          // For flatbed other companies - no charges
           extraCharges = 0;
         }
-      }
-      
-      const lockedCharge = (formData.towType === 'flatbed' && formData.isLocked) ? 5 : 0;
-      
-      let portaragePrice = companyPrice;
-      let discount = 0;
-      
-      if (formData.company.toLowerCase() !== 'portarage towtruk') {
-        const portarageRoutes = getTowRoutes('portarage towtruk', formData.towType);
-        const portarageRoute = portarageRoutes.find(r => r.from === formData.from && r.to === formData.to);
-        
-        if (portarageRoute) {
-          portaragePrice = parseFloat(portarageRoute.price) || 0;
-          discount = portaragePrice - companyPrice;
-        }
+      } else {
+        extraCharges = 0;
       }
       
       const tbody = document.getElementById('towResultBody');
       let rows = '';
       
       if (formData.company.toLowerCase() !== 'portarage towtruk') {
-        const finalPrice = companyPrice + extraCharges + lockedCharge;
+        const finalPrice = companyPrice + extraCharges;
         
         rows = `
           <tr>
-            <td>سعر ${formData.companyArabic}</td>
+            <td>السعر الخاص لشركة ${formData.companyArabic}</td>
             <td class="highlight">${companyPrice.toFixed(2)} ${config.currency}</td>
-          </tr>
-          <tr>
-            <td>السعر الأصلي (بورتراج)</td>
-            <td>${portaragePrice.toFixed(2)} ${config.currency}</td>
-          </tr>
-          <tr style="background: #1a4a2a;">
-            <td><strong>قيمة الخصم</strong></td>
-            <td class="highlight" style="color: #10b981;"><strong>${discount.toFixed(2)} ${config.currency}</strong></td>
           </tr>
         `;
         
-        if (lockedCharge > 0 || extraCharges > 0) {
-          if (lockedCharge > 0) {
-            rows += `
-              <tr>
-                <td>إضافة ونش مسكر</td>
-                <td class="highlight">${lockedCharge.toFixed(2)} ${config.currency}</td>
-              </tr>
-            `;
-          }
-          if (extraCharges > 0) {
-            rows += `
-              <tr>
-                <td>رسوم عربانات (القير لا يعمل)</td>
-                <td class="highlight">${extraCharges.toFixed(2)} ${config.currency}</td>
-              </tr>
-            `;
-          }
+        if (extraCharges > 0) {
+          rows += `
+            <tr>
+              <td>رسوم عربانات (القير لا يعمل)</td>
+              <td class="highlight">${extraCharges.toFixed(2)} ${config.currency}</td>
+            </tr>
+          `;
           rows += `
             <tr style="background: #262626;">
               <td><strong>الإجمالي النهائي</strong></td>
@@ -4817,24 +4901,14 @@
           </tr>
         `;
         
-        if (lockedCharge > 0 || extraCharges > 0) {
-          if (lockedCharge > 0) {
-            rows += `
-              <tr>
-                <td>إضافة ونش مسكر</td>
-                <td class="highlight">${lockedCharge.toFixed(2)} ${config.currency}</td>
-              </tr>
-            `;
-          }
-          if (extraCharges > 0) {
-            rows += `
-              <tr>
-                <td>رسوم عربانات (القير لا يعمل)</td>
-                <td class="highlight">${extraCharges.toFixed(2)} ${config.currency}</td>
-              </tr>
-            `;
-          }
-          const total = companyPrice + lockedCharge + extraCharges;
+        if (extraCharges > 0) {
+          rows += `
+            <tr>
+              <td>رسوم عربانات (القير لا يعمل)</td>
+              <td class="highlight">${extraCharges.toFixed(2)} ${config.currency}</td>
+            </tr>
+          `;
+          const total = companyPrice + extraCharges;
           rows += `
             <tr style="background: #262626;">
               <td><strong>الإجمالي</strong></td>
@@ -4843,7 +4917,7 @@
           `;
         }
         
-        const cancelPrice = getCancellationPrice(formData.from, formData.to, formData.towType);
+        const cancelPrice = getCancellationPrice(formData.from, formData.to, formData.towType, formData.qalsSize);
         if (cancelPrice) {
           rows += `
             <tr>
@@ -4857,8 +4931,32 @@
       tbody.innerHTML = rows;
       document.getElementById('towResultSection').classList.remove('hidden');
 
+      const qalsNoteEl = document.getElementById('qalsNote');
+      if (qalsNoteEl) {
+        if (formData.companyArabic === 'بورتراج' && formData.towType === 'jetSki') {
+          qalsNoteEl.classList.remove('hidden');
+        } else {
+          qalsNoteEl.classList.add('hidden');
+        }
+      }
+      const jetskiBaqiNoteEl = document.getElementById('jetskiBaqiNote');
+      if (jetskiBaqiNoteEl) {
+        if (formData.companyArabic === 'بورتراج' && formData.towType === 'jetskiBaqi') {
+          jetskiBaqiNoteEl.classList.remove('hidden');
+        } else {
+          jetskiBaqiNoteEl.classList.add('hidden');
+        }
+      }
+      const towRequestNoteEl = document.getElementById('towRequestNote');
+      if (towRequestNoteEl) {
+        if (formData.towType === 'normal' || formData.towType === 'flatbed' || formData.towType === 'flatbedClose') {
+          towRequestNoteEl.classList.remove('hidden');
+        } else {
+          towRequestNoteEl.classList.add('hidden');
+        }
+      }
       if (portarageNote) {
-        if (formData.companyArabic === 'بورتراج' && (formData.towType === 'normal' || formData.towType === 'flatbed')) {
+        if (formData.companyArabic === 'بورتراج' && (formData.towType === 'normal' || formData.towType === 'flatbed' || formData.towType === 'flatbedClose')) {
           portarageNote.classList.remove('hidden');
         } else {
           portarageNote.classList.add('hidden');
@@ -4873,7 +4971,7 @@
       }, 100);
     }
     
-    function getCancellationPrice(from, to, towType) {
+    function getCancellationPrice(from, to, towType, qalsSize) {
       const rows = sheetsData['portarage towtruk'];
       if (!rows || rows.length < 3) return null;
       
@@ -4881,18 +4979,27 @@
         const row = rows[i];
         
         if (towType === 'normal') {
-          if (row[6] === from && row[5] === to && row[3]) {
-            return `${parseFloat(row[3]).toFixed(2)} ${config.currency}`;
-          }
-          if (row[6] === from && row[2] === to && row[0]) {
+          if (row[3] === from && row[2] === to && row[0]) {
             return `${parseFloat(row[0]).toFixed(2)} ${config.currency}`;
           }
         } else if (towType === 'flatbed') {
-          if (row[14] === from && row[13] === to && row[11]) {
-            return `${parseFloat(row[11]).toFixed(2)} ${config.currency}`;
+          if (row[8] === from && row[7] === to && row[5]) {
+            return `${parseFloat(row[5]).toFixed(2)} ${config.currency}`;
           }
-          if (row[14] === from && row[10] === to && row[8]) {
-            return `${parseFloat(row[8]).toFixed(2)} ${config.currency}`;
+        } else if (towType === 'flatbedClose') {
+          if (row[13] === from && row[12] === to && row[10]) {
+            return `${parseFloat(row[10]).toFixed(2)} ${config.currency}`;
+          }
+        } else if (towType === 'jetSki') {
+          if (qalsSize === 'less27' && row[18] === from && row[17] === to && row[15]) {
+            return `${parseFloat(row[15]).toFixed(2)} ${config.currency}`;
+          }
+          if (qalsSize === '28plus' && row[23] === from && row[22] === to && row[20]) {
+            return `${parseFloat(row[20]).toFixed(2)} ${config.currency}`;
+          }
+        } else if (towType === 'jetskiBaqi') {
+          if (row[8] === from && row[7] === to && row[5]) {
+            return `${parseFloat(row[5]).toFixed(2)} ${config.currency}`;
           }
         }
       }
